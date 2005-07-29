@@ -21,7 +21,7 @@ function txfx_get_page_links_to_meta () {
 	global $wpdb, $page_links_to_cache;
 
 	if (!isset($page_links_to_cache)) {
-	
+
 		$links_to = $wpdb->get_results(
 		"SELECT	post_id, meta_value " .
 		"FROM $wpdb->postmeta, $wpdb->posts " .
@@ -29,22 +29,22 @@ function txfx_get_page_links_to_meta () {
 		} else {
 			return $page_links_to_cache;
 		}
-		
+
 		if (!$links_to) {
 			$page_links_to_cache = false;
 			return false;
 		}
-		
+
 		foreach ($links_to as $link) {
-		$page_links_to_cache[$link->post_id] = $link->meta_value;	
+		$page_links_to_cache[$link->post_id] = $link->meta_value;
 		}
-		
+
 		return $page_links_to_cache;
 	}
 
 function txfx_filter_links_to_pages ($link, $page_id) {
 	$page_links_to_cache = txfx_get_page_links_to_meta();
-	
+
 	if ( $page_links_to_cache[$page_id] )
 		$link = $page_links_to_cache[$page_id];
 
