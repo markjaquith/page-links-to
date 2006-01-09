@@ -4,6 +4,7 @@ Plugin Name: Page Links To
 Plugin URI: http://txfx.net/code/wordpress/page-links-to/
 Description: Allows you to set a "links_to" meta key with a URI value that will be be used when listing WP pages.  Good for setting up navigational links to non-WP sections of your 
 Version: 1.1
+Author: Mark Jaquith
 Author URI: http://txfx.net/
 */
 
@@ -97,6 +98,27 @@ function txfx_redirect_links_to_pages () {
 	endif;
 }
 
+function txfx_page_links_to_highlight_tabs($pages) {
+	$page_links_to_cache = txfx_get_page_links_to_meta();
+	$this_url = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+
+	foreach ( $page_links_to_cache as $id => $page ) {
+		if ( $this_url == $page ) {
+			$do_it = true;
+			$current_page = $page;
+			break;
+		}
+	}
+
+	if ( !$do_it )
+		return $pages;
+
+	$pages = str_replace(' class="current_page_item"', '', $pages);
+	$pages = str_replace('<li class="page_item"><a href="' . $this_url . '"', '<li class="current_page_item"><a href="' . $page . '"', $pages);
+	return $pages;
+}
+
+add_filter('wp_list_pages', 'txfx_page_links_to_highlight_tabs');
 add_action('template_redirect', 'txfx_redirect_links_to_pages');
 add_filter('page_link', 'txfx_filter_links_to_pages', 20, 2);
 add_filter('post_link', 'txfx_filter_links_to_pages', 20, 2);
