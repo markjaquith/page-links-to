@@ -3,7 +3,7 @@
 Plugin Name: Page Links To
 Plugin URI: http://txfx.net/code/wordpress/page-links-to/
 Description: Allows you to set a "links_to" meta key with a URI value that will be be used when listing WP pages.  Good for setting up navigational links to non-WP sections of your 
-Version: 1.1
+Version: 1.2
 Author: Mark Jaquith
 Author URI: http://txfx.net/
 */
