@@ -3,12 +3,12 @@
 Plugin Name: Page Links To
 Plugin URI: http://txfx.net/code/wordpress/page-links-to/
 Description: Allows you to set a "links_to" meta key with a URI value that will be be used when listing WP pages.  Good for setting up navigational links to non-WP sections of your 
-Version: 1.2
+Version: 1.3
 Author: Mark Jaquith
 Author URI: http://txfx.net/
 */
 
-/*  Copyright 2005  Mark Jaquith (email: mark.gpl@txfx.net)
+/*  Copyright 2005-2006  Mark Jaquith (email: mark.gpl@txfx.net)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -33,39 +33,66 @@ Author URI: http://txfx.net/
 4) add a meta key "links_to" with a full URI value (like "http://google.com/") (obviously without the quotes)
 
 That's it!  Now, when you use wp_list_page(), that page should link to the "links_to" value, instead of its page
+
+You can also use links_to_type to set the redirect type (default is 302, but you can specify 301)
+You can also use links_to_target to set the target of the link (like _new).  This will only work for wp_list_pages()
 */ 
 
 function txfx_get_page_links_to_meta () {
 	global $wpdb, $page_links_to_cache;
 
-	if (!isset($page_links_to_cache)) {
-
+	if ( !isset($page_links_to_cache) ) {
 		$links_to = $wpdb->get_results(
-		"SELECT	post_id, meta_value " .
+		"SELECT post_id, meta_value " .
 		"FROM $wpdb->postmeta, $wpdb->posts " .
 		"WHERE post_id = ID AND meta_key = 'links_to' AND (post_status = 'static' OR post_status = 'publish')");
-		} else {
-			return $page_links_to_cache;
-		}
-
-		if (!$links_to) {
-			$page_links_to_cache = false;
-			return false;
-		}
-
-		foreach ($links_to as $link) {
-		$page_links_to_cache[$link->post_id] = $link->meta_value;
-		}
-
+	} else {
 		return $page_links_to_cache;
 	}
+
+	if ( !$links_to ) {
+		$page_links_to_cache = false;
+		return false;
+	}
+
+	foreach ( (array) $links_to as $link ) {
+		$page_links_to_cache[$link->post_id] = $link->meta_value;
+	}
+
+	return $page_links_to_cache;
+}
+
+function txfx_get_page_links_to_targets () {
+	global $wpdb, $page_links_to_target_cache;
+
+	if ( !isset($page_links_to_target_cache) ) {
+		$links_to = $wpdb->get_results(
+		"SELECT post_id, meta_value " .
+		"FROM $wpdb->postmeta, $wpdb->posts " .
+		"WHERE post_id = ID AND meta_key = 'links_to_target' AND (post_status = 'static' OR post_status = 'publish')");
+	} else {
+		return $page_links_to_target_cache;
+	}
+
+	if ( !$links_to ) {
+		$page_links_to_target_cache = false;
+		return false;
+	}
+
+	foreach ( (array) $links_to as $link ) {
+		$page_links_to_target_cache[$link->post_id] = $link->meta_value;
+	}
+
+	return $page_links_to_target_cache;
+}
+
 
 function txfx_filter_links_to_pages ($link, $post) {
 	$page_links_to_cache = txfx_get_page_links_to_meta();
 	
 	// Really strange, but page_link gives us an ID and post_link gives us a post object
 	$id = ($post->ID) ? $post->ID : $post;
-			
+
 	if ( $page_links_to_cache[$id] )
 		$link = $page_links_to_cache[$id];
 
@@ -74,14 +101,15 @@ function txfx_filter_links_to_pages ($link, $post) {
 
 function txfx_redirect_links_to_pages () {
 	if ( is_single() || is_page() ) :
-	global $wp_query;
-	
+		global $wp_query;
+
 		$link = get_post_meta($wp_query->post->ID, 'links_to', true);
-	
-		if(!$link) return;
-		
+
+		if ( !$link )
+			return;
+
 		$redirect_type = get_post_meta($wp_query->post->ID, 'links_to_type', true);
-		
+
 		if ($redirect_type && $redirect_type != '302') {
 			// Only supporting 301 and 302 for now.
 			// The others aren't widely supported or needed anyway
@@ -100,21 +128,35 @@ function txfx_redirect_links_to_pages () {
 
 function txfx_page_links_to_highlight_tabs($pages) {
 	$page_links_to_cache = txfx_get_page_links_to_meta();
-	$this_url = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+	$page_links_to_target_cache = txfx_get_page_links_to_targets();
 
-	foreach ( $page_links_to_cache as $id => $page ) {
+	if ( !$page_links_to_cache && !$page_links_to_target_cache)
+		return $pages;
+
+	$this_url = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+	$targets = array();
+
+	foreach ( (array) $page_links_to_cache as $id => $page ) {
+		if ( $page_links_to_target_cache[$id] )
+			$targets[$page] = $page_links_to_target_cache[$id];
+
 		if ( $this_url == $page ) {
-			$do_it = true;
+			$highlight = true;
 			$current_page = $page;
-			break;
 		}
 	}
 
-	if ( !$do_it )
-		return $pages;
+	if ( count($targets) ) {
+		foreach ( $targets as  $p => $t ) {
+			$pages = str_replace('<a href="' . $p . '" ', '<a href="' . $p . '" target="' . $t . '" ', $pages);
+		}
+	}
 
-	$pages = str_replace(' class="current_page_item"', '', $pages);
-	$pages = str_replace('<li class="page_item"><a href="' . $this_url . '"', '<li class="current_page_item"><a href="' . $page . '"', $pages);
+	if ( $highlight ) {
+		$pages = str_replace(' class="page_item current_page_item"', '', $pages);
+		$pages = str_replace('<li class="page_item"><a href="' . $this_url . '"', '<li class="page_item current_page_item"><a href="' . $page . '"', $pages);
+	}
+
 	return $pages;
 }
 
