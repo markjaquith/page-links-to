@@ -86,7 +86,6 @@ function txfx_get_page_links_to_targets () {
 	return $page_links_to_target_cache;
 }
 
-
 function txfx_filter_links_to_pages ($link, $post) {
 	$page_links_to_cache = txfx_get_page_links_to_meta();
 	
