@@ -3,7 +3,7 @@
 Plugin Name: Page Links To
 Plugin URI: http://txfx.net/code/wordpress/page-links-to/
 Description: Allows you to set a "links_to" meta key with a URI value that will be be used when listing WP pages.  Good for setting up navigational links to non-WP sections of your 
-Version: 1.3
+Version: 1.4
 Author: Mark Jaquith
 Author URI: http://txfx.net/
 */
@@ -110,7 +110,7 @@ function txfx_redirect_links_to_pages () {
 
 		$redirect_type = get_post_meta($wp_query->post->ID, 'links_to_type', true);
 
-		if ($redirect_type && $redirect_type != '302') {
+		if ( $redirect_type && $redirect_type != '302' ) {
 			// Only supporting 301 and 302 for now.
 			// The others aren't widely supported or needed anyway
 			header("HTTP/1.0 301 Moved Permanently");
@@ -140,7 +140,12 @@ function txfx_page_links_to_highlight_tabs($pages) {
 		if ( $page_links_to_target_cache[$id] )
 			$targets[$page] = $page_links_to_target_cache[$id];
 
-		if ( $this_url == $page ) {
+echo "<!--TEST\n";
+echo str_replace('http://www.', 'http://', trailingslashit(get_bloginfo('home'))) . "\n";
+echo str_replace('http://www.', 'http://', trailingslashit($page)) . "\n";
+echo "-->";
+
+		if ( str_replace('http://www.', 'http://', $this_url) == str_replace('http://www.', 'http://', $page) || ( is_home() && str_replace('http://www.', 'http://', trailingslashit(get_bloginfo('home'))) == str_replace('http://www.', 'http://', trailingslashit($page)) ) ) {
 			$highlight = true;
 			$current_page = $page;
 		}
@@ -153,8 +158,8 @@ function txfx_page_links_to_highlight_tabs($pages) {
 	}
 
 	if ( $highlight ) {
-		$pages = str_replace(' class="page_item current_page_item"', '', $pages);
-		$pages = str_replace('<li class="page_item"><a href="' . $this_url . '"', '<li class="page_item current_page_item"><a href="' . $page . '"', $pages);
+		$pages = str_replace(' class="page_item current_page_item"', ' class="page_item"', $pages);
+		$pages = str_replace('<li class="page_item"><a href="' . $current_page . '"', '<li class="page_item current_page_item"><a href="' . $current_page . '"', $pages);
 	}
 
 	return $pages;
