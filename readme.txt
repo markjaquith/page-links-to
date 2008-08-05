@@ -3,7 +3,7 @@ Contributors: markjaquith
 Donate link: http://txfx.net/code/wordpress/
 Tags: 
 Requires at least: 1.5.1.3
-Tested up to: 2.3.3
+Tested up to: 2.6
 Stable tag: trunk
 
 Page Links To allows you to make certain WordPress pages or posts link to a URL of your choosing, instead of their WordPress post or page.
@@ -20,8 +20,8 @@ Page Links To is a plugin that allows you to make certain WordPress pages or pos
 
 3. Create (or edit) a page to have a title of your choosing, and a parent page of your choosing (leave the content blank)
 
-4. Down below, add a meta key of `links_to` and give a full URL as its value
+4. Down below, in the advanced section, find the Page Links To widget and add a URL of your choosing, and save the post
 
-5. Done! Now that post/page will point to the URL you chose.
+5. Done! Now that post/page will point to the URL you chose
 
-6. Optionally, you can create a `links_to_target` meta key, and provide the target you would like for the link (like `_new`, to open the link in a new window).
+6. Optionally, you can create a `links_to_target` Custom Field, and provide the target you would like for the link (like `_new`, to open the link in a new window)
