@@ -75,7 +75,7 @@ function txfx_get_page_links_to_targets () {
 
 function txfx_plt_add_meta_box( $page, $context ) {
 	if ( ( 'page' === $page || 'post' === $page ) && 'advanced' === $context )
-		add_meta_box('page-links-to', 'Page Links To', 'txfx_plt_meta_box', $page, 'advanced', 'high');
+		add_meta_box('page-links-to', 'Page Links To', 'txfx_plt_meta_box', $page, 'advanced', 'low');
 }
 
 function txfx_plt_meta_box() {
