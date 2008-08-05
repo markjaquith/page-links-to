@@ -2,8 +2,8 @@
 /*
 Plugin Name: Page Links To
 Plugin URI: http://txfx.net/code/wordpress/page-links-to/
-Description: Allows you to point WordPress pages to a URL of your choosing.  Good for setting up navigational links to non-WP sections of your site or to off-site resources.
-Version: 1.5-beta-1
+Description: Allows you to point WordPress pages or posts to a URL of your choosing.  Good for setting up navigational links to non-WP sections of your site or to off-site resources.
+Version: 1.5
 Author: Mark Jaquith
 Author URI: http://coveredwebservices.com/
 */
@@ -24,19 +24,6 @@ Author URI: http://coveredwebservices.com/
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-
-/*
-=== INSTRUCTIONS ===
-1) upload this file to /wp-content/plugins/
-2) activate this plugin in the WordPress interface
-3) create a new page with a title of your choosing, and with the parent page of your choosing.  Leave the content of the page blank.
-4) fill in the "Page Links To" with a URL of your choosing, and save.
-
-That's it!  Now, when you use wp_list_page(), that page should link to the "links_to" value, instead of its page
-
-You can also use a custom field with a key of links_to_type to set the redirect type (default is 302, but you can specify 301)
-You can also use a custom field with a key of links_to_target to set the target of the link (like _new).  This will only work for wp_list_pages()
-*/ 
 
 function txfx_get_page_links_to_meta () {
 	global $wpdb, $page_links_to_cache;
