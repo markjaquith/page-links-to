@@ -87,8 +87,8 @@ function txfx_get_page_links_to_targets () {
 }
 
 function txfx_plt_add_meta_box( $page, $context ) {
-	if ( 'page' === $page && 'advanced' === $context )
-		add_meta_box('page-links-to', 'Page Links To', 'txfx_plt_meta_box', 'page', 'advanced', 'high');
+	if ( ( 'page' === $page || 'post' === $page ) && 'advanced' === $context )
+		add_meta_box('page-links-to', 'Page Links To', 'txfx_plt_meta_box', $page, 'advanced', 'high');
 }
 
 function txfx_plt_meta_box() {
@@ -99,7 +99,7 @@ function txfx_plt_meta_box() {
 		wp_nonce_field( 'txfx_plt', '_txfx_pl2_nonce', false, true );
 		echo '</p>';
 	?>
-	Point page to this URL: <input name="txfx_links_to" type="text" size="65" id="txfx_links_to" value="<?php echo attribute_escape( get_post_meta( $post->ID, 'links_to', true) ); ?>" />
+	Point to this URL: <input name="txfx_links_to" type="text" size="65" id="txfx_links_to" value="<?php echo attribute_escape( get_post_meta( $post->ID, 'links_to', true) ); ?>" />
 	<?php
 }
 
