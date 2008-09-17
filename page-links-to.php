@@ -3,7 +3,7 @@
 Plugin Name: Page Links To
 Plugin URI: http://txfx.net/code/wordpress/page-links-to/
 Description: Allows you to point WordPress pages or posts to a URL of your choosing.  Good for setting up navigational links to non-WP sections of your site or to off-site resources.
-Version: 1.5
+Version: 1.6
 Author: Mark Jaquith
 Author URI: http://coveredwebservices.com/
 */
@@ -176,5 +176,5 @@ add_action( 'template_redirect', 'txfx_redirect_links_to_pages'      );
 add_filter( 'page_link',         'txfx_filter_links_to_pages', 20, 2 );
 add_filter( 'post_link',         'txfx_filter_links_to_pages', 20, 2 );
 add_action( 'do_meta_boxes',     'txfx_plt_add_meta_box',      10, 2 );
-add_action( 'save_post',         'txfx_plt_save_meta_box'            );
+add_action( 'edit_post',         'txfx_plt_save_meta_box'            );
 ?>

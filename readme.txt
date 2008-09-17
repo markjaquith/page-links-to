@@ -2,8 +2,8 @@
 Contributors: markjaquith
 Donate link: http://txfx.net/code/wordpress/
 Tags: 
-Requires at least: 1.5.1.3
-Tested up to: 2.6
+Requires at least: 2.6
+Tested up to: 2.6.2
 Stable tag: trunk
 
 Page Links To allows you to make certain WordPress pages or posts link to a URL of your choosing, instead of their WordPress post or page.
