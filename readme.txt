@@ -1,27 +1,35 @@
 === Plugin Name ===
 Contributors: markjaquith
 Donate link: http://txfx.net/code/wordpress/
-Tags: 
-Requires at least: 2.6
-Tested up to: 2.6.2
+Tags: page, redirect, link, external link, repoint
+Requires at least: 2.7
+Tested up to: 2.8
 Stable tag: trunk
 
-Page Links To allows you to make certain WordPress pages or posts link to a URL of your choosing, instead of their WordPress post or page.
+Page Links To allows you to make a WordPress page or post link to a URL of your choosing, instead of their WordPress post or page.
 
 == Description ==
 
-Page Links To is a plugin that allows you to make certain WordPress pages or posts link to a URL of your choosing, instead of their WordPress page or post URL. It also will redirect people who go to the old (or "normal") URL to the new one, using a redirect style of your choosing (`302 Moved Temporarily` is standard, but you can enable `301 Moved Permanently` redirects if you wish.)
+Page Links To is a plugin that allows you to make a WordPress pages or posts link to a URL of your choosing, instead of their WordPress page or post URL. It also will redirect people who go to the old (or "normal") URL to the new one, using a redirect style of your choosing (`301 Moved Permanently` is standard, but you can enable `302 Moved Temporarily` redirects if you wish.)
+
+This is useful for setting up navigational links to non-WordPress sections of your site or to off-site resources.
 
 == Installation ==
 
-1. Upload `page-links-to.php` to your `/wp-content/plugins/` directory
+1. Upload the `page-links-to` folder to your `/wp-content/plugins/` directory
 
 2. Activate the "Page Links To" plugin in your WordPress administration interface
 
-3. Create (or edit) a page to have a title of your choosing, and a parent page of your choosing (leave the content blank)
+3. Create (or edit) a page or a post to have a title of your choosing (leave the content blank)
 
-4. Down below, in the advanced section, find the Page Links To widget and add a URL of your choosing, and save the post
+4. Down below, in the advanced section, find the Page Links To widget and add a URL of your choosing
 
-5. Done! Now that post/page will point to the URL you chose
+5. Optionally check the boxes to enable link opening in a new browser window, or `302 Moved Temporarily` redirects
 
-6. Optionally, you can create a `links_to_target` Custom Field, and provide the target you would like for the link (like `_new`, to open the link in a new window)
+6. Save the post or page
+
+7. Done! Now that post or page will point to the URL that you chose
+
+== Screenshots ==
+
+1. The Page Links To meta box in action
