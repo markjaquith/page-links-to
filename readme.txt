@@ -6,11 +6,11 @@ Requires at least: 2.7
 Tested up to: 2.8
 Stable tag: trunk
 
-Page Links To allows you to make a WordPress page or post link to a URL of your choosing, instead of their WordPress post or page.
+Page Links To allows you to make a WordPress page or post link to a URL of your choosing, instead of its WordPress post or page.
 
 == Description ==
 
-Page Links To is a plugin that allows you to make a WordPress pages or posts link to a URL of your choosing, instead of their WordPress page or post URL. It also will redirect people who go to the old (or "normal") URL to the new one, using a redirect style of your choosing (`301 Moved Permanently` is standard, but you can enable `302 Moved Temporarily` redirects if you wish.)
+Page Links To is a plugin that allows you to make a WordPress page or post link to a URL of your choosing, instead of its WordPress page or post URL. It also will redirect people who go to the old (or "normal") URL to the new one, using a redirect style of your choosing (`301 Moved Permanently` is standard, but you can enable `302 Moved Temporarily` redirects if you wish.)
 
 This is useful for setting up navigational links to non-WordPress sections of your site or to off-site resources.
 
