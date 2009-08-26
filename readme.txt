@@ -3,7 +3,7 @@ Contributors: markjaquith
 Donate link: http://txfx.net/code/wordpress/
 Tags: page, redirect, link, external link, repoint
 Requires at least: 2.7
-Tested up to: 2.8
+Tested up to: 2.8.4
 Stable tag: trunk
 
 Page Links To allows you to make a WordPress page or post link to a URL of your choosing, instead of its WordPress post or page.
@@ -33,3 +33,8 @@ This is useful for setting up navigational links to non-WordPress sections of yo
 == Screenshots ==
 
 1. The Page Links To meta box in action
+
+== Changelog ==
+
+= 1.9 =
+* Fixed "open in new window" functionality
