@@ -35,6 +35,8 @@ This is useful for setting up navigational links to non-WordPress sections of yo
 1. The Page Links To meta box in action
 
 == Changelog ==
+= 2.0 =
+* Allow one-character URLs so that things like "#" (dummy link) are possible
 
 = 1.9 =
 * Fixed "open in new window" functionality
