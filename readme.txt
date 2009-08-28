@@ -35,6 +35,10 @@ This is useful for setting up navigational links to non-WordPress sections of yo
 1. The Page Links To meta box in action
 
 == Changelog ==
+
+= 2.1 =
+* WordPress MU compatibility for when switch_to_blog() is used... it now uses $blog_id to keep their caches from stomping on each other
+
 = 2.0 =
 * Allow one-character URLs so that things like "#" (dummy link) are possible
 

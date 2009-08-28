@@ -3,7 +3,7 @@
 Plugin Name: Page Links To
 Plugin URI: http://txfx.net/code/wordpress/page-links-to/
 Description: Allows you to point WordPress pages or posts to a URL of your choosing.  Good for setting up navigational links to non-WP sections of your site or to off-site resources.
-Version: 2.0
+Version: 2.1
 Author: Mark Jaquith
 Author URI: http://coveredwebservices.com/
 */
@@ -26,50 +26,50 @@ Author URI: http://coveredwebservices.com/
 */
 
 function txfx_get_page_links_to_meta () {
-	global $wpdb, $page_links_to_cache;
+	global $wpdb, $page_links_to_cache, $blog_id;
 
-	if ( !isset( $page_links_to_cache ) ) {
+	if ( !isset( $page_links_to_cache[$blog_id] ) ) {
 		$links_to = $wpdb->get_results(
 		"SELECT post_id, meta_value " .
 		"FROM $wpdb->postmeta, $wpdb->posts " .
 		"WHERE post_id = ID AND meta_key = '_links_to' AND (post_status = 'static' OR post_status = 'publish')");
 	} else {
-		return $page_links_to_cache;
+		return $page_links_to_cache[$blog_id];
 	}
 
 	if ( !$links_to ) {
-		$page_links_to_cache = false;
+		$page_links_to_cache[$blog_id] = false;
 		return false;
 	}
 
 	foreach ( (array) $links_to as $link )
-		$page_links_to_cache[$link->post_id] = $link->meta_value;
+		$page_links_to_cache[$blog_id][$link->post_id] = $link->meta_value;
 
-	return $page_links_to_cache;
+	return $page_links_to_cache[$blog_id];
 }
 
 function txfx_get_page_links_to_targets () {
-	global $wpdb, $page_links_to_target_cache;
+	global $wpdb, $page_links_to_target_cache, $blog_id;
 
-	if ( !isset( $page_links_to_target_cache ) ) {
+	if ( !isset( $page_links_to_target_cache[$blog_id] ) ) {
 		$links_to = $wpdb->get_results(
 		"SELECT post_id, meta_value " .
 		"FROM $wpdb->postmeta, $wpdb->posts " .
 		"WHERE post_id = ID AND meta_key = '_links_to_target' AND (post_status = 'static' OR post_status = 'publish')");
 	} else {
-		return $page_links_to_target_cache;
+		return $page_links_to_target_cache[$blog_id];
 	}
 
 	if ( !$links_to ) {
-		$page_links_to_target_cache = false;
+		$page_links_to_target_cache[$blog_id] = false;
 		return false;
 	}
 
 	foreach ( (array) $links_to as $link ) {
-		$page_links_to_target_cache[$link->post_id] = $link->meta_value;
+		$page_links_to_target_cache[$blog_id][$link->post_id] = $link->meta_value;
 	}
 
-	return $page_links_to_target_cache;
+	return $page_links_to_target_cache[$blog_id];
 }
 
 function txfx_plt_add_meta_box( $page, $context ) {
