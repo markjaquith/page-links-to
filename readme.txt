@@ -34,10 +34,28 @@ This is useful for setting up navigational links to non-WordPress sections of yo
 
 1. The Page Links To meta box in action
 
+== Frequently Asked Questions ==
+
+= How do I make it so that a page doesn't link to anything? I'd like to use it as a dummy container. =
+
+Just use "#" at the link. That won't go anywhere.
+
+= Can this be used to repoint categories to an arbitrary URL? =
+
+Not at this time. I'm considering it as a future feature.
+
+= My links are sending me to http://myblog.com/www.site-i-wanted-to-link-to.com ... why? =
+
+If you want to link to a full URL, you *must* include the `http://` portion.
+
+= Can I link to relative URLs? =
+
+Yes. Linking to `/my-photos.php` is a good idea, as it'll still work if you move your site to a different domain.
+
 == Changelog ==
 
 = 2.1 =
-* WordPress MU compatibility for when switch_to_blog() is used... it now uses $blog_id to keep their caches from stomping on each other
+* WordPress MU compatibility for when `switch_to_blog()` is used... it now uses `$blog_id` to keep their caches from stomping on each other
 
 = 2.0 =
 * Allow one-character URLs so that things like "#" (dummy link) are possible
