@@ -3,16 +3,18 @@ Contributors: markjaquith
 Donate link: http://txfx.net/code/wordpress/
 Tags: page, redirect, link, external link, repoint
 Requires at least: 2.7
-Tested up to: 2.9.1
+Tested up to: 2.8.4
 Stable tag: trunk
 
-Page Links To allows you to make a WordPress page or post link to a URL of your choosing, instead of its WordPress post or page.
+Lets you make a WordPress page or post link to a URL of your choosing, instead of its WordPress post or page.
 
 == Description ==
 
-Page Links To is a plugin that allows you to make a WordPress page or post link to a URL of your choosing, instead of its WordPress page or post URL. It also will redirect people who go to the old (or "normal") URL to the new one, using a redirect style of your choosing (`301 Moved Permanently` is standard, but you can enable `302 Moved Temporarily` redirects if you wish.)
+This plugin allows you to make a WordPress page or post link to a URL of your choosing, instead of its WordPress page or post URL. It also will redirect people who go to the old (or "normal") URL to the new one you've chosen (`301 Moved Permanently` redirects are standard, but you can choose a `302 Moved Temporarily` redirect if you wish).
 
-This is useful for setting up navigational links to non-WordPress sections of your site or to off-site resources.
+This functionality is useful for setting up navigational links to non-WordPress sections of your site or to off-site resources.
+
+You can also use it to create a hand-crafted menu that links to pages, posts, categories, or anything within your site.
 
 == Installation ==
 
@@ -34,13 +36,31 @@ This is useful for setting up navigational links to non-WordPress sections of yo
 
 1. The Page Links To meta box in action
 
+== Frequently Asked Questions ==
+
+= How do I make it so that a page doesn't link to anything? I'd like to use it as a dummy container. =
+
+Just use "#" at the link. That won't go anywhere.
+
+= Can this be used to repoint categories to an arbitrary URL? =
+
+Not at this time. I'm considering it as a future feature.
+
+= My links are sending me to http://myblog.com/www.site-i-wanted-to-link-to.com ... why? =
+
+If you want to link to a full URL, you *must* include the `http://` portion.
+
+= Can I link to relative URLs? =
+
+Yes. Linking to `/my-photos.php` is a good idea, as it'll still work if you move your site to a different domain.
+
 == Changelog ==
 
 = 2.2 =
 * Cleanup, compatibility tweaks to interoperate with a few other plugins, prompt http:// and auto-add it if a URL starts with "www."
 
 = 2.1 =
-* WordPress MU compatibility for when switch_to_blog() is used... it now uses $blog_id to keep their caches from stomping on each other
+* WordPress MU compatibility for when `switch_to_blog()` is used... it now uses `$blog_id` to keep their caches from stomping on each other
 
 = 2.0 =
 * Allow one-character URLs so that things like "#" (dummy link) are possible
