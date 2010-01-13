@@ -99,7 +99,10 @@ function txfx_plt_meta_box() {
 function txfx_plt_save_meta_box( $post_ID ) {
 	if ( wp_verify_nonce( $_REQUEST['_txfx_pl2_nonce'], 'txfx_plt' ) ) {
 		if ( isset( $_POST['txfx_links_to'] ) && strlen( $_POST['txfx_links_to'] ) > 0 ) {
-			update_post_meta( $post_ID, '_links_to', $_POST['txfx_links_to'] );
+			$link = stripslashes( $_POST['txfx_links_to'] );
+			if ( 0 === strpos( $link, 'www.' ) )
+				$link = 'http://' . $link; // Starts with www., so add http://
+			update_post_meta( $post_ID, '_links_to', $link );
 			if ( isset( $_POST['txfx_links_to_new_window'] ) )
 				update_post_meta( $post_ID, '_links_to_target', '_blank' );
 			else
