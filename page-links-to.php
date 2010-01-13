@@ -44,7 +44,7 @@ function txfx_get_post_meta_by_key( $key ) {
 function txfx_get_page_links_to_meta () {
 	global $wpdb, $page_links_to_cache, $blog_id;
 
-	if ( !isset( $page_links_to_cache[$blog_id] ) ) {
+	if ( !isset( $page_links_to_cache[$blog_id] ) )
 		$links_to = txfx_get_post_meta_by_key( '_links_to' );
 	else
 		return $page_links_to_cache[$blog_id];
@@ -63,7 +63,7 @@ function txfx_get_page_links_to_meta () {
 function txfx_get_page_links_to_targets () {
 	global $wpdb, $page_links_to_target_cache, $blog_id;
 
-	if ( !isset( $page_links_to_target_cache[$blog_id] ) ) {
+	if ( !isset( $page_links_to_target_cache[$blog_id] ) )
 		$links_to = txfx_get_post_meta_by_key( '_links_to_target' );
 	else
 		return $page_links_to_target_cache[$blog_id];
@@ -194,10 +194,10 @@ function txfx_plt_init() {
 	}
 }
 
-add_filter( 'wp_list_pages',     'txfx_page_links_to_highlight_tabs'  9    );
-add_action( 'template_redirect', 'txfx_redirect_links_to_pages'            );
-add_filter( 'page_link',         'txfx_filter_links_to_pages',       20, 2 );
-add_filter( 'post_link',         'txfx_filter_links_to_pages',       20, 2 );
-add_action( 'do_meta_boxes',     'txfx_plt_add_meta_box',            10, 2 );
-add_action( 'save_post',         'txfx_plt_save_meta_box'                  );
-add_action( 'init',              'txfx_plt_init'                           );
+add_filter( 'wp_list_pages',     'txfx_page_links_to_highlight_tabs', 9     );
+add_action( 'template_redirect', 'txfx_redirect_links_to_pages'             );
+add_filter( 'page_link',         'txfx_filter_links_to_pages',        20, 2 );
+add_filter( 'post_link',         'txfx_filter_links_to_pages',        20, 2 );
+add_action( 'do_meta_boxes',     'txfx_plt_add_meta_box',             10, 2 );
+add_action( 'save_post',         'txfx_plt_save_meta_box'                   );
+add_action( 'init',              'txfx_plt_init'                            );
