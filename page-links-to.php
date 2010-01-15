@@ -3,7 +3,7 @@
 Plugin Name: Page Links To
 Plugin URI: http://txfx.net/code/wordpress/page-links-to/
 Description: Allows you to point WordPress pages or posts to a URL of your choosing.  Good for setting up navigational links to non-WP sections of your site or to off-site resources.
-Version: 2.2
+Version: 2.3
 Author: Mark Jaquith
 Author URI: http://coveredwebservices.com/
 */
@@ -183,7 +183,7 @@ function txfx_page_links_to_highlight_tabs( $pages ) {
 
 	if ( $highlight ) {
 		$pages = preg_replace( '| class="([^"]+)current_page_item"|', ' class="$1"', $pages ); // Kill default highlighting
-		$pages = preg_replace( '<li class="([^"]+)"><a href="' . $current_page . '"', '<li class="$1 current_page_item"><a href="' . $current_page . '"', $pages );
+		$pages = preg_replace( '|<li class="([^"]+)"><a href="' . $current_page . '"|', '<li class="$1 current_page_item"><a href="' . $current_page . '"', $pages );
 	}
 
 	return $pages;
