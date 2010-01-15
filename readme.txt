@@ -56,8 +56,13 @@ Yes. Linking to `/my-photos.php` is a good idea, as it'll still work if you move
 
 == Changelog ==
 
+= 2.3 =
+* Fixed a bug with current menu item highlighting
+
 = 2.2 =
-* Cleanup, compatibility tweaks to interoperate with a few other plugins, prompt http:// and auto-add it if a URL starts with "www."
+* Cleanup
+* compatibility tweaks to interoperate with a few other plugins
+* prompt http:// and auto-add it if a URL starts with "www."
 
 = 2.1 =
 * WordPress MU compatibility for when `switch_to_blog()` is used... it now uses `$blog_id` to keep their caches from stomping on each other
