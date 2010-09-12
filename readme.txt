@@ -1,9 +1,9 @@
 === Plugin Name ===
 Contributors: markjaquith
-Donate link: http://txfx.net/code/wordpress/
+Donate link: http://txfx.net/wordpress-plugins/donate
 Tags: page, redirect, link, external link, repoint
 Requires at least: 2.7
-Tested up to: 2.9.1
+Tested up to: 3.0.1
 Stable tag: trunk
 
 Lets you make a WordPress page or post link to a URL of your choosing, instead of its WordPress post or page.
@@ -55,6 +55,10 @@ If you want to link to a full URL, you *must* include the `http://` portion.
 Yes. Linking to `/my-photos.php` is a good idea, as it'll still work if you move your site to a different domain.
 
 == Changelog ==
+
+= 2.4 =
+* Rewrote using Singleton best practices
+* Fixed a regex bug that could break current menu highlighting. props skarab
 
 = 2.3 =
 * Fixed a bug with current menu item highlighting
