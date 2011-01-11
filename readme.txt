@@ -56,6 +56,9 @@ Yes. Linking to `/my-photos.php` is a good idea, as it'll still work if you move
 
 == Changelog ==
 
+= 2.4.1 =
+* Fixed typo that was preventing 302 redirects from working. props Ryan Murphy.
+
 = 2.4 =
 * Rewrote using Singleton best practices
 * Fixed a regex bug that could break current menu highlighting. props skarab

@@ -3,7 +3,7 @@
 Plugin Name: Page Links To
 Plugin URI: http://txfx.net/wordpress-plugins/page-links-to/
 Description: Allows you to point WordPress pages or posts to a URL of your choosing.  Good for setting up navigational links to non-WP sections of your site or to off-site resources.
-Version: 2.4
+Version: 2.4.1
 Author: Mark Jaquith
 Author URI: http://coveredwebservices.com/
 */
@@ -223,7 +223,7 @@ class CWS_PageLinksTo {
 			return;
 
 		$redirect_type = get_post_meta( $wp_query->post->ID, '_links_to_type', true );
-		$redirect_type = ( $redirect_type = '302' ) ? '302' : '301';
+		$redirect_type = ( '302' == $redirect_type ) ? '302' : '301';
 		wp_redirect( $link, $redirect_type );
 		exit;
 	}
