@@ -202,7 +202,7 @@ class CWS_PageLinksTo {
 		// Really strange, but page_link gives us an ID and post_link gives us a post object
 		$id = ( is_object( $post ) && $post->ID ) ? $post->ID : $post;
 
-		if ( $links[$id] )
+		if ( isset( $links[$id] ) && $links[$id] )
 			$link = esc_url( $links[$id] );
 
 		return $link;
