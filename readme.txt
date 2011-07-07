@@ -1,4 +1,4 @@
-=== Plugin Name ===
+=== Page Links To ===
 Contributors: markjaquith
 Donate link: http://txfx.net/wordpress-plugins/donate
 Tags: page, redirect, link, external link, repoint
