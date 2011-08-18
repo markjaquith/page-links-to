@@ -3,7 +3,7 @@
 Plugin Name: Page Links To
 Plugin URI: http://txfx.net/wordpress-plugins/page-links-to/
 Description: Allows you to point WordPress pages or posts to a URL of your choosing.  Good for setting up navigational links to non-WP sections of your site or to off-site resources.
-Version: 2.4.2-beta
+Version: 2.5-beta
 Author: Mark Jaquith
 Author URI: http://coveredwebservices.com/
 */
@@ -51,7 +51,7 @@ class CWS_PageLinksTo {
 	 * PHP 5 constructor
 	 */
 	function __construct() {
-		add_action( 'init', array( &$this, 'init' ) );
+		add_action( 'init', array( $this, 'init' ) );
 	}
 
 	/**
@@ -59,12 +59,13 @@ class CWS_PageLinksTo {
 	 */
 	function init() {
 		$this->maybe_upgrade();
-		add_filter( 'wp_list_pages',     array( &$this, 'wp_list_pages'     )        );
-		add_action( 'template_redirect', array( &$this, 'template_redirect' )        );
-		add_filter( 'page_link',         array( &$this, 'link'              ), 20, 2 );
-		add_filter( 'post_link',         array( &$this, 'link'              ), 20, 2 );
-		add_action( 'do_meta_boxes',     array( &$this, 'do_meta_boxes'     ), 20, 2 );
-		add_action( 'save_post',         array( &$this, 'save_post'         )        );
+		add_filter( 'wp_list_pages',       array( $this, 'wp_list_pages'       )        );
+		add_action( 'template_redirect',   array( $this, 'template_redirect'   )        );
+		add_filter( 'page_link',           array( $this, 'link'                ), 20, 2 );
+		add_filter( 'post_link',           array( $this, 'link'                ), 20, 2 );
+		add_action( 'do_meta_boxes',       array( $this, 'do_meta_boxes'       ), 20, 2 );
+		add_action( 'save_post',           array( $this, 'save_post'           )        );
+		add_filter( 'wp_nav_menu_objects', array( $this, 'wp_nav_menu_objects' ), 10, 2 );
 	}
 
  /**
@@ -142,8 +143,11 @@ class CWS_PageLinksTo {
 	 * @param string $context the current context
 	 */
 	function do_meta_boxes( $page, $context ) {
-		if ( ( 'page' === $page || 'post' === $page ) && 'advanced' === $context )
-			add_meta_box( 'page-links-to', 'Page Links To', array( &$this, 'meta_box' ), $page, 'advanced', 'low' );
+		// Plugins that use custom post types can use this filter to hide the PLT UI in their post type.
+		$plt_post_types = apply_filters( 'page-links-to-post-types', array_keys( get_post_types( array('show_ui' => true ) ) ) );
+
+		if ( in_array( $page, $plt_post_types ) && 'advanced' === $context )
+			add_meta_box( 'page-links-to', 'Page Links To', array( $this, 'meta_box' ), $page, 'advanced', 'low' );
 	}
 
 	function meta_box() {
@@ -268,6 +272,17 @@ class CWS_PageLinksTo {
 		}
 
 		return $pages;
+	}
+
+	function wp_nav_menu_objects( $items, $args ) {
+		$page_links_to_target_cache = $this->get_targets();
+		$new_items = array();
+		foreach ( $items as $item ) {
+			if ( isset( $page_links_to_target_cache[$item->object_id] ) )
+				$item->target = $page_links_to_target_cache[$item->object_id];
+			$new_items[] = $item;
+		}
+		return $new_items;
 	}
 
 }

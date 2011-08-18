@@ -2,11 +2,11 @@
 Contributors: markjaquith
 Donate link: http://txfx.net/wordpress-plugins/donate
 Tags: page, redirect, link, external link, repoint
-Requires at least: 2.7
-Tested up to: 3.2
+Requires at least: 3.0
+Tested up to: 3.3
 Stable tag: 2.4.1
 
-Lets you make a WordPress page or post link to a URL of your choosing, instead of its WordPress post or page.
+Lets you make a WordPress page (or other content type) link to an external URL of your choosing, instead of its WordPress URL.
 
 == Description ==
 
@@ -55,6 +55,12 @@ If you want to link to a full URL, you *must* include the `http://` portion.
 Yes. Linking to `/my-photos.php` is a good idea, as it'll still work if you move your site to a different domain.
 
 == Changelog ==
+
+= 2.5 =
+* Allow all show_ui post types to use the meta box.
+* Introduce a filter so a plugin can remove a post type from the list.
+* Target filtering for WordPress nav menus.
+* Silence some PHP notices. Props Ross McKay.
 
 = 2.4.1 =
 * Fixed typo that was preventing 302 redirects from working. props Ryan Murphy.
