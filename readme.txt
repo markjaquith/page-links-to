@@ -60,7 +60,7 @@ Yes. Linking to `/my-photos.php` is a good idea, as it'll still work if you move
 * Allow all show_ui post types to use the meta box.
 * Introduce a filter so a plugin can remove a post type from the list.
 * Target filtering for WordPress nav menus.
-* Silence some PHP notices. Props Ross McKay.
+* Silence some PHP notices. Props Ross McKay, Bill Erickson.
 
 = 2.4.1 =
 * Fixed typo that was preventing 302 redirects from working. props Ryan Murphy.
