@@ -56,6 +56,9 @@ Yes. Linking to `/my-photos.php` is a good idea, as it'll still work if you move
 
 == Changelog ==
 
+= 2.5.1 =
+* Proper linking for custom post types (instead of a 301)
+
 = 2.5 =
 * Allow all show_ui post types to use the meta box.
 * Introduce a filter so a plugin can remove a post type from the list.
