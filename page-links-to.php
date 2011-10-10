@@ -63,7 +63,7 @@ class CWS_PageLinksTo {
 		add_action( 'template_redirect',   array( $this, 'template_redirect'   )        );
 		add_filter( 'page_link',           array( $this, 'link'                ), 20, 2 );
 		add_filter( 'post_link',           array( $this, 'link'                ), 20, 2 );
-		add_filteR( 'post_type_link',      array( $this, 'link',               ), 20, 2 );
+		add_filter( 'post_type_link',      array( $this, 'link',               ), 20, 2 );
 		add_action( 'do_meta_boxes',       array( $this, 'do_meta_boxes'       ), 20, 2 );
 		add_action( 'save_post',           array( $this, 'save_post'           )        );
 		add_filter( 'wp_nav_menu_objects', array( $this, 'wp_nav_menu_objects' ), 10, 2 );
