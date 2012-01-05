@@ -8,7 +8,7 @@ Author: Mark Jaquith
 Author URI: http://coveredwebservices.com/
 */
 
-/*  Copyright 2005-2011  Mark Jaquith
+/*  Copyright 2005-2012  Mark Jaquith
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -25,32 +25,13 @@ Author URI: http://coveredwebservices.com/
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-// Compat functions for WP < 2.8
-if ( !function_exists( 'esc_attr' ) ) {
-	function esc_attr( $attr ) {
-		return attribute_escape( $attr );
-	}
-
-	function esc_url( $url ) {
-		return clean_url( $url );
-	}
-}
-
 class CWS_PageLinksTo {
+	static $instance;
 	var $targets;
 	var $links;
 
-	/**
-	 * PHP 4 constructor
-	 */
-	function CWS_PageLinksTo() {
-		return $this->__construct();
-	}
-
-	/**
-	 * PHP 5 constructor
-	 */
 	function __construct() {
+		self::$instance = $this;
 		add_action( 'init', array( $this, 'init' ) );
 	}
 
@@ -82,6 +63,7 @@ class CWS_PageLinksTo {
 			update_option( 'txfx_plt_schema_version', 3 );
 		}
 	}
+
 	/**
 	 * Returns post ids and meta values that have a given key
 	 * @param string $key post meta key
