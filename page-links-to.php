@@ -239,7 +239,7 @@ class CWS_PageLinksTo {
 			foreach ( $targets as  $p => $t ) {
 				$p = esc_url( $p );
 				$t = esc_attr( $t );
-				$pages = str_replace( '<a href="' . $p . '" ', '<a href="' . $p . '" target="' . $t . '" ', $pages );
+				$pages = str_replace( '<a href="' . $p . '"', '<a href="' . $p . '" target="' . $t . '"', $pages );
 			}
 		}
 
@@ -247,7 +247,6 @@ class CWS_PageLinksTo {
 			$pages = preg_replace( '| class="([^"]+)current_page_item"|', ' class="$1"', $pages ); // Kill default highlighting
 			$pages = preg_replace( '|<li class="([^"]+)"><a href="' . preg_quote( $current_page ) . '"|', '<li class="$1 current_page_item"><a href="' . $current_page . '"', $pages );
 		}
-
 		return $pages;
 	}
 
