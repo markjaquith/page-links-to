@@ -143,11 +143,21 @@ class CWS_PageLinksTo {
 		wp_nonce_field( 'txfx_plt', '_txfx_pl2_nonce', false, true );
 		echo '</p>';
 		$url = get_post_meta( $post->ID, '_links_to', true);
-		if ( !$url )
+		if ( !$url ) {
+			$linked = false;
 			$url = 'http://';
+		} else {
+			$linked = true;
+		}
 	?>
-		<p><?php _e( 'Point to this URL:', 'page-links-to' ); ?> <input name="txfx_links_to" type="text" style="width:75%" id="txfx_links_to" value="<?php echo esc_attr( $url ); ?>" /></p>
-		<p><label for="txfx_links_to_new_window"><input type="checkbox" name="txfx_links_to_new_window" id="txfx_links_to_new_window" value="_blank" <?php checked( '_blank', get_post_meta( $post->ID, '_links_to_target', true ) ); ?>> <?php _e( 'Open this link in a new window', 'page-links-to' ); ?></label></p>
+		<p><?php _e( 'Point this content to:' ); ?></p>
+		<p><label><input type="radio" id="txfx-links-to-choose-wp" name="txfx_links_to_choice" value="wp" <?php checked( !$linked ); ?> /> <?php _e( 'Its normal WordPress URL' ); ?></label></p>
+		<p><label><input type="radio" id="txfx-links-to-choose-alternate" name="txfx_links_to_choice" value="alternate" <?php checked( $linked ); ?> /> <?php _e( 'An alternate URL' ); ?></label></p>
+		<div style="margin-left: 30px;" id="txfx-links-to-alternate-section" class="<?php echo !$linked ? 'hide-if-js' : ''; ?>">
+			<p><input name="txfx_links_to" type="text" style="width:75%" id="txfx-links-to" value="<?php echo esc_attr( $url ); ?>" /></p>
+			<p><label for="txfx-links-to-new-window"><input type="checkbox" name="txfx_links_to_new_window" id="txfx-links-to-new-window" value="_blank" <?php checked( '_blank', get_post_meta( $post->ID, '_links_to_target', true ) ); ?>> <?php _e( 'Open this link in a new window', 'page-links-to' ); ?></label></p>
+		</div>
+		<script src="<?php echo trailingslashit( plugin_dir_url( __FILE__ ) ) . 'js/page-links-to.dev.js'; ?>"></script>
 	<?php
 	}
 
@@ -158,7 +168,7 @@ class CWS_PageLinksTo {
 	 */
 	function save_post( $post_ID ) {
 		if ( isset( $_REQUEST['_txfx_pl2_nonce'] ) && wp_verify_nonce( $_REQUEST['_txfx_pl2_nonce'], 'txfx_plt' ) ) {
-			if ( isset( $_POST['txfx_links_to'] ) && strlen( $_POST['txfx_links_to'] ) > 0 && $_POST['txfx_links_to'] !== 'http://' ) {
+			if ( ( !isset( $_POST['txfx_links_to_choice'] ) || 'alternate' == $_POST['txfx_links_to_choice'] ) && isset( $_POST['txfx_links_to'] ) && strlen( $_POST['txfx_links_to'] ) > 0 && $_POST['txfx_links_to'] !== 'http://' ) {
 				$link = stripslashes( $_POST['txfx_links_to'] );
 				if ( 0 === strpos( $link, 'www.' ) )
 					$link = 'http://' . $link; // Starts with www., so add http://
