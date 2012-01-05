@@ -10,7 +10,7 @@ Lets you make a WordPress page (or other content type) link to an external URL o
 
 == Description ==
 
-This plugin allows you to make a WordPress page or post link to a URL of your choosing, instead of its WordPress page or post URL. It also will redirect people who go to the old (or "normal") URL to the new one you've chosen (`301 Moved Permanently` redirects are standard, but you can choose a `302 Moved Temporarily` redirect if you wish).
+This plugin allows you to make a WordPress page or post link to a URL of your choosing, instead of its WordPress page or post URL. It also will redirect people who go to the old (or "normal") URL to the new one you've chosen.
 
 This functionality is useful for setting up navigational links to non-WordPress sections of your site or to off-site resources.
 
