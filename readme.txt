@@ -56,6 +56,9 @@ Yes. Linking to `/my-photos.php` is a good idea, as it'll still work if you move
 
 == Changelog ==
 
+= 2.6.1 =
+* Fix a PHP notice
+
 = 2.6 =
 * Proper linking for custom post types (insead of just a 301).
 * Fixed a bug that prevented links from opening in a new window.
