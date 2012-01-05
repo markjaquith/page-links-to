@@ -48,6 +48,7 @@ class CWS_PageLinksTo {
 		add_action( 'do_meta_boxes',       array( $this, 'do_meta_boxes'       ), 20, 2 );
 		add_action( 'save_post',           array( $this, 'save_post'           )        );
 		add_filter( 'wp_nav_menu_objects', array( $this, 'wp_nav_menu_objects' ), 10, 2 );
+		add_action( 'load-post.php',       array( $this, 'load_post'           )        );
 	}
 
  /**
@@ -221,7 +222,7 @@ class CWS_PageLinksTo {
 		if ( !$links && !$page_links_to_target_cache )
 			return $pages;
 
-		$this_url = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+		$this_url = ( is_ssl() ? 'https' : 'http' ) . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 		$targets = array();
 
 		foreach ( (array) $links as $id => $page ) {
@@ -259,6 +260,18 @@ class CWS_PageLinksTo {
 			$new_items[] = $item;
 		}
 		return $new_items;
+	}
+
+	function load_post() {
+		if ( isset( $_GET['post'] ) ) {
+			if ( $url = get_post_meta( absint( $_GET['post'] ), '_links_to', true ) ) {
+				add_action( 'admin_notices', array( $this, 'notify_of_external_link' ) );
+			}
+		}
+	}
+
+	function notify_of_external_link() {
+		?><div class="updated"><p><?php _e( '<strong>Note</strong>: This content is pointing to an alternate URL. Use the &#8220;Page Links To&#8221; box to change this behavior.', 'page-links-to' ); ?></p></div><?php
 	}
 
 }
