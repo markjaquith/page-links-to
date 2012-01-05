@@ -3,7 +3,7 @@ Contributors: markjaquith
 Donate link: http://txfx.net/wordpress-plugins/donate
 Tags: page, redirect, link, external link, repoint
 Requires at least: 3.0
-Tested up to: 3.3
+Tested up to: 3.3.1
 Stable tag: 2.5
 
 Lets you make a WordPress page (or other content type) link to an external URL of your choosing, instead of its WordPress URL.
@@ -44,7 +44,7 @@ Just use "#" at the link. That won't go anywhere.
 
 = Can this be used to repoint categories to an arbitrary URL? =
 
-Not at this time. I'm considering it as a future feature.
+No.
 
 = My links are sending me to http://myblog.com/www.site-i-wanted-to-link-to.com ... why? =
 
@@ -56,8 +56,12 @@ Yes. Linking to `/my-photos.php` is a good idea, as it'll still work if you move
 
 == Changelog ==
 
-= 2.5.1 =
-* Proper linking for custom post types (instead of a 301)
+= 2.6 =
+* Proper linking for custom post types (insead of just a 301).
+* Fixed a bug that prevented links from opening in a new window.
+* Notifies people when they are editing content that uses this plugin.
+* Removed the option to set redirection type. Always 301, now.
+* Removed some PHP4 and WP 2.8 back compat stuff.
 
 = 2.5 =
 * Allow all show_ui post types to use the meta box.
