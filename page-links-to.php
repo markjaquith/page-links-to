@@ -3,7 +3,7 @@
 Plugin Name: Page Links To
 Plugin URI: http://txfx.net/wordpress-plugins/page-links-to/
 Description: Allows you to point WordPress pages or posts to a URL of your choosing.  Good for setting up navigational links to non-WP sections of your site or to off-site resources.
-Version: 2.6.1-beta
+Version: 2.7-beta
 Author: Mark Jaquith
 Author URI: http://coveredwebservices.com/
 */
@@ -40,6 +40,9 @@ class CWS_PageLinksTo {
 	 */
 	function init() {
 		$this->maybe_upgrade();
+
+		load_plugin_textdomain( 'page-links-to', false, basename( dirname( __FILE__ ) ) . '/languages' );
+
 		add_filter( 'wp_list_pages',       array( $this, 'wp_list_pages'       )        );
 		add_action( 'template_redirect',   array( $this, 'template_redirect'   )        );
 		add_filter( 'page_link',           array( $this, 'link'                ), 20, 2 );
@@ -143,8 +146,8 @@ class CWS_PageLinksTo {
 		if ( !$url )
 			$url = 'http://';
 	?>
-		<p>Point to this URL: <input name="txfx_links_to" type="text" style="width:75%" id="txfx_links_to" value="<?php echo esc_attr( $url ); ?>" /></p>
-		<p><label for="txfx_links_to_new_window"><input type="checkbox" name="txfx_links_to_new_window" id="txfx_links_to_new_window" value="_blank" <?php checked( '_blank', get_post_meta( $post->ID, '_links_to_target', true ) ); ?>> Open this link in a new window</label></p>
+		<p><?php _e( 'Point to this URL:', 'page-links-to' ); ?> <input name="txfx_links_to" type="text" style="width:75%" id="txfx_links_to" value="<?php echo esc_attr( $url ); ?>" /></p>
+		<p><label for="txfx_links_to_new_window"><input type="checkbox" name="txfx_links_to_new_window" id="txfx_links_to_new_window" value="_blank" <?php checked( '_blank', get_post_meta( $post->ID, '_links_to_target', true ) ); ?>> <?php _e( 'Open this link in a new window', 'page-links-to' ); ?></label></p>
 	<?php
 	}
 
