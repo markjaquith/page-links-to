@@ -1,0 +1,54 @@
+# Copyright (C) 2012 Page Links To
+# This file is distributed under the same license as the Page Links To package.
+msgid ""
+msgstr ""
+"Project-Id-Version: Page Links To 2.7-beta\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/page-links-to\n"
+"POT-Creation-Date: 2012-01-05 22:58:34+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2012-01-05 21:29-0300\n"
+"Last-Translator: Rafael Ehlers <rafaehlers@gmail.com>\n"
+"Language-Team: Rafael Ehlers <rafaehlers@gmail.com>\n"
+
+#: page-links-to.php:153
+msgid "Point this content to:"
+msgstr "Apontar este conteúdo para:"
+
+#: page-links-to.php:154
+msgid "Its normal WordPress URL"
+msgstr "Sua URL normal do WordPress"
+
+#: page-links-to.php:155
+msgid "An alternate URL"
+msgstr "Uma URL alternativa"
+
+#: page-links-to.php:158
+msgid "Open this link in a new window"
+msgstr "Abra este link em uma nova janela"
+
+#: page-links-to.php:286
+msgid "<strong>Note</strong>: This content is pointing to an alternate URL. Use the &#8220;Page Links To&#8221; box to change this behavior."
+msgstr "<strong>Nota</strong>: Este conteúdo está apontando para uma URL alternativa. Use o campo &#8220;Página aponta para&#8221; para alterar este comportamento."
+
+#. Plugin Name of the plugin/theme
+msgid "Page Links To"
+msgstr "Página aponta para"
+
+#. Plugin URI of the plugin/theme
+msgid "http://txfx.net/wordpress-plugins/page-links-to/"
+msgstr "http://txfx.net/wordpress-plugins/page-links-to/"
+
+#. Description of the plugin/theme
+msgid "Allows you to point WordPress pages or posts to a URL of your choosing.  Good for setting up navigational links to non-WP sections of your site or to off-site resources."
+msgstr "Permite a você apontar páginas e posts do WordPress para a URL de sua escolha. Bom para apontar links de navegação para seções não-WP do seu site ou para recursos fora do site."
+
+#. Author of the plugin/theme
+msgid "Mark Jaquith"
+msgstr "Mark Jaquith"
+
+#. Author URI of the plugin/theme
+msgid "http://coveredwebservices.com/"
+msgstr "http://coveredwebservices.com/"
+
