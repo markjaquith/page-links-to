@@ -29,6 +29,7 @@ class CWS_PageLinksTo {
 	static $instance;
 	var $targets;
 	var $links;
+	var $targets_on_this_page;
 
 	function __construct() {
 		self::$instance = $this;
@@ -52,6 +53,7 @@ class CWS_PageLinksTo {
 		add_action( 'save_post',           array( $this, 'save_post'           )        );
 		add_filter( 'wp_nav_menu_objects', array( $this, 'wp_nav_menu_objects' ), 10, 2 );
 		add_action( 'load-post.php',       array( $this, 'load_post'           )        );
+		add_filter( 'the_posts',           array( $this, 'the_posts'           )        );
 	}
 
  /**
@@ -284,6 +286,32 @@ class CWS_PageLinksTo {
 
 	function notify_of_external_link() {
 		?><div class="updated"><p><?php _e( '<strong>Note</strong>: This content is pointing to an alternate URL. Use the &#8220;Page Links To&#8221; box to change this behavior.', 'page-links-to' ); ?></p></div><?php
+	}
+
+	function id_to_url_callback( &$val, $key ) {
+		$val = get_permalink( $val );
+	}
+
+	function the_posts( $posts ) {
+		$page_links_to_target_cache = $this->get_targets();
+		if ( count( $page_links_to_target_cache ) ) {
+			$pids = array();
+			foreach ( $posts as $p )
+				$pids[$p->ID] = $p->ID;
+			$targets = array_keys( array_intersect_key( $page_links_to_target_cache, $pids ) );
+			if ( count( $targets ) ) {
+				array_walk( $targets, array( $this, 'id_to_url_callback' ) );
+				$targets = array_unique( $targets );
+				$this->targets_on_this_page = $targets;
+				wp_enqueue_script( 'jquery' );
+				add_action( 'wp_head', array( $this, 'targets_in_new_window_via_js' ) );
+			}
+		}
+		return $posts;
+	}
+
+	function targets_in_new_window_via_js() {
+		?><script>(function($){var t=<?php echo json_encode( $this->targets_on_this_page ); ?>;$(document).ready(function(){var a=$('a');$.each( t, function( i, v ){a.filter('[href="'+v+'"]').attr('target','_blank');});});})(jQuery);</script><?php
 	}
 
 }
