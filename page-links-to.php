@@ -294,9 +294,9 @@ class CWS_PageLinksTo {
 
 	function the_posts( $posts ) {
 		$page_links_to_target_cache = $this->get_targets();
-		if ( count( $page_links_to_target_cache ) ) {
+		if ( is_array( $page_links_to_target_cache) && count( $page_links_to_target_cache ) ) {
 			$pids = array();
-			foreach ( $posts as $p )
+			foreach ( (array) $posts as $p )
 				$pids[$p->ID] = $p->ID;
 			$targets = array_keys( array_intersect_key( $page_links_to_target_cache, $pids ) );
 			if ( count( $targets ) ) {
