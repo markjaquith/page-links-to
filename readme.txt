@@ -2,8 +2,8 @@
 Contributors: markjaquith
 Donate link: http://txfx.net/wordpress-plugins/donate
 Tags: page, redirect, link, external link, repoint
-Requires at least: 3.0
-Tested up to: 3.3.1
+Requires at least: 3.3
+Tested up to: 3.4
 Stable tag: 2.6
 
 Lets you make a WordPress page (or other content type) link to an external URL of your choosing, instead of its WordPress URL.
@@ -18,19 +18,19 @@ You can also use it to create a hand-crafted menu that links to pages, posts, ca
 
 == Installation ==
 
-1. Upload the `page-links-to` folder to your `/wp-content/plugins/` directory
+1. Upload the `page-links-to` folder to your `/wp-content/plugins/` directory.
 
-2. Activate the "Page Links To" plugin in your WordPress administration interface
+2. Activate the "Page Links To" plugin in your WordPress administration interface.
 
-3. Create (or edit) a page or a post to have a title of your choosing (leave the content blank)
+3. Create (or edit) a page or a post to have a title of your choosing (leave the content blank).
 
-4. Down below, in the advanced section, find the Page Links To widget and add a URL of your choosing
+4. Down below, in the advanced section, find the Page Links To widget, select "An alternate URL", and add a URL of your choosing.
 
-5. Optionally check the boxes to enable link opening in a new browser window, or `302 Moved Temporarily` redirects
+5. Optionally check the box to enable link opening in a new browser window.
 
-6. Save the post or page
+6. Save the post or page.
 
-7. Done! Now that post or page will point to the URL that you chose
+7. Done! Now that post or page will point to the URL that you chose.
 
 == Screenshots ==
 
@@ -40,7 +40,7 @@ You can also use it to create a hand-crafted menu that links to pages, posts, ca
 
 = How do I make it so that a page doesn't link to anything? I'd like to use it as a dummy container. =
 
-Just use "#" at the link. That won't go anywhere.
+Just use "#" as the link. That won't go anywhere.
 
 = Can this be used to repoint categories to an arbitrary URL? =
 
@@ -56,8 +56,11 @@ Yes. Linking to `/my-photos.php` is a good idea, as it'll still work if you move
 
 == Changelog ==
 
-= 2.6.1 =
+= 2.7 =
 * Fix a PHP notice
+* Use JS to open links in an external window, even outside of nav menus
+* Completely revamped UI
+* Several translations
 
 = 2.6 =
 * Proper linking for custom post types (insead of just a 301).

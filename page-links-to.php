@@ -278,7 +278,7 @@ class CWS_PageLinksTo {
 
 	function load_post() {
 		if ( isset( $_GET['post'] ) ) {
-			if ( $url = get_post_meta( absint( $_GET['post'] ), '_links_to', true ) ) {
+			if ( get_post_meta( absint( $_GET['post'] ), '_links_to', true ) ) {
 				add_action( 'admin_notices', array( $this, 'notify_of_external_link' ) );
 			}
 		}
@@ -311,7 +311,7 @@ class CWS_PageLinksTo {
 	}
 
 	function targets_in_new_window_via_js() {
-		?><script>(function($){var t=<?php echo json_encode( $this->targets_on_this_page ); ?>;$(document).ready(function(){var a=$('a');$.each( t, function( i, v ){a.filter('[href="'+v+'"]').attr('target','_blank');});});})(jQuery);</script><?php
+		?><script>(function($){var t=<?php echo json_encode( $this->targets_on_this_page ); ?>;$(document).ready(function(){var a=$('a');$.each(t,function(i,v){a.filter('[href="'+v+'"]').attr('target','_blank');});});})(jQuery);</script><?php
 	}
 
 }
