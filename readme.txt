@@ -56,6 +56,9 @@ Yes. Linking to `/my-photos.php` is a good idea, as it'll still work if you move
 
 == Changelog ==
 
+= 2.7.1 =
+* Fix an array bug
+
 = 2.7 =
 * Fix a PHP notice
 * Use JS to open links in an external window, even outside of nav menus
