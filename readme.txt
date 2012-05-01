@@ -57,7 +57,7 @@ Yes. Linking to `/my-photos.php` is a good idea, as it'll still work if you move
 == Changelog ==
 
 = 2.8 =
-* Added a Swedish translation
+* Added translations for: Swedish, Hebrew.
 
 = 2.7.1 =
 * Fix an array bug
