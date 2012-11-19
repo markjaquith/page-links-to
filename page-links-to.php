@@ -171,7 +171,7 @@ class CWS_PageLinksTo {
 	function save_post( $post_ID ) {
 		if ( isset( $_REQUEST['_txfx_pl2_nonce'] ) && wp_verify_nonce( $_REQUEST['_txfx_pl2_nonce'], 'txfx_plt' ) ) {
 			if ( ( !isset( $_POST['txfx_links_to_choice'] ) || 'alternate' == $_POST['txfx_links_to_choice'] ) && isset( $_POST['txfx_links_to'] ) && strlen( $_POST['txfx_links_to'] ) > 0 && $_POST['txfx_links_to'] !== 'http://' ) {
-				$link = stripslashes( $_POST['txfx_links_to'] );
+				$link = trim( stripslashes( $_POST['txfx_links_to'] ) );
 				if ( 0 === strpos( $link, 'www.' ) )
 					$link = 'http://' . $link; // Starts with www., so add http://
 				update_post_meta( $post_ID, '_links_to', $link );
