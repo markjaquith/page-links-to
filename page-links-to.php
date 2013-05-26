@@ -56,6 +56,7 @@ class CWS_PageLinksTo {
 		add_filter( 'wp_nav_menu_objects', array( $this, 'wp_nav_menu_objects' ), 10, 2 );
 		add_action( 'load-post.php',       array( $this, 'load_post'           )        );
 		add_filter( 'the_posts',           array( $this, 'the_posts'           )        );
+        add_filter( 'plugin_row_meta',     array( $this, 'set_plugin_meta'     ), 10, 2 );
 	}
 
  /**
@@ -314,6 +315,16 @@ class CWS_PageLinksTo {
 	function targets_in_new_window_via_js() {
 		?><script>(function($){var t=<?php echo json_encode( $this->targets_on_this_page ); ?>;$(document).ready(function(){var a=$('a');$.each(t,function(i,v){a.filter('[href="'+v+'"]').attr('target','_blank');});});})(jQuery);</script><?php
 	}
+    
+    function set_plugin_meta( $links, $file ) {
+        if ( $file == plugin_basename( __FILE__ ) ) {
+            return array_merge(
+                $links,
+                array( '<a href="https://github.com/markjaquith/page-links-to" target="_blank">GitHub</a>' )
+            );
+        }
+        return $links;
+    }
 
 }
 
