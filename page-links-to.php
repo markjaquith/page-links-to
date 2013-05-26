@@ -142,7 +142,7 @@ class CWS_PageLinksTo {
 	}
 
 	function meta_box() {
-		global $post;
+		$post = get_post();
 		echo '<p>';
 		wp_nonce_field( 'txfx_plt', '_txfx_pl2_nonce', false, true );
 		echo '</p>';
@@ -199,11 +199,10 @@ class CWS_PageLinksTo {
 	function link( $link, $post ) {
 		$links = $this->get_links();
 
-		// Really strange, but page_link gives us an ID and post_link gives us a post object
-		$id = ( is_object( $post ) && $post->ID ) ? $post->ID : $post;
+		$post = get_post( $post );
 
-		if ( isset( $links[$id] ) && $links[$id] )
-			$link = esc_url( $links[$id] );
+		if ( isset( $links[$post->ID] ) && $links[$post->ID] )
+			$link = esc_url( $links[$post->ID] );
 
 		return $link;
 	}
