@@ -138,7 +138,7 @@ class CWS_PageLinksTo {
 		$plt_post_types = apply_filters( 'page-links-to-post-types', array_keys( get_post_types( array('show_ui' => true ) ) ) );
 
 		if ( in_array( $page, $plt_post_types ) && 'advanced' === $context )
-			add_meta_box( 'page-links-to', 'Page Links To', array( $this, 'meta_box' ), $page, 'advanced', 'low' );
+			add_meta_box( 'page-links-to', _x( 'Page Links To', 'Meta box title', 'page-links-to'), array( $this, 'meta_box' ), $page, 'advanced', 'low' );
 	}
 
 	function meta_box() {
