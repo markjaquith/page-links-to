@@ -115,8 +115,8 @@ class CWS_PageLinksTo {
 	 * Returns all targets for the current site
 	 * @return array an array of targets, keyed by post ID
 	 */
-	function get_targets () {
-		global $wpdb, $page_links_to_target_cache, $blog_id;
+	function get_targets() {
+		global $wpdb, $blog_id;
 
 		if ( !isset( $this->targets[$blog_id] ) )
 			$links_to = $this->meta_by_key( '_links_to_target' );
