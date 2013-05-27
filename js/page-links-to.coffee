@@ -1,14 +1,16 @@
 jQuery ($) ->
-	$('input[type=radio]', '#page-links-to').change ->
-		section = $ '#txfx-links-to-alternate-section'
+	section = $ '#txfx-links-to-alternate-section'
+	input = $ 'input[type=radio]', '#page-links-to'
 
+	if input.filter('input[value="wp"]').prop 'checked'
+		section.fadeTo(1, 0).hide()
+
+	input.change ->
 		if $(@).val() is 'wp'
-			section.css
-				height: section.height() + 'px'
-			.fadeTo 'normal', 0, ->
+			section.fadeTo 'fast', 0, ->
 				$(@).slideUp()
 		else
-			section.slideDown 'normal', ->
-				$(@).fadeTo 'normal', 1, ->
+			section.slideDown 'fast', ->
+				$(@).fadeTo 'fast', 1, ->
 					i = $ '#txfx-links-to'
 					i.focus().val i.val()
