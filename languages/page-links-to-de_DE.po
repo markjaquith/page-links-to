@@ -12,6 +12,11 @@ msgstr ""
 "Language-Team: Translate.foe-services.de <translate@foe-services.de>\n"
 "Language: German\n"
 
+#: page-links-to.php:141
+msgctxt "Meta box title"
+msgid "Page Links To"
+msgstr "Seite linkt zu"
+
 #: page-links-to.php:153
 msgid "Point this content to:"
 msgstr "Dieser Inhalt zeigt auf:"

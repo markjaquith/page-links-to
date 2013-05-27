@@ -12,6 +12,11 @@ msgstr ""
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 
+#: page-links-to.php:141
+msgctxt "Meta box title"
+msgid "Page Links To"
+msgstr ""
+
 #: page-links-to.php:153
 msgid "Point this content to:"
 msgstr ""
