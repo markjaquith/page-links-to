@@ -64,10 +64,16 @@ class CWS_PageLinksTo {
 	function maybe_upgrade() {
 		if ( get_option( 'txfx_plt_schema_version' ) < 3 ) {
 			global $wpdb;
-			$wpdb->query( "UPDATE $wpdb->postmeta SET meta_key = '_links_to'        WHERE meta_key = 'links_to'        " );
-			$wpdb->query( "UPDATE $wpdb->postmeta SET meta_key = '_links_to_target' WHERE meta_key = 'links_to_target' " );
-			$wpdb->query( "UPDATE $wpdb->postmeta SET meta_key = '_links_to_type'   WHERE meta_key = 'links_to_type'   " );
-			wp_cache_flush();
+			$total_affected = 0;
+			foreach ( array( '', '_target', '_type' ) as $meta_key ) {
+				$meta_key = 'links_to' . $meta_key;
+				$affected = $wpdb->update( $wpdb->postmeta, array( 'meta_key' => '_' . $meta_key ), compact( 'meta_key' ) );
+				if ( $affected )
+					$total_affected += $affected;
+			}
+			// Only flush the cache if something changed
+			if ( $total_affected > 0 )
+				wp_cache_flush();
 			update_option( 'txfx_plt_schema_version', 3 );
 		}
 	}
