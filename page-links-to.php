@@ -165,7 +165,7 @@ class CWS_PageLinksTo {
 		<p><label><input type="radio" id="txfx-links-to-choose-alternate" name="txfx_links_to_choice" value="alternate" <?php checked( $linked ); ?> /> <?php _e( 'An alternate URL', 'page-links-to' ); ?></label></p>
 		<div style="webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;margin-left: 30px;" id="txfx-links-to-alternate-section" class="<?php echo !$linked ? 'hide-if-js' : ''; ?>">
 			<p><input name="txfx_links_to" type="text" style="width:75%" id="txfx-links-to" value="<?php echo esc_attr( $url ); ?>" /></p>
-			<p><label for="txfx-links-to-new-window"><input type="checkbox" name="txfx_links_to_new_window" id="txfx-links-to-new-window" value="_blank" <?php checked( '_blank', get_post_meta( $post->ID, '_links_to_target', true ) ); ?>> <?php _e( 'Open this link in a new window', 'page-links-to' ); ?></label></p>
+			<p><label for="txfx-links-to-new-tab"><input type="checkbox" name="txfx_links_to_new_tab" id="txfx-links-to-new-tab" value="_blank" <?php checked( '_blank', get_post_meta( $post->ID, '_links_to_target', true ) ); ?>> <?php _e( 'Open this link in a new tab', 'page-links-to' ); ?></label></p>
 		</div>
 		<script src="<?php echo trailingslashit( plugin_dir_url( __FILE__ ) ) . 'js/page-links-to.js?v=2'; ?>"></script>
 	<?php
@@ -183,7 +183,7 @@ class CWS_PageLinksTo {
 				if ( 0 === strpos( $link, 'www.' ) )
 					$link = 'http://' . $link; // Starts with www., so add http://
 				update_post_meta( $post_ID, '_links_to', $link );
-				if ( isset( $_POST['txfx_links_to_new_window'] ) )
+				if ( isset( $_POST['txfx_links_to_new_tab'] ) )
 					update_post_meta( $post_ID, '_links_to_target', '_blank' );
 				else
 					delete_post_meta( $post_ID, '_links_to_target' );
