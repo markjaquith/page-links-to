@@ -31,7 +31,7 @@ class CWS_PageLinksTo {
 	static $instance;
 	var $targets;
 	var $links;
-	var $targets_on_this_page;
+	var $targets_on_this_page = array();
 
 	function __construct() {
 		self::$instance = $this;
@@ -55,7 +55,7 @@ class CWS_PageLinksTo {
 		add_action( 'save_post',           array( $this, 'save_post'           )        );
 		add_filter( 'wp_nav_menu_objects', array( $this, 'wp_nav_menu_objects' ), 10, 2 );
 		add_action( 'load-post.php',       array( $this, 'load_post'           )        );
-		add_filter( 'the_posts',           array( $this, 'the_posts'           )        );
+		add_action( 'wp_footer',           array( $this, 'enqueue_scripts'     ), 19    );
 	}
 
  /**
@@ -76,6 +76,14 @@ class CWS_PageLinksTo {
 				wp_cache_flush();
 			update_option( 'txfx_plt_schema_version', 3 );
 		}
+	}
+
+	/**
+	 * Enqueues jQuery, if we think we are going to need it
+	 */
+	function enqueue_scripts() {
+		if ( $this->targets_on_this_page )
+			wp_enqueue_script( 'jquery' );
 	}
 
 	/**
@@ -109,6 +117,32 @@ class CWS_PageLinksTo {
 			$this->links[$blog_id][$link->post_id] = $link->meta_value;
 
 		return $this->links[$blog_id];
+	}
+
+	/**
+	 * Returns the link for the specified post ID
+	 * @param  integer $post_id a post ID
+	 * @return mixed either a URL or false
+	 */
+	function get_link( $post_id ) {
+		$links = $this->get_links();
+		if ( isset( $links[$post_id] ) )
+			return $links[$post_id];
+		else
+			return false;
+	}
+
+	/**
+	 * Returns the link for the specified post ID
+	 * @param  integer $post_id a post ID
+	 * @return mixed either a URL or false
+	 */
+	function get_target( $post_id ) {
+		$targets = $this->get_targets();
+		if ( isset( $targets[$post_id] ) )
+			return $targets[$post_id];
+		else
+			return false;
 	}
 
 	/**
@@ -196,6 +230,12 @@ class CWS_PageLinksTo {
 		return $post_ID;
 	}
 
+	function log_target( $post ) {
+		$post = get_post( $post );
+		$this->targets_on_this_page[$post->ID] = true;
+		add_action( 'wp_footer', array( $this, 'targets_in_new_window_via_js_footer' ), 999 );
+	}
+
 	/**
 	 * Filter for post or page links
 	 * @param string $link the URL for the post or page
@@ -203,12 +243,15 @@ class CWS_PageLinksTo {
 	 * @return string output URL
 	 */
 	function link( $link, $post ) {
-		$links = $this->get_links();
-
 		$post = get_post( $post );
 
-		if ( isset( $links[$post->ID] ) && $links[$post->ID] )
-			$link = esc_url( $links[$post->ID] );
+		$meta_link = $this->get_link( $post->ID );
+
+		if ( $meta_link ) {
+			$link = esc_url( $meta_link );
+			if ( $this->get_target( $post->ID ) )
+				$this->log_target( $post->ID );
+		}
 
 		return $link;
 	}
@@ -239,17 +282,16 @@ class CWS_PageLinksTo {
 	function wp_list_pages( $pages ) {
 		$highlight = false;
 		$links = $this->get_links();
-		$page_links_to_target_cache = $this->get_targets();
 
-		if ( !$links && !$page_links_to_target_cache )
+		if ( ! $links )
 			return $pages;
 
 		$this_url = ( is_ssl() ? 'https' : 'http' ) . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 		$targets = array();
 
 		foreach ( (array) $links as $id => $page ) {
-			if ( isset( $page_links_to_target_cache[$id] ) )
-				$targets[$page] = $page_links_to_target_cache[$id];
+			if ( $target = $this->get_target( $id ) )
+				$targets[$page] = $target;
 
 			if ( str_replace( 'http://www.', 'http://', $this_url ) == str_replace( 'http://www.', 'http://', $page ) || ( is_home() && str_replace( 'http://www.', 'http://', trailingslashit( get_bloginfo( 'url' ) ) ) == str_replace( 'http://www.', 'http://', trailingslashit( $page ) ) ) ) {
 				$highlight = true;
@@ -273,11 +315,10 @@ class CWS_PageLinksTo {
 	}
 
 	function wp_nav_menu_objects( $items, $args ) {
-		$page_links_to_target_cache = $this->get_targets();
 		$new_items = array();
 		foreach ( $items as $item ) {
-			if ( isset( $page_links_to_target_cache[$item->object_id] ) )
-				$item->target = $page_links_to_target_cache[$item->object_id];
+			if ( $target = $this->get_target( $item->object_id ) )
+				$item->target = $target;
 			$new_items[] = $item;
 		}
 		return $new_items;
@@ -299,26 +340,18 @@ class CWS_PageLinksTo {
 		$val = get_permalink( $val );
 	}
 
-	function the_posts( $posts ) {
-		$page_links_to_target_cache = $this->get_targets();
-		if ( is_array( $page_links_to_target_cache) && count( $page_links_to_target_cache ) ) {
-			$pids = array();
-			foreach ( (array) $posts as $p )
-				$pids[$p->ID] = $p->ID;
-			$targets = array_keys( array_intersect_key( $page_links_to_target_cache, $pids ) );
-			if ( count( $targets ) ) {
-				array_walk( $targets, array( $this, 'id_to_url_callback' ) );
-				$targets = array_unique( $targets );
-				$this->targets_on_this_page = $targets;
-				wp_enqueue_script( 'jquery' );
-				add_action( 'wp_head', array( $this, 'targets_in_new_window_via_js' ) );
-			}
+	function targets_in_new_window_via_js_footer() {
+		$target_ids = $this->targets_on_this_page;
+		$target_urls = array();
+		foreach ( array_keys( $target_ids ) as $id ) {
+			$link = $this->get_link( $id );
+			if ( $link )
+				$target_urls[$link] = true;
 		}
-		return $posts;
-	}
-
-	function targets_in_new_window_via_js() {
-		?><script>(function($){var t=<?php echo json_encode( $this->targets_on_this_page ); ?>;$(document).ready(function(){var a=$('a');$.each(t,function(i,v){a.filter('[href="'+v+'"]').attr('target','_blank');});});})(jQuery);</script><?php
+		$targets = array_keys( $target_urls );
+		if ( $targets ) {
+			?><script>(function($){var t=<?php echo json_encode( $targets ); ?>;$(document).ready(function(){var a=$('a');$.each(t,function(i,v){a.filter('[href="'+v+'"]').attr('target','_blank');});});})(jQuery);</script><?php
+		}
 	}
 
 }
