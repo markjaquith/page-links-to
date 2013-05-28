@@ -27,7 +27,10 @@ Domain Path: /languages
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-class CWS_PageLinksTo {
+// Pull in WP Stack plugin library
+include( dirname( __FILE__ ) . '/lib/wp-stack-plugin.php' );
+
+class CWS_PageLinksTo extends WP_Stack_Plugin {
 	static $instance;
 	var $targets;
 	var $links;
@@ -35,36 +38,55 @@ class CWS_PageLinksTo {
 
 	function __construct() {
 		self::$instance = $this;
-		add_action( 'init', array( $this, 'init' ) );
+		$this->hook( 'init' );
 	}
 
 	/**
 	 * Bootstraps the upgrade process and registers all the hooks.
 	 */
 	function init() {
+		// Check to see if any of our data needs to be upgraded
 		$this->maybe_upgrade();
 
+		// Load translation files
 		load_plugin_textdomain( 'page-links-to', false, basename( dirname( __FILE__ ) ) . '/languages' );
 
-		add_filter( 'wp_list_pages',       array( $this, 'wp_list_pages'       )        );
-		add_action( 'template_redirect',   array( $this, 'template_redirect'   )        );
-		add_filter( 'page_link',           array( $this, 'link'                ), 20, 2 );
-		add_filter( 'post_link',           array( $this, 'link'                ), 20, 2 );
-		add_filter( 'post_type_link',      array( $this, 'link',               ), 20, 2 );
-		add_action( 'do_meta_boxes',       array( $this, 'do_meta_boxes'       ), 20, 2 );
-		add_action( 'save_post',           array( $this, 'save_post'           )        );
-		add_filter( 'wp_nav_menu_objects', array( $this, 'wp_nav_menu_objects' ), 10, 2 );
-		add_action( 'load-post.php',       array( $this, 'load_post'           )        );
-		add_action( 'wp_footer',           array( $this, 'enqueue_scripts'     ), 19    );
-		add_filter( 'plugin_row_meta',     array( $this, 'set_plugin_meta'     ), 10, 2 );
+		// Register hooks
+		$this->register_hooks();
 	}
 
- /**
-  * Performs an upgrade for older versions
-  *
-  * * Version 3: Underscores the keys so they only show in the plugin's UI.
-  */
+	/**
+	 * Registers all the hooks
+	 */
+	function register_hooks() {
+		// Hook in to URL generation
+		$this->hook( 'page_link',      'link', 20 );
+		$this->hook( 'post_link',      'link', 20 );
+		$this->hook( 'post_type_link', 'link', 20 );
+
+		// Non-standard priority hooks
+		$this->hook( 'do_meta_boxes', 20 );
+		$this->hook( 'wp_footer',     19 );
+
+		// Non-standard callback hooks
+		$this->hook( 'load-post.php', 'load_post' );
+
+		// Standard hooks
+		$this->hook( 'wp_list_pages'       );
+		$this->hook( 'template_redirect'   );
+		$this->hook( 'save_post'           );
+		$this->hook( 'wp_nav_menu_objects' );
+		$this->hook( 'plugin_row_meta'     );
+	}
+
+	/**
+	 * Performs an upgrade for older versions
+	 *
+	 * * Version 3: Underscores the keys so they only show in the plugin's UI.
+	 */
 	function maybe_upgrade() {
+		// In earlier versions, the meta keys were stored without a leading underscore.
+		// Since then, underscore has been codified as the standard for "something manages this" post meta.
 		if ( get_option( 'txfx_plt_schema_version' ) < 3 ) {
 			global $wpdb;
 			$total_affected = 0;
@@ -84,7 +106,7 @@ class CWS_PageLinksTo {
 	/**
 	 * Enqueues jQuery, if we think we are going to need it
 	 */
-	function enqueue_scripts() {
+	function wp_footer() {
 		if ( $this->targets_on_this_page )
 			wp_enqueue_script( 'jquery' );
 	}
@@ -358,11 +380,11 @@ class CWS_PageLinksTo {
 	function log_target( $post ) {
 		$post = get_post( $post );
 		$this->targets_on_this_page[$post->ID] = true;
-		add_action( 'wp_footer', array( $this, 'targets_in_new_window_via_js_footer' ), 999 );
+		$this->hook( 'wp_footer', 'targets_in_new_window_via_js_footer', 999 );
 	}
 
 	/**
-	 * Filter for post or page links
+	 * Filter for Post links
 	 *
 	 * @param string $link the URL for the post or page
 	 * @param int|WP_Post $post post ID or object
@@ -386,14 +408,14 @@ class CWS_PageLinksTo {
 	 * Performs a redirect, if appropriate
 	 */
 	function template_redirect() {
-		if ( !is_single() && !is_page() )
-			return;
-
 		global $wp_query;
+
+		if ( ! is_singular() )
+			return;
 
 		$link = get_post_meta( $wp_query->post->ID, '_links_to', true );
 
-		if ( !$link )
+		if ( ! $link )
 			return;
 
 		wp_redirect( $link, 301 );
@@ -420,7 +442,7 @@ class CWS_PageLinksTo {
 			if ( $this->get_target( $id ) )
 				$targets[$page] = '_blank';
 
-			if ( str_replace( 'http://www.', 'http://', $this_url ) == str_replace( 'http://www.', 'http://', $page ) || ( is_home() && str_replace( 'http://www.', 'http://', trailingslashit( get_bloginfo( 'url' ) ) ) == str_replace( 'http://www.', 'http://', trailingslashit( $page ) ) ) ) {
+			if ( str_replace( 'http://www.', 'http://', $this_url ) === str_replace( 'http://www.', 'http://', $page ) || ( is_home() && str_replace( 'http://www.', 'http://', trailingslashit( get_bloginfo( 'url' ) ) ) === str_replace( 'http://www.', 'http://', trailingslashit( $page ) ) ) ) {
 				$highlight = true;
 				$current_page = esc_url( $page );
 			}
@@ -445,7 +467,7 @@ class CWS_PageLinksTo {
 	 * Filters nav menu objects and adds target=_blank to the ones that need it
 	 *
 	 * @param  array $items nav menu items
-	 * @return array        modified nav menu items
+	 * @return array modified nav menu items
 	 */
 	function wp_nav_menu_objects( $items ) {
 		$new_items = array();
@@ -463,7 +485,7 @@ class CWS_PageLinksTo {
 	function load_post() {
 		if ( isset( $_GET['post'] ) ) {
 			if ( get_post_meta( absint( $_GET['post'] ), '_links_to', true ) ) {
-				add_action( 'admin_notices', array( $this, 'notify_of_external_link' ) );
+				$this->hook( 'admin_notices', 'notify_of_external_link' );
 			}
 		}
 	}
@@ -524,4 +546,5 @@ class CWS_PageLinksTo {
 	}
 }
 
+// Bootstrap everything
 new CWS_PageLinksTo;
