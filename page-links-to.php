@@ -56,7 +56,6 @@ class CWS_PageLinksTo {
 		add_filter( 'wp_nav_menu_objects', array( $this, 'wp_nav_menu_objects' ), 10, 2 );
 		add_action( 'load-post.php',       array( $this, 'load_post'           )        );
 		add_action( 'wp_footer',           array( $this, 'enqueue_scripts'     ), 19    );
-		add_filter( 'the_posts',           array( $this, 'the_posts'           )        );
 		add_filter( 'plugin_row_meta',     array( $this, 'set_plugin_meta'     ), 10, 2 );
 	}
 
