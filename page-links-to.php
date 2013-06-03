@@ -341,6 +341,12 @@ class CWS_PageLinksTo {
 		$val = get_permalink( $val );
 	}
 
+	function inline_coffeescript( $path ) {
+			$inline_script = file_get_contents( trailingslashit( plugin_dir_path( __FILE__ ) ) . $path );
+			$inline_script = explode( "\n", $inline_script );
+			return $inline_script[1];
+	}
+
 	function targets_in_new_window_via_js_footer() {
 		$target_ids = $this->targets_on_this_page;
 		$target_urls = array();
@@ -351,7 +357,7 @@ class CWS_PageLinksTo {
 		}
 		$targets = array_keys( $target_urls );
 		if ( $targets ) {
-			?><script>(function($){var t=<?php echo json_encode( $targets ); ?>;$(document).ready(function(){var a=$('a');$.each(t,function(i,v){a.filter('[href="'+v+'"]').attr('target','_blank');});});})(jQuery);</script><?php
+			?><script>var pltNewTabURLs = <?php echo json_encode( $targets ) . ';' . $this->inline_coffeescript( 'js/new-tab.js' ); ?></script><?php
 		}
 	}
 
