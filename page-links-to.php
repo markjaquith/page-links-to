@@ -89,7 +89,7 @@ class CWS_PageLinksTo {
 
 	/**
 	 * Returns post ids and meta values that have a given key
-	 * @param string $key post meta key
+	 * @param string $key post meta key (limited to '_links_to' and '_links_to_target')
 	 * @return array an array of objects with post_id and meta_value properties
 	 */
 	function meta_by_key( $key ) {
@@ -97,9 +97,9 @@ class CWS_PageLinksTo {
 		if ( !in_array( $key, array( '_links_to', '_links_to_target' ) ) )
 			return false;
 		$cache_key = 'plt_meta_cache_' . $key;
-		if ( ! $meta = get_transient( $meta_key ) ) {
+		if ( ! $meta = get_transient( $cache_key ) ) {
 			$meta = $wpdb->get_results( $wpdb->prepare( "SELECT post_id, meta_value FROM $wpdb->postmeta WHERE meta_key = %s", $key ) );
-			set_transient( $meta_key, $meta );
+			set_transient( $cache_key, $meta );
 		}
 		return $meta;
 	}
