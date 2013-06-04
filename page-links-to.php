@@ -75,7 +75,7 @@ class CWS_PageLinksTo {
 			// Only flush the cache if something changed
 			if ( $total_affected > 0 )
 				wp_cache_flush();
-			update_option( 'txfx_plt_schema_version', 3 );
+			$this->flush_if( update_option( 'txfx_plt_schema_version', 3 ) );
 		}
 	}
 
@@ -94,7 +94,14 @@ class CWS_PageLinksTo {
 	 */
 	function meta_by_key( $key ) {
 		global $wpdb;
-		return $wpdb->get_results( $wpdb->prepare( "SELECT post_id, meta_value FROM $wpdb->postmeta WHERE meta_key = %s", $key ) );
+		if ( !in_array( $key, array( '_links_to', '_links_to_target' ) ) )
+			return false;
+		$cache_key = 'plt_meta_cache_' . $key;
+		if ( ! $meta = get_transient( $meta_key ) ) {
+			$meta = $wpdb->get_results( $wpdb->prepare( "SELECT post_id, meta_value FROM $wpdb->postmeta WHERE meta_key = %s", $key ) );
+			set_transient( $meta_key, $meta );
+		}
+		return $meta;
 	}
 
 	/**
@@ -217,18 +224,25 @@ class CWS_PageLinksTo {
 				$link = trim( stripslashes( $_POST['txfx_links_to'] ) );
 				if ( 0 === strpos( $link, 'www.' ) )
 					$link = 'http://' . $link; // Starts with www., so add http://
-				update_post_meta( $post_ID, '_links_to', $link );
+				$this->flush_if( update_post_meta( $post_ID, '_links_to', $link ) );
 				if ( isset( $_POST['txfx_links_to_new_tab'] ) )
-					update_post_meta( $post_ID, '_links_to_target', '_blank' );
+					$this->flush_if( update_post_meta( $post_ID, '_links_to_target', '_blank' ) );
 				else
-					delete_post_meta( $post_ID, '_links_to_target' );
+					$this->flush_if( delete_post_meta( $post_ID, '_links_to_target' ) );
 			} else {
-				delete_post_meta( $post_ID, '_links_to' );
-				delete_post_meta( $post_ID, '_links_to_target' );
-				delete_post_meta( $post_ID, '_links_to_type' );
+				$this->flush_if( delete_post_meta( $post_ID, '_links_to'        ) );
+				$this->flush_if( delete_post_meta( $post_ID, '_links_to_target' ) );
+				$this->flush_if( delete_post_meta( $post_ID, '_links_to_type'   ) );
 			}
 		}
 		return $post_ID;
+	}
+
+	function flush_if( $bool ) {
+		if ( $bool ) {
+			delete_transient( 'plt_meta_cache__links_to'        );
+			delete_transient( 'plt_meta_cache__links_to_target' );
+		}
 	}
 
 	function log_target( $post ) {
