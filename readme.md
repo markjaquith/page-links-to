@@ -44,7 +44,7 @@ Just use "#" as the link. That won't go anywhere.
 
 ### Can this be used to repoint categories to an arbitrary URL? ###
 
-No.
+Not currently. Please contact me if you're interested in that functionality.
 
 ### My links are sending me to http://myblog.com/www.site-i-wanted-to-link-to.com ... why? ###
 
@@ -55,6 +55,9 @@ If you want to link to a full URL, you *must* include the `http://` portion.
 Yes. Linking to `/my-photos.php` is a good idea, as it'll still work if you move your site to a different domain.
 
 ## Changelog ##
+
+### 2.9 ###
+* Respect "open in new tab" setting in more custom situations, like custom loops and widgets.
 
 ### 2.8 ###
 * Added translations for: Swedish, Hebrew.
