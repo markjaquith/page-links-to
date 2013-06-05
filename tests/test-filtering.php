@@ -22,6 +22,10 @@ class CWS_PLT_Test_Filtering extends CWS_PLT_TestCase {
 		$post = get_post( $post_id );
 		$this->assertTrue( $this->plugin()->set_link( $post_id, 'http://example.com/' ) );
 		$this->assertTrue( $this->plugin()->set_link_new_tab( $post_id ) );
+
+		// Need a user with sufficient permissions because wp_insert_post() is not low level enough — WTF?
+		$user_id = $this->factory->user->create( array( 'role' => 'editor' ) );
+		wp_set_current_user( $user_id );
 		$menu_id = wp_create_nav_menu( 'plt' );
 		$this->assertInternalType( 'int', $menu_id, "Menu creation failed" );
 		$item_id = wp_update_nav_menu_item( $menu_id, 0, array(
