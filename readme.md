@@ -1,4 +1,5 @@
 # Page Links To #
+Unit tests: [![Build Status](https://travis-ci.org/markjaquith/page-links-to.png?branch=master)](https://travis-ci.org/markjaquith/page-links-to)  
 Contributors: markjaquith  
 Donate link: http://txfx.net/wordpress-plugins/donate  
 Tags: page, redirect, link, external link, repoint  
