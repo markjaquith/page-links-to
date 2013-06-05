@@ -266,40 +266,46 @@ class CWS_PageLinksTo {
 	 *
 	 * @param int $post_id post ID
 	 * @param string $url the URL to point the post to
+	 * @return bool whether anything changed
 	 */
 	function set_link( $post_id, $url ) {
-		$this->flush_links_if( update_post_meta( $post_id, '_links_to', $url ) );
+		return $this->flush_links_if( (bool) update_post_meta( $post_id, '_links_to', $url ) );
 	}
 
 	/**
 	 * Tell an custom URL post to open in a new tab
 	 *
 	 * @param int $post_id post ID
+	 * @return bool whether anything changed
 	 */
 	function set_link_new_tab( $post_id ) {
-		$this->flush_targets_if( update_post_meta( $post_id, '_links_to_target', '_blank' ) );
+		return $this->flush_targets_if( (bool) update_post_meta( $post_id, '_links_to_target', '_blank' ) );
 	}
 
 	/**
 	 * Tell an custom URL post to open in the same tab
 	 *
 	 * @param int $post_id post ID
+	 * @return bool whether anything changed
 	 */
 	function set_link_same_tab( $post_id ) {
-		$this->flush_targets_if( delete_post_meta( $post_id, '_links_to_target' ) );
+		return $this->flush_targets_if( delete_post_meta( $post_id, '_links_to_target' ) );
 	}
 
 	/**
 	 * Discard a custom URL and point a post to its normal URL
 	 *
 	 * @param int $post_id post ID
+	 * @return bool whether the link was deleted
 	 */
 	function delete_link( $post_id ) {
-		$this->flush_links_if( delete_post_meta( $post_id, '_links_to' ) );
+		$return = $this->flush_links_if( delete_post_meta( $post_id, '_links_to' ) );
 		$this->flush_targets_if( delete_post_meta( $post_id, '_links_to_target' ) );
 
 		// Old, unused data that we can delete on the fly
 		delete_post_meta( $post_id, '_links_to_type' );
+
+		return $return;
 	}
 
 	/**
@@ -330,11 +336,15 @@ class CWS_PageLinksTo {
 	 * @return bool whether the flush occurred
 	 */
 	function flush_if( $condition, $type ) {
+		global $blog_id;
 		if ( $condition ) {
-			if ( 'links' === $type )
+			if ( 'links' === $type ) {
+				unset( $this->links[$blog_id] );
 				return delete_transient( 'plt_meta_cache__links_to' );
-			elseif ( 'targets' === $type )
+			} elseif ( 'targets' === $type ) {
+				unset( $this->targets[$blog_id] );
 				return delete_transient( 'plt_meta_cache__links_to_target' );
+			}
 		}
 	}
 
