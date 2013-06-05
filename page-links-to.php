@@ -333,19 +333,21 @@ class CWS_PageLinksTo {
 	 *
 	 * @param bool $condition whether to flush the cache
 	 * @param string $type which cache to flush
-	 * @return bool whether the flush occurred
+	 * @return bool whether the flush attempt occurred
 	 */
 	function flush_if( $condition, $type ) {
 		global $blog_id;
 		if ( $condition ) {
 			if ( 'links' === $type ) {
 				unset( $this->links[$blog_id] );
-				return delete_transient( 'plt_meta_cache__links_to' );
+				delete_transient( 'plt_meta_cache__links_to' );
 			} elseif ( 'targets' === $type ) {
 				unset( $this->targets[$blog_id] );
-				return delete_transient( 'plt_meta_cache__links_to_target' );
+				delete_transient( 'plt_meta_cache__links_to_target' );
 			}
+			return true;
 		}
+		return false;
 	}
 
 	/**
