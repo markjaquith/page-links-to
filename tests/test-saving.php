@@ -10,4 +10,34 @@ class CWS_PLT_Test_Saving extends CWS_PLT_TestCase {
 		$this->assertTrue( $this->plugin()->set_link( $post_id, 'http://example.com/updated' ) );
 		$this->assertEquals( 'http://example.com/updated', $this->plugin()->get_link( $post_id ) );
 	}
+
+	function test_deleting_url() {
+		$post_id = $this->factory->post->create( array( 'post_type' => 'post' ) );
+		$this->assertTrue( $this->plugin()->set_link( $post_id, 'http://example.com/' ) );
+		$this->assertTrue( $this->plugin()->delete_link( $post_id ) );
+		$this->assertFalse( $this->plugin()->get_link( $post_id ) );
+	}
+
+	function test_setting_new_tab() {
+		$post_id = $this->factory->post->create( array( 'post_type' => 'post' ) );
+		$this->assertTrue( $this->plugin()->set_link( $post_id, 'http://example.com/' ) );
+		$this->assertFalse( $this->plugin()->get_target( $post_id ) );
+		$this->assertTrue( $this->plugin()->set_link_new_tab( $post_id ) );
+		$this->assertTrue( $this->plugin()->get_target( $post_id ) );
+		// This update changes nothing, so should return false
+		$this->assertFalse( $this->plugin()->set_link_new_tab( $post_id ) );
+		$this->assertTrue( $this->plugin()->set_link_same_tab( $post_id ) );
+		// This update changes nothing, so should return false
+		$this->assertFalse( $this->plugin()->set_link_same_tab( $post_id ) );
+		$this->assertFalse( $this->plugin()->get_target( $post_id ) );
+	}
+
+	function test_deleting_url_also_deletes_target() {
+		$post_id = $this->factory->post->create( array( 'post_type' => 'post' ) );
+		$this->assertTrue( $this->plugin()->set_link( $post_id, 'http://example.com/' ) );
+		$this->assertTrue( $this->plugin()->set_link_new_tab( $post_id ) );
+		$this->assertTrue( $this->plugin()->get_target( $post_id ) );
+		$this->assertTrue( $this->plugin()->delete_link( $post_id ) );
+		$this->assertFalse( $this->plugin()->get_target( $post_id ) );
+	}
 }
