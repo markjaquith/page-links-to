@@ -146,15 +146,15 @@ class CWS_PageLinksTo {
 	}
 
 	/**
-	 * Returns the link for the specified post ID
+	 * Returns the _blank target status for the specified post ID
 	 *
-	 * @param  integer $post_id a post ID
-	 * @return mixed either a URL or false
+	 * @param integer $post_id a post ID
+	 * @return bool whether it should open in a new tab
 	 */
 	function get_target( $post_id ) {
 		$targets = $this->get_targets();
 		if ( isset( $targets[$post_id] ) )
-			return $targets[$post_id];
+			return true;
 		else
 			return false;
 	}
@@ -417,8 +417,8 @@ class CWS_PageLinksTo {
 		$targets = array();
 
 		foreach ( (array) $links as $id => $page ) {
-			if ( $target = $this->get_target( $id ) )
-				$targets[$page] = $target;
+			if ( $this->get_target( $id ) )
+				$targets[$page] = '_blank';
 
 			if ( str_replace( 'http://www.', 'http://', $this_url ) == str_replace( 'http://www.', 'http://', $page ) || ( is_home() && str_replace( 'http://www.', 'http://', trailingslashit( get_bloginfo( 'url' ) ) ) == str_replace( 'http://www.', 'http://', trailingslashit( $page ) ) ) ) {
 				$highlight = true;
@@ -450,7 +450,7 @@ class CWS_PageLinksTo {
 	function wp_nav_menu_objects( $items ) {
 		$new_items = array();
 		foreach ( $items as $item ) {
-			if ( $target = $this->get_target( $item->object_id ) )
+			if ( $this->get_target( $item->object_id ) )
 				$item->target = '_blank';
 			$new_items[] = $item;
 		}
