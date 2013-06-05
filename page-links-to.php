@@ -60,7 +60,9 @@ class CWS_PageLinksTo {
 	}
 
  /**
-  * Performs an upgrade for older versions. Hides the keys so they only show in the plugin's UI
+  * Performs an upgrade for older versions
+  *
+  * * Version 3: Underscores the keys so they only show in the plugin's UI.
   */
 	function maybe_upgrade() {
 		if ( get_option( 'txfx_plt_schema_version' ) < 3 ) {
@@ -89,6 +91,7 @@ class CWS_PageLinksTo {
 
 	/**
 	 * Returns post ids and meta values that have a given key
+	 *
 	 * @param string $key post meta key (limited to '_links_to' and '_links_to_target')
 	 * @return array an array of objects with post_id and meta_value properties
 	 */
@@ -106,6 +109,7 @@ class CWS_PageLinksTo {
 
 	/**
 	 * Returns all links for the current site
+	 *
 	 * @return array an array of links, keyed by post ID
 	 */
 	function get_links() {
@@ -129,6 +133,7 @@ class CWS_PageLinksTo {
 
 	/**
 	 * Returns the link for the specified post ID
+	 *
 	 * @param  integer $post_id a post ID
 	 * @return mixed either a URL or false
 	 */
@@ -142,6 +147,7 @@ class CWS_PageLinksTo {
 
 	/**
 	 * Returns the link for the specified post ID
+	 *
 	 * @param  integer $post_id a post ID
 	 * @return mixed either a URL or false
 	 */
@@ -155,17 +161,18 @@ class CWS_PageLinksTo {
 
 	/**
 	 * Returns all targets for the current site
+	 *
 	 * @return array an array of targets, keyed by post ID
 	 */
 	function get_targets() {
 		global $wpdb, $blog_id;
 
-		if ( !isset( $this->targets[$blog_id] ) )
+		if ( ! isset( $this->targets[$blog_id] ) )
 			$links_to = $this->meta_by_key( '_links_to_target' );
 		else
 			return $this->targets[$blog_id];
 
-		if ( !$links_to ) {
+		if ( ! $links_to ) {
 			$this->targets[$blog_id] = false;
 			return false;
 		}
@@ -178,17 +185,22 @@ class CWS_PageLinksTo {
 
 	/**
 	 * Adds the meta box to the post or page edit screen
+	 *
 	 * @param string $page the name of the current page
 	 * @param string $context the current context
 	 */
 	function do_meta_boxes( $page, $context ) {
-		// Plugins that use custom post types can use this filter to hide the PLT UI in their post type.
+		// Plugins that use custom post types can use this filter to hide the
+		// PLT UI in their post type.
 		$plt_post_types = apply_filters( 'page-links-to-post-types', array_keys( get_post_types( array('show_ui' => true ) ) ) );
 
 		if ( in_array( $page, $plt_post_types ) && 'advanced' === $context )
 			add_meta_box( 'page-links-to', _x( 'Page Links To', 'Meta box title', 'page-links-to'), array( $this, 'meta_box' ), $page, 'advanced', 'low' );
 	}
 
+	/**
+	 * Outputs the Page Links To post screen meta box
+	 */
 	function meta_box() {
 		$post = get_post();
 		echo '<p>';
@@ -204,47 +216,133 @@ class CWS_PageLinksTo {
 	?>
 		<p><?php _e( 'Point this content to:', 'page-links-to' ); ?></p>
 		<p><label><input type="radio" id="txfx-links-to-choose-wp" name="txfx_links_to_choice" value="wp" <?php checked( !$linked ); ?> /> <?php _e( 'Its normal WordPress URL', 'page-links-to' ); ?></label></p>
-		<p><label><input type="radio" id="txfx-links-to-choose-alternate" name="txfx_links_to_choice" value="alternate" <?php checked( $linked ); ?> /> <?php _e( 'An alternate URL', 'page-links-to' ); ?></label></p>
-		<div style="webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;margin-left: 30px;" id="txfx-links-to-alternate-section" class="<?php echo !$linked ? 'hide-if-js' : ''; ?>">
+		<p><label><input type="radio" id="txfx-links-to-choose-custom" name="txfx_links_to_choice" value="custom" <?php checked( $linked ); ?> /> <?php _e( 'A custom URL', 'page-links-to' ); ?></label></p>
+		<div style="webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;margin-left: 30px;" id="txfx-links-to-custom-section" class="<?php echo !$linked ? 'hide-if-js' : ''; ?>">
 			<p><input name="txfx_links_to" type="text" style="width:75%" id="txfx-links-to" value="<?php echo esc_attr( $url ); ?>" /></p>
 			<p><label for="txfx-links-to-new-tab"><input type="checkbox" name="txfx_links_to_new_tab" id="txfx-links-to-new-tab" value="_blank" <?php checked( '_blank', get_post_meta( $post->ID, '_links_to_target', true ) ); ?>> <?php _e( 'Open this link in a new tab', 'page-links-to' ); ?></label></p>
 		</div>
-		<script src="<?php echo trailingslashit( plugin_dir_url( __FILE__ ) ) . 'js/page-links-to.js?v=2'; ?>"></script>
+		<script src="<?php echo trailingslashit( plugin_dir_url( __FILE__ ) ) . 'js/page-links-to.js?v=3'; ?>"></script>
 	<?php
 	}
 
 	/**
 	 * Saves data on post save
-	 * @param int $post_ID a post ID
+	 *
+	 * @param int $post_id a post ID
 	 * @return int the post ID that was passed in
 	 */
-	function save_post( $post_ID ) {
+	function save_post( $post_id ) {
 		if ( isset( $_REQUEST['_txfx_pl2_nonce'] ) && wp_verify_nonce( $_REQUEST['_txfx_pl2_nonce'], 'txfx_plt' ) ) {
-			if ( ( !isset( $_POST['txfx_links_to_choice'] ) || 'alternate' == $_POST['txfx_links_to_choice'] ) && isset( $_POST['txfx_links_to'] ) && strlen( $_POST['txfx_links_to'] ) > 0 && $_POST['txfx_links_to'] !== 'http://' ) {
-				$link = trim( stripslashes( $_POST['txfx_links_to'] ) );
-				if ( 0 === strpos( $link, 'www.' ) )
-					$link = 'http://' . $link; // Starts with www., so add http://
-				$this->flush_if( update_post_meta( $post_ID, '_links_to', $link ) );
+			if ( ( ! isset( $_POST['txfx_links_to_choice'] ) || 'custom' == $_POST['txfx_links_to_choice'] ) && isset( $_POST['txfx_links_to'] ) && strlen( $_POST['txfx_links_to'] ) > 0 && $_POST['txfx_links_to'] !== 'http://' ) {
+				$url = $this->clean_url( stripslashes( $_POST['txfx_links_to'] ) );
+				$this->set_link( $post_id, $url );
 				if ( isset( $_POST['txfx_links_to_new_tab'] ) )
-					$this->flush_if( update_post_meta( $post_ID, '_links_to_target', '_blank' ) );
+					$this->set_link_new_tab( $post_id );
 				else
-					$this->flush_if( delete_post_meta( $post_ID, '_links_to_target' ) );
+					$this->set_link_same_tab( $post_id );
 			} else {
-				$this->flush_if( delete_post_meta( $post_ID, '_links_to'        ) );
-				$this->flush_if( delete_post_meta( $post_ID, '_links_to_target' ) );
-				$this->flush_if( delete_post_meta( $post_ID, '_links_to_type'   ) );
+				$this->delete_link( $post_id );
 			}
 		}
-		return $post_ID;
+		return $post_id;
 	}
 
-	function flush_if( $bool ) {
-		if ( $bool ) {
-			delete_transient( 'plt_meta_cache__links_to'        );
-			delete_transient( 'plt_meta_cache__links_to_target' );
+	/**
+	 * Cleans up a URL
+	 *
+	 * @param string $url URL
+	 * @return string cleaned up URL
+	 */
+	function clean_url( $url ) {
+		$url = trim( $url );
+		// Starts with 'www.'. Probably a mistake. So add 'http://'.
+		if ( 0 === strpos( $url, 'www.' ) )
+			$url = 'http://' . $url;
+		return $url;
+	}
+
+	/**
+	 * Have a post point to a custom URL
+	 *
+	 * @param int $post_id post ID
+	 * @param string $url the URL to point the post to
+	 */
+	function set_link( $post_id, $url ) {
+		$this->flush_links_if( update_post_meta( $post_id, '_links_to', $url ) );
+	}
+
+	/**
+	 * Tell an custom URL post to open in a new tab
+	 *
+	 * @param int $post_id post ID
+	 */
+	function set_link_new_tab( $post_id ) {
+		$this->flush_targets_if( update_post_meta( $post_id, '_links_to_target', '_blank' ) );
+	}
+
+	/**
+	 * Tell an custom URL post to open in the same tab
+	 *
+	 * @param int $post_id post ID
+	 */
+	function set_link_same_tab( $post_id ) {
+		$this->flush_targets_if( delete_post_meta( $post_id, '_links_to_target' ) );
+	}
+
+	/**
+	 * Discard a custom URL and point a post to its normal URL
+	 *
+	 * @param int $post_id post ID
+	 */
+	function delete_link( $post_id ) {
+		$this->flush_links_if( delete_post_meta( $post_id, '_links_to' ) );
+		$this->flush_targets_if( delete_post_meta( $post_id, '_links_to_target' ) );
+
+		// Old, unused data that we can delete on the fly
+		delete_post_meta( $post_id, '_links_to_type' );
+	}
+
+	/**
+	 * Flushes the links transient cache if the condition is true
+	 *
+	 * @param bool $condition whether to proceed with the flush
+	 * @return bool whether the flush happened
+	 */
+	function flush_links_if( $condition ) {
+		return $this->flush_if( $condition, 'links' );
+	}
+
+	/**
+	 * Flushes the targets transient cache if the condition is true
+	 *
+	 * @param bool $condition whether to proceed with the flush
+	 * @return bool whether the flush happened
+	 */
+	function flush_targets_if( $condition ) {
+		return $this->flush_if( $condition, 'targets' );
+	}
+
+	/**
+	 * Flushes one of the transient caches if the first param is true
+	 *
+	 * @param bool $condition whether to flush the cache
+	 * @param string $type which cache to flush
+	 * @return bool whether the flush occurred
+	 */
+	function flush_if( $condition, $type ) {
+		if ( $condition ) {
+			if ( 'links' === $type )
+				return delete_transient( 'plt_meta_cache__links_to' );
+			elseif ( 'targets' === $type )
+				return delete_transient( 'plt_meta_cache__links_to_target' );
 		}
 	}
 
+	/**
+	 * Logs that a target=_blank PLT item has been used, so we know to trigger footer JS
+	 *
+	 * @param int|WP_Post $post post ID or object
+	 */
 	function log_target( $post ) {
 		$post = get_post( $post );
 		$this->targets_on_this_page[$post->ID] = true;
@@ -253,8 +351,9 @@ class CWS_PageLinksTo {
 
 	/**
 	 * Filter for post or page links
+	 *
 	 * @param string $link the URL for the post or page
-	 * @param int|object $post Either a post ID or a post object
+	 * @param int|WP_Post $post post ID or object
 	 * @return string output URL
 	 */
 	function link( $link, $post ) {
@@ -291,6 +390,7 @@ class CWS_PageLinksTo {
 
 	/**
 	 * Filters the list of pages to alter the links and targets
+	 *
 	 * @param string $pages the wp_list_pages() HTML block from WordPress
 	 * @return string the modified HTML block
 	 */
@@ -329,16 +429,25 @@ class CWS_PageLinksTo {
 		return $pages;
 	}
 
-	function wp_nav_menu_objects( $items, $args ) {
+	/**
+	 * Filters nav menu objects and adds target=_blank to the ones that need it
+	 *
+	 * @param  array $items nav menu items
+	 * @return array        modified nav menu items
+	 */
+	function wp_nav_menu_objects( $items ) {
 		$new_items = array();
 		foreach ( $items as $item ) {
 			if ( $target = $this->get_target( $item->object_id ) )
-				$item->target = $target;
+				$item->target = '_blank';
 			$new_items[] = $item;
 		}
 		return $new_items;
 	}
 
+	/**
+	 * Hooks in as a post is being loaded for editing and conditionally adds a notice
+	 */
 	function load_post() {
 		if ( isset( $_GET['post'] ) ) {
 			if ( get_post_meta( absint( $_GET['post'] ), '_links_to', true ) ) {
@@ -347,20 +456,30 @@ class CWS_PageLinksTo {
 		}
 	}
 
+	/**
+	 * Outputs a notice that the current post item is pointed to a custom URL
+	 */
 	function notify_of_external_link() {
-		?><div class="updated"><p><?php _e( '<strong>Note</strong>: This content is pointing to an alternate URL. Use the &#8220;Page Links To&#8221; box to change this behavior.', 'page-links-to' ); ?></p></div><?php
+		?><div class="updated"><p><?php _e( '<strong>Note</strong>: This content is pointing to a custom URL. Use the &#8220;Page Links To&#8221; box to change this behavior.', 'page-links-to' ); ?></p></div><?php
 	}
 
-	function id_to_url_callback( &$val, $key ) {
-		$val = get_permalink( $val );
-	}
-
+	/**
+	 * Return a JS file as a string
+	 *
+	 * Takes a plugin-relative path to a CS-produced JS file
+	 * and returns its second line (no CS comment line)
+	 * @param  string $path plugin-relative path to CoffeeScript-produced JS file
+	 * @return string       the JS string
+	 */
 	function inline_coffeescript( $path ) {
 			$inline_script = file_get_contents( trailingslashit( plugin_dir_path( __FILE__ ) ) . $path );
 			$inline_script = explode( "\n", $inline_script );
 			return $inline_script[1];
 	}
 
+	/**
+	 * Adds inline JS to the footer to handle "open in new tab" links
+	 */
 	function targets_in_new_window_via_js_footer() {
 		$target_ids = $this->targets_on_this_page;
 		$target_urls = array();
@@ -375,6 +494,13 @@ class CWS_PageLinksTo {
 		}
 	}
 
+	/**
+	 * Adds a GitHub link to the plugin meta
+	 *
+	 * @param array $links the current array of links
+	 * @param string $file the current plugin being processed
+	 * @return array the modified array of links
+	 */
 	function set_plugin_meta( $links, $file ) {
 		if ( $file === plugin_basename( __FILE__ ) ) {
 			return array_merge(

@@ -1,5 +1,5 @@
 jQuery ($) ->
-	section = $ '#txfx-links-to-alternate-section'
+	section = $ '#txfx-links-to-custom-section'
 	input = $ 'input[type=radio]', '#page-links-to'
 
 	if input.filter('input[value="wp"]').prop 'checked'
