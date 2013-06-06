@@ -99,7 +99,10 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 			// Only flush the cache if something changed
 			if ( $total_affected > 0 )
 				wp_cache_flush();
-			$this->flush_if( update_option( 'txfx_plt_schema_version', 3 ) );
+			if ( update_option( 'txfx_plt_schema_version', 3 ) ) {
+				$this->flush_links_cache();
+				$this->flush_targets_cache();
+			}
 		}
 	}
 
@@ -337,7 +340,10 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * @return bool whether the flush happened
 	 */
 	function flush_links_if( $condition ) {
-		return $this->flush_if( $condition, 'links' );
+		if ( ! $condition )
+			return false;
+		$this->flush_links_cache();
+		return true;
 	}
 
 	/**
@@ -347,29 +353,36 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * @return bool whether the flush happened
 	 */
 	function flush_targets_if( $condition ) {
-		return $this->flush_if( $condition, 'targets' );
+		if ( ! $condition )
+			return false;
+		$this->flush_targets_cache();
+		return true;
 	}
 
 	/**
-	 * Flushes one of the transient caches if the first param is true
+	 * Flushes the links transient cache
 	 *
 	 * @param bool $condition whether to flush the cache
 	 * @param string $type which cache to flush
 	 * @return bool whether the flush attempt occurred
 	 */
-	function flush_if( $condition, $type ) {
+	function flush_links_cache() {
 		global $blog_id;
-		if ( $condition ) {
-			if ( 'links' === $type ) {
-				unset( $this->links[$blog_id] );
-				delete_transient( 'plt_meta_cache__links_to' );
-			} elseif ( 'targets' === $type ) {
-				unset( $this->targets[$blog_id] );
-				delete_transient( 'plt_meta_cache__links_to_target' );
-			}
-			return true;
-		}
-		return false;
+		unset( $this->links[$blog_id] );
+		delete_transient( 'plt_meta_cache__links_to' );
+	}
+
+	/**
+	 * Flushes the targets transient cache
+	 *
+	 * @param bool $condition whether to flush the cache
+	 * @param string $type which cache to flush
+	 * @return bool whether the flush attempt occurred
+	 */
+	function flush_targets_cache() {
+		global $blog_id;
+		unset( $this->targets[$blog_id] );
+		delete_transient( 'plt_meta_cache__links_to_target' );
 	}
 
 	/**
