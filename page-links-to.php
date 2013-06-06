@@ -119,7 +119,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 */
 	function meta_by_key( $key ) {
 		global $wpdb;
-		if ( !in_array( $key, array( '_links_to', '_links_to_target' ) ) )
+		if ( ! in_array( $key, array( '_links_to', '_links_to_target' ) ) )
 			return false;
 		$cache_key = 'plt_meta_cache_' . $key;
 		if ( ! $meta = get_transient( $cache_key ) ) {
@@ -137,12 +137,12 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	function get_links() {
 		global $wpdb, $blog_id;
 
-		if ( !isset( $this->links[$blog_id] ) )
+		if ( ! isset( $this->links[$blog_id] ) )
 			$links_to = $this->meta_by_key( '_links_to' );
 		else
 			return $this->links[$blog_id];
 
-		if ( !$links_to ) {
+		if ( ! $links_to ) {
 			$this->links[$blog_id] = false;
 			return false;
 		}
@@ -229,7 +229,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 		wp_nonce_field( 'txfx_plt', '_txfx_pl2_nonce', false, true );
 		echo '</p>';
 		$url = get_post_meta( $post->ID, '_links_to', true);
-		if ( !$url ) {
+		if ( ! $url ) {
 			$linked = false;
 			$url = 'http://';
 		} else {
@@ -239,7 +239,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 		<p><?php _e( 'Point this content to:', 'page-links-to' ); ?></p>
 		<p><label><input type="radio" id="txfx-links-to-choose-wp" name="txfx_links_to_choice" value="wp" <?php checked( !$linked ); ?> /> <?php _e( 'Its normal WordPress URL', 'page-links-to' ); ?></label></p>
 		<p><label><input type="radio" id="txfx-links-to-choose-custom" name="txfx_links_to_choice" value="custom" <?php checked( $linked ); ?> /> <?php _e( 'A custom URL', 'page-links-to' ); ?></label></p>
-		<div style="webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;margin-left: 30px;" id="txfx-links-to-custom-section" class="<?php echo !$linked ? 'hide-if-js' : ''; ?>">
+		<div style="webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;margin-left: 30px;" id="txfx-links-to-custom-section" class="<?php echo ! $linked ? 'hide-if-js' : ''; ?>">
 			<p><input name="txfx_links_to" type="text" style="width:75%" id="txfx-links-to" value="<?php echo esc_attr( $url ); ?>" /></p>
 			<p><label for="txfx-links-to-new-tab"><input type="checkbox" name="txfx_links_to_new_tab" id="txfx-links-to-new-tab" value="_blank" <?php checked( '_blank', get_post_meta( $post->ID, '_links_to_target', true ) ); ?>> <?php _e( 'Open this link in a new tab', 'page-links-to' ); ?></label></p>
 		</div>
