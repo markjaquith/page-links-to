@@ -32,8 +32,10 @@ include( dirname( __FILE__ ) . '/lib/wp-stack-plugin.php' );
 
 class CWS_PageLinksTo extends WP_Stack_Plugin {
 	static $instance;
-	var $targets;
-	var $links;
+	const LINKS_CACHE_KEY = 'plt_cache__links';
+	const TARGETS_CACHE_KEY = 'plt_cache__targets';
+	const LINK_META_KEY = '_links_to';
+	const TARGET_META_KEY = '_links_to_target';
 	var $targets_on_this_page = array();
 
 	function __construct() {
@@ -110,26 +112,19 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * Enqueues jQuery, if we think we are going to need it
 	 */
 	function wp_footer() {
-		if ( $this->targets_on_this_page )
+		if ( count( $this->targets_on_this_page ) )
 			wp_enqueue_script( 'jquery' );
 	}
 
 	/**
 	 * Returns post ids and meta values that have a given key
 	 *
-	 * @param string $key post meta key (limited to '_links_to' and '_links_to_target')
-	 * @return array an array of objects with post_id and meta_value properties
+	 * @param string $key post meta key
+	 * @return array|false objects with post_id and meta_value properties
 	 */
 	function meta_by_key( $key ) {
 		global $wpdb;
-		if ( ! in_array( $key, array( '_links_to', '_links_to_target' ) ) )
-			return false;
-		$cache_key = 'plt_meta_cache_' . $key;
-		if ( ! $meta = get_transient( $cache_key ) ) {
-			$meta = $wpdb->get_results( $wpdb->prepare( "SELECT post_id, meta_value FROM $wpdb->postmeta WHERE meta_key = %s", $key ) );
-			set_transient( $cache_key, $meta );
-		}
-		return $meta;
+		return $wpdb->get_results( $wpdb->prepare( "SELECT post_id, meta_value FROM $wpdb->postmeta WHERE meta_key = %s", $key ) );
 	}
 
 	/**
@@ -138,22 +133,17 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * @return array an array of links, keyed by post ID
 	 */
 	function get_links() {
-		global $wpdb, $blog_id;
-
-		if ( ! isset( $this->links[$blog_id] ) )
-			$links_to = $this->meta_by_key( '_links_to' );
-		else
-			return $this->links[$blog_id];
-
-		if ( ! $links_to ) {
-			$this->links[$blog_id] = false;
-			return false;
+		if ( false === $links = get_transient( self::LINKS_CACHE_KEY ) ) {
+			$db_links = $this->meta_by_key( self::LINK_META_KEY );
+			$links = array();
+			if ( $db_links ) {
+				foreach ( $db_links as $link ) {
+					$links[ intval( $link->post_id ) ] = $link->meta_value;
+				}
+			}
+			set_transient( self::LINKS_CACHE_KEY, $links );
 		}
-
-		foreach ( (array) $links_to as $link )
-			$this->links[$blog_id][$link->post_id] = $link->meta_value;
-
-		return $this->links[$blog_id];
+		return $links;
 	}
 
 	/**
@@ -171,6 +161,25 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	}
 
 	/**
+	 * Returns all targets for the current site
+	 *
+	 * @return array an array of targets, keyed by post ID
+	 */
+	function get_targets() {
+		if ( false === $targets = get_transient( self::TARGETS_CACHE_KEY ) ) {
+			$db_targets = $this->meta_by_key( self::TARGET_META_KEY );
+			$targets = array();
+			if ( $db_targets ) {
+				foreach ( $db_targets as $target ) {
+					$targets[ intval( $target->post_id ) ] = true;
+				}
+			}
+			set_transient( self::TARGETS_CACHE_KEY, $targets );
+		}
+		return $targets;
+	}
+
+	/**
 	 * Returns the _blank target status for the specified post ID
 	 *
 	 * @param integer $post_id a post ID
@@ -182,30 +191,6 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 			return true;
 		else
 			return false;
-	}
-
-	/**
-	 * Returns all targets for the current site
-	 *
-	 * @return array an array of targets, keyed by post ID
-	 */
-	function get_targets() {
-		global $wpdb, $blog_id;
-
-		if ( ! isset( $this->targets[$blog_id] ) )
-			$links_to = $this->meta_by_key( '_links_to_target' );
-		else
-			return $this->targets[$blog_id];
-
-		if ( ! $links_to ) {
-			$this->targets[$blog_id] = false;
-			return false;
-		}
-
-		foreach ( (array) $links_to as $link )
-			$this->targets[$blog_id][$link->post_id] = $link->meta_value;
-
-		return $this->targets[$blog_id];
 	}
 
 	/**
@@ -231,7 +216,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 		echo '<p>';
 		wp_nonce_field( 'txfx_plt', '_txfx_pl2_nonce', false, true );
 		echo '</p>';
-		$url = get_post_meta( $post->ID, '_links_to', true);
+		$url = get_post_meta( $post->ID, self::LINK_META_KEY, true);
 		if ( ! $url ) {
 			$linked = false;
 			$url = 'http://';
@@ -244,7 +229,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 		<p><label><input type="radio" id="txfx-links-to-choose-custom" name="txfx_links_to_choice" value="custom" <?php checked( $linked ); ?> /> <?php _e( 'A custom URL', 'page-links-to' ); ?></label></p>
 		<div style="webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;margin-left: 30px;" id="txfx-links-to-custom-section" class="<?php echo ! $linked ? 'hide-if-js' : ''; ?>">
 			<p><input name="txfx_links_to" type="text" style="width:75%" id="txfx-links-to" value="<?php echo esc_attr( $url ); ?>" /></p>
-			<p><label for="txfx-links-to-new-tab"><input type="checkbox" name="txfx_links_to_new_tab" id="txfx-links-to-new-tab" value="_blank" <?php checked( '_blank', get_post_meta( $post->ID, '_links_to_target', true ) ); ?>> <?php _e( 'Open this link in a new tab', 'page-links-to' ); ?></label></p>
+			<p><label for="txfx-links-to-new-tab"><input type="checkbox" name="txfx_links_to_new_tab" id="txfx-links-to-new-tab" value="_blank" <?php checked( '_blank', get_post_meta( $post->ID, self::TARGET_META_KEY, true ) ); ?>> <?php _e( 'Open this link in a new tab', 'page-links-to' ); ?></label></p>
 		</div>
 		<script src="<?php echo trailingslashit( plugin_dir_url( __FILE__ ) ) . 'js/page-links-to.js?v=3'; ?>"></script>
 	<?php
@@ -260,13 +245,13 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 		if ( isset( $_REQUEST['_txfx_pl2_nonce'] ) && wp_verify_nonce( $_REQUEST['_txfx_pl2_nonce'], 'txfx_plt' ) ) {
 			if ( ( ! isset( $_POST['txfx_links_to_choice'] ) || 'custom' == $_POST['txfx_links_to_choice'] ) && isset( $_POST['txfx_links_to'] ) && strlen( $_POST['txfx_links_to'] ) > 0 && $_POST['txfx_links_to'] !== 'http://' ) {
 				$url = $this->clean_url( stripslashes( $_POST['txfx_links_to'] ) );
-				$this->set_link( $post_id, $url );
+				$this->flush_links_if( $this->set_link( $post_id, $url ) );
 				if ( isset( $_POST['txfx_links_to_new_tab'] ) )
-					$this->set_link_new_tab( $post_id );
+					$this->flush_targets_if( $this->set_link_new_tab( $post_id ) );
 				else
-					$this->set_link_same_tab( $post_id );
+					$this->flush_targets_if( $this->set_link_same_tab( $post_id ) );
 			} else {
-				$this->delete_link( $post_id );
+				$this->flush_links_if( $this->delete_link( $post_id ) );
 			}
 		}
 		return $post_id;
@@ -294,7 +279,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * @return bool whether anything changed
 	 */
 	function set_link( $post_id, $url ) {
-		return $this->flush_links_if( (bool) update_post_meta( $post_id, '_links_to', $url ) );
+		return $this->flush_links_if( (bool) update_post_meta( $post_id, self::LINK_META_KEY, $url ) );
 	}
 
 	/**
@@ -304,7 +289,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * @return bool whether anything changed
 	 */
 	function set_link_new_tab( $post_id ) {
-		return $this->flush_targets_if( (bool) update_post_meta( $post_id, '_links_to_target', '_blank' ) );
+		return $this->flush_targets_if( (bool) update_post_meta( $post_id, self::TARGET_META_KEY, '_blank' ) );
 	}
 
 	/**
@@ -314,7 +299,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * @return bool whether anything changed
 	 */
 	function set_link_same_tab( $post_id ) {
-		return $this->flush_targets_if( delete_post_meta( $post_id, '_links_to_target' ) );
+		return $this->flush_targets_if( delete_post_meta( $post_id, self::TARGET_META_KEY ) );
 	}
 
 	/**
@@ -324,8 +309,8 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * @return bool whether the link was deleted
 	 */
 	function delete_link( $post_id ) {
-		$return = $this->flush_links_if( delete_post_meta( $post_id, '_links_to' ) );
-		$this->flush_targets_if( delete_post_meta( $post_id, '_links_to_target' ) );
+		$return = $this->flush_links_if( delete_post_meta( $post_id, self::LINK_META_KEY ) );
+		$this->flush_targets_if( delete_post_meta( $post_id, self::TARGET_META_KEY ) );
 
 		// Old, unused data that we can delete on the fly
 		delete_post_meta( $post_id, '_links_to_type' );
@@ -367,9 +352,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * @return bool whether the flush attempt occurred
 	 */
 	function flush_links_cache() {
-		global $blog_id;
-		unset( $this->links[$blog_id] );
-		delete_transient( 'plt_meta_cache__links_to' );
+		delete_transient( self::LINKS_CACHE_KEY );
 	}
 
 	/**
@@ -380,9 +363,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * @return bool whether the flush attempt occurred
 	 */
 	function flush_targets_cache() {
-		global $blog_id;
-		unset( $this->targets[$blog_id] );
-		delete_transient( 'plt_meta_cache__links_to_target' );
+		delete_transient( self::TARGETS_CACHE_KEY );
 	}
 
 	/**
@@ -426,7 +407,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 		if ( ! is_singular() )
 			return;
 
-		$link = get_post_meta( $wp_query->post->ID, '_links_to', true );
+		$link = $this->get_link( $wp_query->post_ID );
 
 		if ( ! $link )
 			return;
@@ -497,7 +478,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 */
 	function load_post() {
 		if ( isset( $_GET['post'] ) ) {
-			if ( get_post_meta( absint( $_GET['post'] ), '_links_to', true ) ) {
+			if ( get_post_meta( absint( $_GET['post'] ), self::LINK_META_KEY, true ) ) {
 				$this->hook( 'admin_notices', 'notify_of_external_link' );
 			}
 		}
