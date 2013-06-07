@@ -11,4 +11,8 @@ class CWS_PLT_Test_Utils extends CWS_PLT_TestCase {
 			$this->assertEquals( $out, $this->plugin()->clean_url( $in ) );
 		}
 	}
+
+	function test_inline_coffeescript() {
+		$this->assertNotContains( 'CoffeeScript', $this->plugin()->inline_coffeescript( 'js/new-tab.js' ) );
+	}
 }
