@@ -5,8 +5,8 @@
 Contributors: markjaquith  
 Donate link: http://txfx.net/wordpress-plugins/donate  
 Tags: page, redirect, link, external link, repoint  
-Requires at least: 3.3  
-Tested up to: 3.5.1  
+Requires at least: 3.4  
+Tested up to: 3.6  
 Stable tag: 2.8  
 
 Lets you make a WordPress page (or other content type) link to an external URL of your choosing, instead of its WordPress URL.
@@ -49,7 +49,7 @@ Just use "#" as the link. That won't go anywhere.
 
 Not currently. Please contact me if you're interested in that functionality.
 
-### My links are sending me to http://myblog.com/www.site-i-wanted-to-link-to.com ... why? ###
+### My links are sending me to http://myblog.com/site-i-wanted-to-link-to.com ... why? ###
 
 If you want to link to a full URL, you *must* include the `http://` portion.
 
@@ -61,6 +61,8 @@ Yes. Linking to `/my-photos.php` is a good idea, as it'll still work if you move
 
 ### 2.9 ###
 * Respect "open in new tab" setting in more custom situations, like custom loops and widgets.
+* Add unit tests
+* Massive code refactoring
 
 ### 2.8 ###
 * Added translations for: Swedish, Hebrew.
