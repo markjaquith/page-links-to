@@ -214,7 +214,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	function meta_box() {
 		$post = get_post();
 		echo '<p>';
-		wp_nonce_field( 'txfx_plt', '_txfx_pl2_nonce', false, true );
+		wp_nonce_field( 'txfx_plt_' . $post->ID, '_txfx_pl2_nonce', false, true );
 		echo '</p>';
 		$url = get_post_meta( $post->ID, self::LINK_META_KEY, true);
 		if ( ! $url ) {
@@ -242,7 +242,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * @return int the post ID that was passed in
 	 */
 	function save_post( $post_id ) {
-		if ( isset( $_REQUEST['_txfx_pl2_nonce'] ) && wp_verify_nonce( $_REQUEST['_txfx_pl2_nonce'], 'txfx_plt' ) ) {
+		if ( isset( $_REQUEST['_txfx_pl2_nonce'] ) && wp_verify_nonce( $_REQUEST['_txfx_pl2_nonce'], 'txfx_plt_' . $post_id ) ) {
 			if ( ( ! isset( $_POST['txfx_links_to_choice'] ) || 'custom' == $_POST['txfx_links_to_choice'] ) && isset( $_POST['txfx_links_to'] ) && strlen( $_POST['txfx_links_to'] ) > 0 && $_POST['txfx_links_to'] !== 'http://' ) {
 				$url = $this->clean_url( stripslashes( $_POST['txfx_links_to'] ) );
 				$this->flush_links_if( $this->set_link( $post_id, $url ) );

@@ -65,7 +65,7 @@ class CWS_PLT_Test_Saving extends CWS_PLT_TestCase {
 		wp_set_current_user( $user_id );
 		$post_id = $this->factory->post->create( array( 'post_type' => 'post', 'post_author' => $user_id ) );
 
-		$this->set_post( '_txfx_pl2_nonce', wp_create_nonce( 'txfx_plt' ) );
+		$this->set_post( '_txfx_pl2_nonce', wp_create_nonce( 'txfx_plt_' . $post_id ) );
 
 		// example.org in same window
 		$this->set_post( 'txfx_links_to_choice', 'custom' );
@@ -99,9 +99,11 @@ class CWS_PLT_Test_Saving extends CWS_PLT_TestCase {
 		$this->assertEquals( 'http://example.com/link-no-radio', $this->plugin()->get_link( $post_id ) );
 		$this->assertTrue( $this->plugin()->get_target( $post_id ) );
 
+		// New post
+		$post_id = $this->factory->post->create( array( 'post_type' => 'post', 'post_author' => $user_id ) );
+
 		// Nonce missing
 		$this->unset_post( '_txfx_pl2_nonce' );
-		$post_id = $this->factory->post->create( array( 'post_type' => 'post', 'post_author' => $user_id ) );
 		$this->set_post( 'txfx_links_to_choice', 'custom' );
 		$this->set_post( 'txfx_links_to', 'http://example.com/nonce-test' );
 		$this->set_post( 'txfx_links_to_new_tab', '_blank' );
