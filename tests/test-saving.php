@@ -59,4 +59,60 @@ class CWS_PLT_Test_Saving extends CWS_PLT_TestCase {
 		$this->assertTrue( $this->plugin()->delete_link( $post_id ) );
 		$this->assertFalse( $this->plugin()->get_target( $post_id ) );
 	}
+
+	function test_updating_post() {
+		$user_id = $this->factory->user->create( array( 'role' => 'editor' ) );
+		wp_set_current_user( $user_id );
+		$post_id = $this->factory->post->create( array( 'post_type' => 'post', 'post_author' => $user_id ) );
+
+		$this->set_post( '_txfx_pl2_nonce', wp_create_nonce( 'txfx_plt' ) );
+
+		// example.org in same window
+		$this->set_post( 'txfx_links_to_choice', 'custom' );
+		$this->set_post( 'txfx_links_to', 'http://example.org/' );
+		$this->unset_post( 'txfx_links_to_new_tab' );
+		$this->plugin()->save_post( $post_id );
+		$this->assertEquals( 'http://example.org/', $this->plugin()->get_link( $post_id ) );
+		$this->assertFalse( $this->plugin()->get_target( $post_id ) );
+
+		// example.com in new window
+		$this->set_post( 'txfx_links_to_choice', 'custom' );
+		$this->set_post( 'txfx_links_to', 'http://example.com/' );
+		$this->set_post( 'txfx_links_to_new_tab', '_blank' );
+		$this->plugin()->save_post( $post_id );
+		$this->assertEquals( 'http://example.com/', $this->plugin()->get_link( $post_id ) );
+		$this->assertTrue( $this->plugin()->get_target( $post_id ) );
+
+		// WP link selected
+		$this->set_post( 'txfx_links_to_choice', 'wp' );
+		$this->set_post( 'txfx_links_to', 'http://example.com/' );
+		$this->set_post( 'txfx_links_to_new_tab', '_blank' );
+		$this->plugin()->save_post( $post_id );
+		$this->assertFalse( $this->plugin()->get_link( $post_id ) );
+		$this->assertFalse( $this->plugin()->get_target( $post_id ) );
+
+		// No radio selected, but link provided
+		$this->unset_post( 'txfx_links_to_choice' );
+		$this->set_post( 'txfx_links_to', 'http://example.com/link-no-radio' );
+		$this->set_post( 'txfx_links_to_new_tab', '_blank' );
+		$this->plugin()->save_post( $post_id );
+		$this->assertEquals( 'http://example.com/link-no-radio', $this->plugin()->get_link( $post_id ) );
+		$this->assertTrue( $this->plugin()->get_target( $post_id ) );
+
+		// Nonce missing
+		$this->unset_post( '_txfx_pl2_nonce' );
+		$post_id = $this->factory->post->create( array( 'post_type' => 'post', 'post_author' => $user_id ) );
+		$this->set_post( 'txfx_links_to_choice', 'custom' );
+		$this->set_post( 'txfx_links_to', 'http://example.com/nonce-test' );
+		$this->set_post( 'txfx_links_to_new_tab', '_blank' );
+		$this->plugin()->save_post( $post_id );
+		$this->assertFalse( $this->plugin()->get_link( $post_id ) );
+		$this->assertFalse( $this->plugin()->get_target( $post_id ) );
+
+		// Nonce wrong
+		$this->set_post( '_txfx_pl2_nonce', wp_create_nonce( 'WRONG_INPUT' ) );
+		$this->plugin()->save_post( $post_id );
+		$this->assertFalse( $this->plugin()->get_link( $post_id ) );
+		$this->assertFalse( $this->plugin()->get_target( $post_id ) );
+	}
 }

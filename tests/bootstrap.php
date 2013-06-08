@@ -13,4 +13,12 @@ class CWS_PLT_TestCase extends WP_UnitTestCase {
 	function plugin() {
 		return CWS_PageLinksTo::$instance;
 	}
+
+	function set_post( $key, $value ) {
+		$_POST[$key] = $_REQUEST[$key] = addslashes( $value );
+	}
+
+	function unset_post( $key ) {
+		unset( $_POST[$key], $_REQUEST[$key] );
+	}
 }
