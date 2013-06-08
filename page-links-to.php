@@ -36,6 +36,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	const TARGETS_CACHE_KEY = 'plt_cache__targets';
 	const LINK_META_KEY = '_links_to';
 	const TARGET_META_KEY = '_links_to_target';
+	const VERSION = 'txfx_plt_schema_version';
 	var $targets_on_this_page = array();
 
 	function __construct() {
@@ -89,7 +90,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	function maybe_upgrade() {
 		// In earlier versions, the meta keys were stored without a leading underscore.
 		// Since then, underscore has been codified as the standard for "something manages this" post meta.
-		if ( get_option( 'txfx_plt_schema_version' ) < 3 ) {
+		if ( get_option( self::VERSION ) < 3 ) {
 			global $wpdb;
 			$total_affected = 0;
 			foreach ( array( '', '_target', '_type' ) as $meta_key ) {
@@ -101,7 +102,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 			// Only flush the cache if something changed
 			if ( $total_affected > 0 )
 				wp_cache_flush();
-			if ( update_option( 'txfx_plt_schema_version', 3 ) ) {
+			if ( update_option( self::VERSION, 3 ) ) {
 				$this->flush_links_cache();
 				$this->flush_targets_cache();
 			}
