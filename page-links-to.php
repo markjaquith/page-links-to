@@ -215,7 +215,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	function meta_box() {
 		$post = get_post();
 		echo '<p>';
-		wp_nonce_field( 'txfx_plt_' . $post->ID, '_txfx_pl2_nonce', false, true );
+		wp_nonce_field( 'cws_plt_' . $post->ID, '_cws_plt_nonce', false, true );
 		echo '</p>';
 		$url = get_post_meta( $post->ID, self::LINK_META_KEY, true);
 		if ( ! $url ) {
@@ -226,11 +226,11 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 		}
 	?>
 		<p><?php _e( 'Point this content to:', 'page-links-to' ); ?></p>
-		<p><label><input type="radio" id="txfx-links-to-choose-wp" name="txfx_links_to_choice" value="wp" <?php checked( !$linked ); ?> /> <?php _e( 'Its normal WordPress URL', 'page-links-to' ); ?></label></p>
-		<p><label><input type="radio" id="txfx-links-to-choose-custom" name="txfx_links_to_choice" value="custom" <?php checked( $linked ); ?> /> <?php _e( 'A custom URL', 'page-links-to' ); ?></label></p>
-		<div style="webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;margin-left: 30px;" id="txfx-links-to-custom-section" class="<?php echo ! $linked ? 'hide-if-js' : ''; ?>">
-			<p><input name="txfx_links_to" type="text" style="width:75%" id="txfx-links-to" value="<?php echo esc_attr( $url ); ?>" /></p>
-			<p><label for="txfx-links-to-new-tab"><input type="checkbox" name="txfx_links_to_new_tab" id="txfx-links-to-new-tab" value="_blank" <?php checked( '_blank', get_post_meta( $post->ID, self::TARGET_META_KEY, true ) ); ?>> <?php _e( 'Open this link in a new tab', 'page-links-to' ); ?></label></p>
+		<p><label><input type="radio" id="cws-links-to-choose-wp" name="cws_links_to_choice" value="wp" <?php checked( !$linked ); ?> /> <?php _e( 'Its normal WordPress URL', 'page-links-to' ); ?></label></p>
+		<p><label><input type="radio" id="cws-links-to-choose-custom" name="cws_links_to_choice" value="custom" <?php checked( $linked ); ?> /> <?php _e( 'A custom URL', 'page-links-to' ); ?></label></p>
+		<div style="webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;margin-left: 30px;" id="cws-links-to-custom-section" class="<?php echo ! $linked ? 'hide-if-js' : ''; ?>">
+			<p><input name="cws_links_to" type="text" style="width:75%" id="cws-links-to" value="<?php echo esc_attr( $url ); ?>" /></p>
+			<p><label for="cws-links-to-new-tab"><input type="checkbox" name="cws_links_to_new_tab" id="cws-links-to-new-tab" value="_blank" <?php checked( '_blank', get_post_meta( $post->ID, self::TARGET_META_KEY, true ) ); ?>> <?php _e( 'Open this link in a new tab', 'page-links-to' ); ?></label></p>
 		</div>
 		<script src="<?php echo trailingslashit( plugin_dir_url( __FILE__ ) ) . 'js/page-links-to.js?v=3'; ?>"></script>
 	<?php
@@ -243,11 +243,11 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * @return int the post ID that was passed in
 	 */
 	function save_post( $post_id ) {
-		if ( isset( $_REQUEST['_txfx_pl2_nonce'] ) && wp_verify_nonce( $_REQUEST['_txfx_pl2_nonce'], 'txfx_plt_' . $post_id ) ) {
-			if ( ( ! isset( $_POST['txfx_links_to_choice'] ) || 'custom' == $_POST['txfx_links_to_choice'] ) && isset( $_POST['txfx_links_to'] ) && strlen( $_POST['txfx_links_to'] ) > 0 && $_POST['txfx_links_to'] !== 'http://' ) {
-				$url = $this->clean_url( stripslashes( $_POST['txfx_links_to'] ) );
+		if ( isset( $_REQUEST['_cws_plt_nonce'] ) && wp_verify_nonce( $_REQUEST['_cws_plt_nonce'], 'cws_plt_' . $post_id ) ) {
+			if ( ( ! isset( $_POST['cws_links_to_choice'] ) || 'custom' == $_POST['cws_links_to_choice'] ) && isset( $_POST['cws_links_to'] ) && strlen( $_POST['cws_links_to'] ) > 0 && $_POST['cws_links_to'] !== 'http://' ) {
+				$url = $this->clean_url( stripslashes( $_POST['cws_links_to'] ) );
 				$this->flush_links_if( $this->set_link( $post_id, $url ) );
-				if ( isset( $_POST['txfx_links_to_new_tab'] ) )
+				if ( isset( $_POST['cws_links_to_new_tab'] ) )
 					$this->flush_targets_if( $this->set_link_new_tab( $post_id ) );
 				else
 					$this->flush_targets_if( $this->set_link_same_tab( $post_id ) );

@@ -1,5 +1,5 @@
 jQuery ($) ->
-	section = $ '#txfx-links-to-custom-section'
+	section = $ '#cws-links-to-custom-section'
 	input = $ 'input[type=radio]', '#page-links-to'
 
 	if input.filter('input[value="wp"]').prop 'checked'
@@ -12,5 +12,5 @@ jQuery ($) ->
 		else
 			section.slideDown 'fast', ->
 				$(@).fadeTo 'fast', 1, ->
-					i = $ '#txfx-links-to'
+					i = $ '#cws-links-to'
 					i.focus().val i.val()
