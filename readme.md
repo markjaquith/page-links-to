@@ -63,6 +63,7 @@ Yes. Linking to `/my-photos.php` is a good idea, as it'll still work if you move
 * Respect "open in new tab" setting in more custom situations, like custom loops and widgets.
 * Add unit tests
 * Massive code refactoring
+* Added translations for: Spanish, Catalan
 
 ### 2.8 ###
 * Added translations for: Swedish, Hebrew.

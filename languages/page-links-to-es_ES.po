@@ -1,0 +1,51 @@
+# Translation of Page Links To in Spanish (Spain)
+# This file is distributed under the same license as the Page Links To package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2013-06-09 16:29:46+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/0.1\n"
+"Project-Id-Version: Page Links To\n"
+
+#: page-links-to.php:209
+msgctxt "Meta box title"
+msgid "Page Links To"
+msgstr "Page Links a"
+
+#: page-links-to.php:230
+msgid "A custom URL"
+msgstr "Una url personalizada"
+
+#: page-links-to.php:233
+msgid "Open this link in a new tab"
+msgstr "Abrir este enlace en una nueva pestaña"
+
+#: page-links-to.php:492
+msgid "<strong>Note</strong>: This content is pointing to a custom URL. Use the &#8220;Page Links To&#8221; box to change this behavior."
+msgstr "<strong>Atención</strong>: Este contenido apunta a una url propia. Usa la caja de &#8220;Page Links To&#8221; para cambiar este comportamiento. "
+
+#: page-links-to.php:228
+msgid "Point this content to:"
+msgstr "Apuntar este contenido a:"
+
+#: page-links-to.php:229
+msgid "Its normal WordPress URL"
+msgstr "La url normal de WordPress"
+
+msgid "Page Links To"
+msgstr "Page Links a"
+
+msgid "http://txfx.net/wordpress-plugins/page-links-to/"
+msgstr "http://txfx.net/wordpress-plugins/page-links-to/"
+
+msgid "Allows you to point WordPress pages or posts to a URL of your choosing.  Good for setting up navigational links to non-WP sections of your site or to off-site resources."
+msgstr "Te permite apuntar entradas o páginas de WordPress a una url que escojas. Está bien para configurar enlaces de navegación a secciones que no sean de WordPress de tu sitio o a recursos de fuera de tu web."
+
+msgid "Mark Jaquith"
+msgstr "Mark Jaquith"
+
+msgid "http://coveredwebservices.com/"
+msgstr "http://coveredwebservices.com/"
