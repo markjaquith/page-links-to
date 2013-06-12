@@ -408,6 +408,9 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 		if ( ! is_singular() )
 			return;
 
+		if ( !isset( $wp_query->post_ID ) )
+			return;
+
 		$link = $this->get_link( $wp_query->post_ID );
 
 		if ( ! $link )
