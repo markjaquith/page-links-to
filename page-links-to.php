@@ -533,7 +533,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * @param string $file the current plugin being processed
 	 * @return array the modified array of links
 	 */
-	function set_plugin_meta( $links, $file ) {
+	function plugin_row_meta( $links, $file ) {
 		if ( $file === plugin_basename( __FILE__ ) ) {
 			return array_merge(
 				$links,
