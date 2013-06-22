@@ -37,6 +37,8 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	const LINK_META_KEY = '_links_to';
 	const TARGET_META_KEY = '_links_to_target';
 	const VERSION = 'txfx_plt_schema_version';
+	const FILE = __FILE__;
+
 	var $targets_on_this_page = array();
 
 	function __construct() {
@@ -52,7 +54,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 		$this->maybe_upgrade();
 
 		// Load translation files
-		load_plugin_textdomain( 'page-links-to', false, basename( dirname( __FILE__ ) ) . '/languages' );
+		load_plugin_textdomain( 'page-links-to', false, basename( dirname( self::FILE ) ) . '/languages' );
 
 		// Register hooks
 		$this->register_hooks();
@@ -232,7 +234,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 			<p><input name="cws_links_to" type="text" style="width:75%" id="cws-links-to" value="<?php echo esc_attr( $url ); ?>" /></p>
 			<p><label for="cws-links-to-new-tab"><input type="checkbox" name="cws_links_to_new_tab" id="cws-links-to-new-tab" value="_blank" <?php checked( '_blank', get_post_meta( $post->ID, self::TARGET_META_KEY, true ) ); ?>> <?php _e( 'Open this link in a new tab', 'page-links-to' ); ?></label></p>
 		</div>
-		<script src="<?php echo trailingslashit( plugin_dir_url( __FILE__ ) ) . 'js/page-links-to.js?v=4'; ?>"></script>
+		<script src="<?php echo trailingslashit( plugin_dir_url( self::FILE ) ) . 'js/page-links-to.js?v=4'; ?>"></script>
 	<?php
 	}
 
@@ -504,7 +506,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * @return string       the JS string
 	 */
 	function inline_coffeescript( $path ) {
-			$inline_script = file_get_contents( trailingslashit( plugin_dir_path( __FILE__ ) ) . $path );
+			$inline_script = file_get_contents( trailingslashit( plugin_dir_path( self::FILE ) ) . $path );
 			$inline_script = explode( "\n", $inline_script );
 			return $inline_script[1];
 	}
@@ -534,7 +536,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * @return array the modified array of links
 	 */
 	function plugin_row_meta( $links, $file ) {
-		if ( $file === plugin_basename( __FILE__ ) ) {
+		if ( $file === plugin_basename( self::FILE ) ) {
 			return array_merge(
 				$links,
 				array( '<a href="https://github.com/markjaquith/page-links-to" target="_blank">GitHub</a>' )
