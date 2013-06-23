@@ -1,8 +1,8 @@
-# Translation of Page Links To in Norwegian
+# Translation of Page Links To in Norwegian (Bokmål)
 # This file is distributed under the same license as the Page Links To package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2013-06-22 04:51:59+0000\n"
+"PO-Revision-Date: 2013-06-23 00:49:54+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"

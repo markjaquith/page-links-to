@@ -132,4 +132,5 @@ files.each do |l|
 	['po', 'mo'].each do |fmt|
 		`wget -O #{plugin}-#{l[0]}.#{fmt} #{format url_root, plugin, l[1], fmt} 2>/dev/null`
 	end
+	`git checkout #{plugin}-#{l[0]}.*` if `git diff #{plugin}-#{l[0]}.po | ack '^[+-][^+-]{2}' | ack -v 'PO-Revision-Date'`.chomp.length === 0
 end
