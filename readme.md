@@ -59,6 +59,9 @@ Yes. Linking to `/my-photos.php` is a good idea, as it'll still work if you move
 
 ## Changelog ##
 
+### 2.9.1 ###
+* Fix a redirection bug in 2.9
+
 ### 2.9 ###
 * Respect "open in new tab" setting in more custom situations, like custom loops and widgets.
 * Add unit tests
