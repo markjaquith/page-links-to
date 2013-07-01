@@ -124,13 +124,30 @@ langs = {
 	'zh_HK' => 'zh-hk',
 	'zh_TW' => 'zh-tw',
 }
+reverse_langs = langs.invert
 require 'pathname'
+require 'open-uri'
 plugin = Pathname.new(File.expand_path '../').basename
-url_root = 'http://translate.markjaquith.com/projects/wordpress-plugins/%s/%s/default/export-translations?format=%s'
-files = Dir.glob("*.mo").map { |f| g = f[/#{plugin}-(.*)\.mo/, 1]; [g, langs[g]] }
-files.each do |l|
+url_domain = 'http://translate.markjaquith.com'
+url_path = '/projects/wordpress-plugins/'
+item_url = url_domain + url_path + '%s/%s/default/export-translations?format=%s'
+index_url = url_domain + url_path + '%s/'
+
+formats = []
+language_regex = %r{<a href="#{url_path}#{plugin}/([^/]+)/default"}
+
+open( format index_url, plugin ) do |f|
+	f.each_line do |l|
+		if l.match language_regex
+			lang = l[language_regex, 1]
+			formats << [reverse_langs[lang], lang]
+		end
+	end
+end
+
+formats.each do |l|
 	['po', 'mo'].each do |fmt|
-		`wget -O #{plugin}-#{l[0]}.#{fmt} #{format url_root, plugin, l[1], fmt} 2>/dev/null`
+		`wget -O #{plugin}-#{l[0]}.#{fmt} #{format item_url, plugin, l[1], fmt} 2>/dev/null`
 	end
 	`git checkout #{plugin}-#{l[0]}.*` if `git diff #{plugin}-#{l[0]}.po | ack '^[+-][^+-]{2}' | ack -v 'PO-Revision-Date'`.chomp.length === 0
 end
