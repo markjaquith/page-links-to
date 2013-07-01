@@ -410,10 +410,10 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 		if ( ! is_singular() )
 			return;
 
-		if ( !isset( $wp_query->post_ID ) )
+		if ( ! get_queried_object_id() )
 			return;
 
-		$link = $this->get_link( $wp_query->post_ID );
+		$link = $this->get_link( get_queried_object_id() );
 
 		if ( ! $link )
 			return;
