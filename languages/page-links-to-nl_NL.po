@@ -1,0 +1,51 @@
+# Translation of Page Links To in Dutch
+# This file is distributed under the same license as the Page Links To package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2013-07-01 20:36:29+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/0.1\n"
+"Project-Id-Version: Page Links To\n"
+
+#: page-links-to.php:209
+msgctxt "Meta box title"
+msgid "Page Links To"
+msgstr "Pagina linkt naar"
+
+#: page-links-to.php:230
+msgid "A custom URL"
+msgstr "Een aangepaste URL"
+
+#: page-links-to.php:233
+msgid "Open this link in a new tab"
+msgstr "Open deze link in een nieuwe tab"
+
+#: page-links-to.php:492
+msgid "<strong>Note</strong>: This content is pointing to a custom URL. Use the &#8220;Page Links To&#8221; box to change this behavior."
+msgstr "<strong>Let op</strong>: Deze content verwijst naar een aangepast URL Gebruik de  &#8220;Pagina linkt naar&#8221; box om dit aan te passen."
+
+#: page-links-to.php:228
+msgid "Point this content to:"
+msgstr "Stuur deze content naar:"
+
+#: page-links-to.php:229
+msgid "Its normal WordPress URL"
+msgstr "De normale WordPress URL"
+
+msgid "Page Links To"
+msgstr "Page Links To"
+
+msgid "http://txfx.net/wordpress-plugins/page-links-to/"
+msgstr "http://txfx.net/wordpress-plugins/page-links-to/"
+
+msgid "Allows you to point WordPress pages or posts to a URL of your choosing.  Good for setting up navigational links to non-WP sections of your site or to off-site resources."
+msgstr "Staat je toe om WordPress pagina&#8221;s naar een specifieke URL. Handig om te gebruiken bij navigatie naar URL&#8221;s van je site die niet binnen WP aanwezig zijn of compleet buiten je domein."
+
+msgid "Mark Jaquith"
+msgstr "Mark Jaquith"
+
+msgid "http://coveredwebservices.com/"
+msgstr "http://coveredwebservices.com/"
