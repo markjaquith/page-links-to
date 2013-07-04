@@ -59,7 +59,11 @@ Yes. Linking to `/my-photos.php` is a good idea, as it'll still work if you move
 
 ## Changelog ##
 
-### 2.9.1 ###
+### 2.9.3 ###
+* Only rely on an internal cache for `wp_list_pages()` processing, and time-limit the cache.
+* Work around some weird edge cases
+
+### 2.9.2 ###
 * Restore WordPress 3.4.x functionality.
 
 ### 2.9.1 ###
