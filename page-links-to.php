@@ -72,6 +72,8 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 		// Non-standard priority hooks
 		$this->hook( 'do_meta_boxes', 20 );
 		$this->hook( 'wp_footer',     19 );
+		$this->hook( 'wp_enqueue_scripts', 'start_buffer', -9999 );
+		$this->hook( 'wp_head', 'end_buffer', 9999 );
 
 		// Non-standard callback hooks
 		$this->hook( 'load-post.php', 'load_post' );
@@ -117,6 +119,31 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	function wp_footer() {
 		if ( count( $this->targets_on_this_page ) )
 			wp_enqueue_script( 'jquery' );
+	}
+
+	/**
+	 * Starts a buffer, for rescuing the jQuery object
+	 */
+	function start_buffer() {
+		ob_start( array( $this, 'buffer_callback' ) );
+	}
+
+	/**
+	 * Collects the buffer, and injects a `jQueryWP` JS object as a
+	 * copy of `jQuery`, so that dumb themes and plugins can't hurt it
+	 */
+	function buffer_callback( $content ) {
+		$pattern = "#wp-includes/js/jquery/jquery\.js\?ver=([^']+)'></script>#";
+		if ( preg_match( $pattern, $content ) )
+			$content = preg_replace( $pattern, '$0<script>jQueryWP = jQuery;</script>', $content );
+		return $content;
+	}
+
+	/**
+	 * Flushes the buffer
+	 */
+	function end_buffer() {
+		ob_end_flush();
 	}
 
 	/**
