@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the Page Links To package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2013-06-22 04:51:59+0000\n"
+"PO-Revision-Date: 2014-03-24 15:07:42+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,19 +13,19 @@ msgstr ""
 #: page-links-to.php:209
 msgctxt "Meta box title"
 msgid "Page Links To"
-msgstr ""
+msgstr "הדף מקשר אל"
 
 #: page-links-to.php:230
 msgid "A custom URL"
-msgstr ""
+msgstr "כתובת URL מותאמת אישית"
 
 #: page-links-to.php:233
 msgid "Open this link in a new tab"
-msgstr ""
+msgstr "פתח קישור זה בלשונית חדשה"
 
 #: page-links-to.php:492
 msgid "<strong>Note</strong>: This content is pointing to a custom URL. Use the &#8220;Page Links To&#8221; box to change this behavior."
-msgstr ""
+msgstr "<strong>הערה</strong>: תוכן זה מצביע לכתובת URL מותאמת אישית. השתמש ב &#8220;קישורי עמוד ל&#8221; תיבה כדי לשנות התנהגות זו.."
 
 #: page-links-to.php:228
 msgid "Point this content to:"
