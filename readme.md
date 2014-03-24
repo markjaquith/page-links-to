@@ -59,6 +59,9 @@ Yes. Linking to `/my-photos.php` is a good idea, as it'll still work if you move
 
 ## Changelog ##
 
+### 2.9.4 ###
+* Add Hungarian translation.
+
 ### 2.9.3 ###
 * Only rely on an internal cache for `wp_list_pages()` processing, and time-limit the cache.
 * Work around some weird edge cases
