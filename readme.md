@@ -5,7 +5,7 @@
 Contributors: markjaquith  
 Donate link: http://txfx.net/wordpress-plugins/donate  
 Tags: page, redirect, link, external link, repoint  
-Requires at least: 3.4  
+Requires at least: 3.9.2  
 Tested up to: 4.1  
 Stable tag: 2.9.4  
 
