@@ -430,6 +430,11 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 			if ( $this->get_target( $post->ID ) )
 				$this->log_target( $post->ID );
 		}
+		
+		if ( $link[0] == "/" ) {
+                  //It's a relative url
+                  return (is_ssl() ? 'https://' : 'http://') . $_SERVER["HTTP_HOST"] . $link;
+                }
 
 		return $link;
 	}
