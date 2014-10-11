@@ -19,13 +19,14 @@ set -ex
 install_wp() {
 	mkdir -p $WP_CORE_DIR
 
-	if [ $WP_VERSION == 'latest' ]; then 
-		local ARCHIVE_NAME='latest'
+	if [ $WP_VERSION == 'latest' ]; then
+		local ARCHIVE_URL='https://github.com/WordPress/WordPress/archive/master.tar.gz'
 	else
 		local ARCHIVE_NAME="wordpress-$WP_VERSION"
+		local ARCHIVE_URL="http://wordpress.org/${ARCHIVE_NAME}.tar.gz"
 	fi
 
-	wget -nv -O /tmp/wordpress.tar.gz http://wordpress.org/${ARCHIVE_NAME}.tar.gz
+	wget -nv -O /tmp/wordpress.tar.gz $ARCHIVE_URL
 	tar --strip-components=1 -zxmf /tmp/wordpress.tar.gz -C $WP_CORE_DIR
 
 	wget -nv -O $WP_CORE_DIR/wp-content/db.php https://raw.github.com/markoheijnen/wp-mysqli/master/db.php
