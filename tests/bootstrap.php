@@ -10,6 +10,8 @@ function _manually_load_plugin() {
 }
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 
+require $_tests_dir . '/includes/bootstrap.php';
+
 class CWS_PLT_TestCase extends WP_UnitTestCase {
 	function plugin() {
 		return CWS_PageLinksTo::$instance;
@@ -23,5 +25,3 @@ class CWS_PLT_TestCase extends WP_UnitTestCase {
 		unset( $_POST[$key], $_REQUEST[$key] );
 	}
 }
-
-require $_tests_dir . '/includes/bootstrap.php';
