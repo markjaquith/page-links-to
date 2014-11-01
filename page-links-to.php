@@ -430,11 +430,6 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 			if ( $this->get_target( $post->ID ) )
 				$this->log_target( $post->ID );
 		}
-		
-		if ( $link[0] == "/" ) {
-                  //It's a relative url
-                  return (is_ssl() ? 'https://' : 'http://') . $_SERVER["HTTP_HOST"] . $link;
-                }
 
 		return $link;
 	}
@@ -464,7 +459,20 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 		if ( ! get_queried_object_id() )
 			return false;
 
-		return $this->get_link( get_queried_object_id() );
+		$link = $this->get_link( get_queried_object_id() );
+
+		// Convert server- and protocol-relative URLs to absolute URLs
+		if ( "/" === $link[0] ) {
+			// Protocol-relative
+			if ( "/" === $link[1] ) {
+				$link = set_url_scheme( 'http:' . $link );
+			} else {
+				// Host-relative
+				$link = set_url_scheme( 'http://' . $_SERVER["HTTP_HOST"] . $link );
+			}
+		}
+
+		return $link;
 	}
 
 	/**
