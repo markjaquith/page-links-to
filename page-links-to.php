@@ -426,7 +426,8 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 		$meta_link = $this->get_link( $post->ID );
 
 		if ( $meta_link ) {
-			$link = esc_url( $meta_link );
+			$link = apply_filters('plt/load_meta_link', $meta_link, $post->ID, $link);
+			$link = esc_url( $link );
 			if ( $this->get_target( $post->ID ) )
 				$this->log_target( $post->ID );
 		}
