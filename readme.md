@@ -57,6 +57,10 @@ If you want to link to a full URL, you *must* include the `http://` portion.
 
 Yes. Linking to `/my-photos.php` is a good idea, as it'll still work if you move your site to a different domain.
 
+## Contribute ##
+
+You can contribute (or report bugs) on [Github](https://github.com/markjaquith/page-links-to/).
+
 ## Changelog ##
 
 ### 2.9.5 ###
