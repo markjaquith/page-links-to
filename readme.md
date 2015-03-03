@@ -61,6 +61,7 @@ Yes. Linking to `/my-photos.php` is a good idea, as it'll still work if you move
 
 ### 2.9.5 ###
 * Made relative URLs absolute in redirects
+* Fixed a potential PHP warning
 
 ### 2.9.4 ###
 * Add Hungarian translation.
