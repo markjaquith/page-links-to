@@ -84,6 +84,10 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 		$this->hook( 'save_post'           );
 		$this->hook( 'wp_nav_menu_objects' );
 		$this->hook( 'plugin_row_meta'     );
+
+		// Metadata validation grants users editing privileges for our custom fields
+		register_meta('post', self::LINK_META_KEY, null, '__return_true');
+		register_meta('post', self::TARGET_META_KEY, null, '__return_true');
 	}
 
 	/**
