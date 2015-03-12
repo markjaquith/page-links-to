@@ -63,6 +63,9 @@ You can contribute (or report bugs) on [Github](https://github.com/markjaquith/p
 
 ## Changelog ##
 
+### 2.9.7 ###
+* Added a Russian translation
+
 ### 2.9.6 ###
 * Fixed an issue with redirects that have `@` in the URL
 * Fixed issues with setting and displaying custom URLs for attachments
