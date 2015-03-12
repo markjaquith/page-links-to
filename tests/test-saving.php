@@ -60,6 +60,21 @@ class CWS_PLT_Test_Saving extends CWS_PLT_TestCase {
 		$this->assertFalse( $this->plugin()->get_target( $post_id ) );
 	}
 
+	function test_updating_attachment() {
+		$user_id = $this->factory->user->create( array( 'role' => 'editor' ) );
+		wp_set_current_user( $user_id );
+		$post_id = $this->factory->post->create( array( 'post_type' => 'attachment', 'post_author' => $user_id ) );
+
+		$this->set_post( '_cws_plt_nonce', wp_create_nonce( 'cws_plt_' . $post_id ) );
+
+		// example.org in same window
+		$this->set_post( 'cws_links_to_choice', 'custom' );
+		$this->set_post( 'cws_links_to', 'http://example.org/' );
+		$this->unset_post( 'cws_links_to_new_tab' );
+		$this->plugin()->edit_attachment( $post_id );
+		$this->assertEquals( 'http://example.org/', $this->plugin()->get_link( $post_id ) );
+	}
+
 	function test_updating_post() {
 		$user_id = $this->factory->user->create( array( 'role' => 'editor' ) );
 		wp_set_current_user( $user_id );

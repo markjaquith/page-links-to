@@ -3,7 +3,7 @@
 Plugin Name: Page Links To
 Plugin URI: http://txfx.net/wordpress-plugins/page-links-to/
 Description: Allows you to point WordPress pages or posts to a URL of your choosing.  Good for setting up navigational links to non-WP sections of your site or to off-site resources.
-Version: 2.9.5
+Version: 2.9.6
 Author: Mark Jaquith
 Author URI: http://coveredwebservices.com/
 Text Domain: page-links-to
@@ -65,9 +65,10 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 */
 	function register_hooks() {
 		// Hook in to URL generation
-		$this->hook( 'page_link',      'link', 20 );
-		$this->hook( 'post_link',      'link', 20 );
-		$this->hook( 'post_type_link', 'link', 20 );
+		$this->hook( 'page_link',       'link', 20 );
+		$this->hook( 'post_link',       'link', 20 );
+		$this->hook( 'post_type_link',  'link', 20 );
+		$this->hook( 'attachment_link', 'link', 20 );
 
 		// Non-standard priority hooks
 		$this->hook( 'do_meta_boxes', 20 );
@@ -82,6 +83,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 		$this->hook( 'wp_list_pages'       );
 		$this->hook( 'template_redirect'   );
 		$this->hook( 'save_post'           );
+		$this->hook( 'edit_attachment'     );
 		$this->hook( 'wp_nav_menu_objects' );
 		$this->hook( 'plugin_row_meta'     );
 
@@ -273,6 +275,16 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 		</div>
 		<script src="<?php echo trailingslashit( plugin_dir_url( self::FILE ) ) . 'js/page-links-to.js?v=4'; ?>"></script>
 	<?php
+	}
+
+	/**
+	 * Saves data on attachment save
+	 *
+	 * @param  int $post_id
+	 * @return int the attachment post ID that was passed in
+	 */
+	function edit_attachment( $post_id ) {
+		return $this->save_post( $post_id );
 	}
 
 	/**
@@ -474,6 +486,10 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 				// Host-relative
 				$link = set_url_scheme( 'http://' . $_SERVER["HTTP_HOST"] . $link );
 			}
+		}
+
+		if ( 'mailto' !== parse_url( $link, PHP_URL_SCHEME ) ) {
+			$link = str_replace( '@', '%40', $link );
 		}
 
 		return $link;

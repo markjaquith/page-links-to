@@ -21,4 +21,11 @@ class CWS_PLT_Test_Redirection extends CWS_PLT_TestCase {
 		query_posts( array( 'p' => $post_id ) );
 		$this->assertEquals( (is_ssl() ? 'https:' : 'http:' ) . '//example.com/foo', $this->plugin()->get_redirect() );
 	}
+
+	function test_redirection_with_asperand() {
+		$post_id = $this->factory->post->create( array( 'post_type' => 'post' ) );
+		$this->assertTrue( $this->plugin()->set_link( $post_id, 'http://example.com/@test' ) );
+		query_posts( array( 'p' => $post_id ) );
+		$this->assertEquals( 'http://example.com/%40test', $this->plugin()->get_redirect() );
+	}
 }
