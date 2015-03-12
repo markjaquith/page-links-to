@@ -10,7 +10,7 @@ Text Domain: page-links-to
 Domain Path: /languages
 */
 
-/*  Copyright 2005-2013  Mark Jaquith
+/*  Copyright 2005-2015  Mark Jaquith
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -38,8 +38,6 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	const TARGET_META_KEY = '_links_to_target';
 	const VERSION = 'txfx_plt_schema_version';
 	const FILE = __FILE__;
-
-	var $targets_on_this_page = array();
 
 	function __construct() {
 		self::$instance = $this;
@@ -72,9 +70,9 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 
 		// Non-standard priority hooks
 		$this->hook( 'do_meta_boxes', 20 );
-		$this->hook( 'wp_footer',     19 );
 		$this->hook( 'wp_enqueue_scripts', 'start_buffer', -9999 );
 		$this->hook( 'wp_head', 'end_buffer', 9999 );
+		$this->hook( 'wp_footer', 'targets_in_new_window_via_js_footer', 999 );
 
 		// Non-standard callback hooks
 		$this->hook( 'load-post.php', 'load_post' );
@@ -120,17 +118,10 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	}
 
 	/**
-	 * Enqueues jQuery, if we think we are going to need it
-	 */
-	function wp_footer() {
-		if ( count( $this->targets_on_this_page ) )
-			wp_enqueue_script( 'jquery' );
-	}
-
-	/**
 	 * Starts a buffer, for rescuing the jQuery object
 	 */
 	function start_buffer() {
+		// wp_enqueue_script( 'jquery' );
 		ob_start( array( $this, 'buffer_callback' ) );
 	}
 
@@ -419,17 +410,6 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	}
 
 	/**
-	 * Logs that a target=_blank PLT item has been used, so we know to trigger footer JS
-	 *
-	 * @param int|WP_Post $post post ID or object
-	 */
-	function log_target( $post ) {
-		$post = get_post( $post );
-		$this->targets_on_this_page[$post->ID] = true;
-		$this->hook( 'wp_footer', 'targets_in_new_window_via_js_footer', 999 );
-	}
-
-	/**
 	 * Filter for Post links
 	 *
 	 * @param string $link the URL for the post or page
@@ -443,8 +423,9 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 
 		if ( $meta_link ) {
 			$link = esc_url( $meta_link );
-			if ( $this->get_target( $post->ID ) )
-				$this->log_target( $post->ID );
+			if ( ! is_admin() && $this->get_target( $post->ID ) ) {
+				$link .= '#new_tab';
+			}
 		}
 
 		return $link;
@@ -517,6 +498,9 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 		$this_url = ( is_ssl() ? 'https' : 'http' ) . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 
 		foreach ( (array) $links as $id => $page ) {
+			if ( isset( $targets_by_url[$page] ) ) {
+				$page .= '#new_tab';
+			}
 			if ( str_replace( 'http://www.', 'http://', $this_url ) === str_replace( 'http://www.', 'http://', $page ) || ( is_home() && str_replace( 'http://www.', 'http://', trailingslashit( get_bloginfo( 'url' ) ) ) === str_replace( 'http://www.', 'http://', trailingslashit( $page ) ) ) ) {
 				$highlight = true;
 				$current_page = esc_url( $page );
@@ -525,7 +509,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 
 		if ( count( $targets_by_url ) ) {
 			foreach ( array_keys( $targets_by_url ) as $p ) {
-				$p = esc_url( $p );
+				$p = esc_url( $p . '#new_tab' );
 				$pages = str_replace( '<a href="' . $p . '"', '<a href="' . $p . '" target="_blank"', $pages );
 			}
 		}
@@ -581,24 +565,14 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	function inline_coffeescript( $path ) {
 			$inline_script = file_get_contents( trailingslashit( plugin_dir_path( self::FILE ) ) . $path );
 			$inline_script = explode( "\n", $inline_script );
-			return $inline_script[1];
+			return $inline_script[0];
 	}
 
 	/**
 	 * Adds inline JS to the footer to handle "open in new tab" links
 	 */
 	function targets_in_new_window_via_js_footer() {
-		$target_ids = $this->targets_on_this_page;
-		$target_urls = array();
-		foreach ( array_keys( $target_ids ) as $id ) {
-			$link = $this->get_link( $id );
-			if ( $link )
-				$target_urls[$link] = true;
-		}
-		$targets = array_keys( $target_urls );
-		if ( $targets ) {
-			?><script>var pltNewTabURLs = <?php echo json_encode( $targets ) . ';' . $this->inline_coffeescript( 'js/new-tab.js' ); ?></script><?php
-		}
+		?><script><?php echo $this->inline_coffeescript( 'js/new-tab.js' ); ?></script><?php
 	}
 
 	/**
