@@ -71,8 +71,8 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 		// Non-standard priority hooks
 		$this->hook( 'do_meta_boxes', 20 );
 		$this->hook( 'wp_enqueue_scripts', 'start_buffer', -9999 );
+		$this->hook( 'wp_enqueue_scripts' );
 		$this->hook( 'wp_head', 'end_buffer', 9999 );
-		$this->hook( 'wp_footer', 'targets_in_new_window_via_js_footer', 999 );
 
 		// Non-standard callback hooks
 		$this->hook( 'load-post.php', 'load_post' );
@@ -118,16 +118,24 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	}
 
 	/**
+	 * Enqueues front end scripts
+	 */
+	function wp_enqueue_scripts() {
+		wp_enqueue_script( 'page-links-to', $this->get_url() . 'js/new-tab.js', array( 'jquery' ), '2.9.7', true );
+	}
+
+	/**
 	 * Starts a buffer, for rescuing the jQuery object
 	 */
 	function start_buffer() {
-		// wp_enqueue_script( 'jquery' );
 		ob_start( array( $this, 'buffer_callback' ) );
 	}
 
 	/**
 	 * Collects the buffer, and injects a `jQueryWP` JS object as a
 	 * copy of `jQuery`, so that dumb themes and plugins can't hurt it
+	 *
+	 * @return string the modified buffer
 	 */
 	function buffer_callback( $content ) {
 		$pattern = "#wp-includes/js/jquery/jquery\.js\?ver=([^']+)'></script>#";
@@ -264,7 +272,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 			<p><input name="cws_links_to" type="text" style="width:75%" id="cws-links-to" value="<?php echo esc_attr( $url ); ?>" /></p>
 			<p><label for="cws-links-to-new-tab"><input type="checkbox" name="cws_links_to_new_tab" id="cws-links-to-new-tab" value="_blank" <?php checked( (bool) $this->get_target( $post->ID ) ); ?>> <?php _e( 'Open this link in a new tab', 'page-links-to' ); ?></label></p>
 		</div>
-		<script src="<?php echo trailingslashit( plugin_dir_url( self::FILE ) ) . 'js/page-links-to.js?v=4'; ?>"></script>
+		<script src="<?php echo $this->get_url() . 'js/page-links-to.js?v=4'; ?>"></script>
 	<?php
 	}
 
@@ -555,27 +563,6 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	}
 
 	/**
-	 * Return a JS file as a string
-	 *
-	 * Takes a plugin-relative path to a CS-produced JS file
-	 * and returns its second line (no CS comment line)
-	 * @param  string $path plugin-relative path to CoffeeScript-produced JS file
-	 * @return string       the JS string
-	 */
-	function inline_coffeescript( $path ) {
-			$inline_script = file_get_contents( trailingslashit( plugin_dir_path( self::FILE ) ) . $path );
-			$inline_script = explode( "\n", $inline_script );
-			return $inline_script[0];
-	}
-
-	/**
-	 * Adds inline JS to the footer to handle "open in new tab" links
-	 */
-	function targets_in_new_window_via_js_footer() {
-		?><script><?php echo $this->inline_coffeescript( 'js/new-tab.js' ); ?></script><?php
-	}
-
-	/**
 	 * Adds a GitHub link to the plugin meta
 	 *
 	 * @param array $links the current array of links
@@ -590,6 +577,24 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 			);
 		}
 		return $links;
+	}
+
+	/**
+	 * Returns the URL of this plugin's directory
+	 *
+	 * @return string this plugin's directory URL
+	 */
+	public function get_url() {
+		return plugin_dir_url( self::FILE );
+	}
+
+	/**
+	 * Returns the filesystem path of this plugin's directory
+	 *
+	 * @return string this plugin's directory filesystem path
+	 */
+	public function get_path() {
+		return plugin_dir_path( self::FILE );
 	}
 }
 
