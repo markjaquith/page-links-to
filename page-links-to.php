@@ -86,8 +86,8 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 		$this->hook( 'plugin_row_meta'     );
 
 		// Metadata validation grants users editing privileges for our custom fields
-		register_meta('post', self::LINK_META_KEY, null, '__return_true');
-		register_meta('post', self::TARGET_META_KEY, null, '__return_true');
+		register_meta( 'post', self::LINK_META_KEY,   null, '__return_true' );
+		register_meta( 'post', self::TARGET_META_KEY, null, '__return_true' );
 	}
 
 	/**
@@ -104,12 +104,14 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 			foreach ( array( '', '_target', '_type' ) as $meta_key ) {
 				$meta_key = 'links_to' . $meta_key;
 				$affected = $wpdb->update( $wpdb->postmeta, array( 'meta_key' => '_' . $meta_key ), compact( 'meta_key' ) );
-				if ( $affected )
+				if ( $affected ) {
 					$total_affected += $affected;
+				}
 			}
 			// Only flush the cache if something changed
-			if ( $total_affected > 0 )
+			if ( $total_affected > 0 ) {
 				wp_cache_flush();
+			}
 			if ( update_option( self::VERSION, 3 ) ) {
 				$this->flush_links_cache();
 				$this->flush_targets_cache();
@@ -139,8 +141,9 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 */
 	function buffer_callback( $content ) {
 		$pattern = "#wp-includes/js/jquery/jquery\.js\?ver=([^']+)'></script>#";
-		if ( preg_match( $pattern, $content ) )
+		if ( preg_match( $pattern, $content ) ) {
 			$content = preg_replace( $pattern, '$0<script>jQueryWP = jQuery;</script>', $content );
+		}
 		return $content;
 	}
 
@@ -170,8 +173,9 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 */
 	function get_post_meta( $post_id, $key ) {
 		$meta = get_post_meta( absint( $post_id ), $key, true );
-		if ( '' === $meta )
+		if ( '' === $meta ) {
 			return false;
+		}
 		return $meta;
 	}
 
@@ -244,8 +248,9 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 		// PLT UI in their post type.
 		$plt_post_types = apply_filters( 'page-links-to-post-types', array_keys( get_post_types( array('show_ui' => true ) ) ) );
 
-		if ( in_array( $page, $plt_post_types ) && 'advanced' === $context )
+		if ( in_array( $page, $plt_post_types ) && 'advanced' === $context ) {
 			add_meta_box( 'page-links-to', _x( 'Page Links To', 'Meta box title', 'page-links-to'), array( $this, 'meta_box' ), $page, 'advanced', 'low' );
+		}
 	}
 
 	/**
@@ -317,8 +322,9 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	function clean_url( $url ) {
 		$url = trim( $url );
 		// Starts with 'www.'. Probably a mistake. So add 'http://'.
-		if ( 0 === strpos( $url, 'www.' ) )
+		if ( 0 === strpos( $url, 'www.' ) ) {
 			$url = 'http://' . $url;
+		}
 		return $url;
 	}
 
@@ -376,10 +382,12 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * @return bool whether the flush happened
 	 */
 	function flush_links_if( $condition ) {
-		if ( ! $condition )
+		if ( $condition ) {
+			$this->flush_links_cache();
+			return true;
+		} else {
 			return false;
-		$this->flush_links_cache();
-		return true;
+		}
 	}
 
 	/**
@@ -389,10 +397,12 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * @return bool whether the flush happened
 	 */
 	function flush_targets_if( $condition ) {
-		if ( ! $condition )
+		if ( $condition ) {
+			$this->flush_targets_cache();
+			return true;
+		} else {
 			return false;
-		$this->flush_targets_cache();
-		return true;
+		}
 	}
 
 	/**
@@ -445,11 +455,10 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	function template_redirect() {
 		$link = $this->get_redirect();
 
-		if ( ! $link )
-			return;
-
-		wp_redirect( $link, 301 );
-		exit;
+		if ( $link ) {
+			wp_redirect( $link, 301 );
+			exit;
+		}
 	}
 
 	/**
@@ -458,11 +467,9 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * @return string|bool the redirection URL, or false
 	 */
 	function get_redirect() {
-		if ( ! is_singular() )
+		if ( ! is_singular() || ! get_queried_object_id() ) {
 			return false;
-
-		if ( ! get_queried_object_id() )
-			return false;
+		}
 
 		$link = $this->get_link( get_queried_object_id() );
 
@@ -500,8 +507,9 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 		foreach( array_keys( $targets ) as $targeted_id )
 			$targets_by_url[$links[$targeted_id]] = true;
 
-		if ( ! $links )
+		if ( ! $links ) {
 			return $pages;
+		}
 
 		$this_url = ( is_ssl() ? 'https' : 'http' ) . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 
@@ -538,8 +546,9 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	function wp_nav_menu_objects( $items ) {
 		$new_items = array();
 		foreach ( $items as $item ) {
-			if ( isset( $item->object_id ) && $this->get_target( $item->object_id ) )
+			if ( isset( $item->object_id ) && $this->get_target( $item->object_id ) ) {
 				$item->target = '_blank';
+			}
 			$new_items[] = $item;
 		}
 		return $new_items;
@@ -549,9 +558,8 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * Hooks in as a post is being loaded for editing and conditionally adds a notice
 	 */
 	function load_post() {
-		if ( isset( $_GET['post'] ) ) {
-			if ( $this->get_link( (int) $_GET['post'] ) )
-				$this->hook( 'admin_notices', 'notify_of_external_link' );
+		if ( isset( $_GET['post'] ) && $this->get_link( (int) $_GET['post'] ) ) {
+			$this->hook( 'admin_notices', 'notify_of_external_link' );
 		}
 	}
 
@@ -575,8 +583,9 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 				$links,
 				array( '<a href="https://github.com/markjaquith/page-links-to" target="_blank">GitHub</a>' )
 			);
+		} else {
+			return $links;
 		}
-		return $links;
 	}
 
 	/**
