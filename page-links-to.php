@@ -123,7 +123,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * Enqueues front end scripts
 	 */
 	function wp_enqueue_scripts() {
-		wp_enqueue_script( 'page-links-to', $this->get_url() . 'js/new-tab.js', array( 'jquery' ), '2.9.7', true );
+		wp_enqueue_script( 'page-links-to', $this->get_url() . 'js/new-tab.min.js', array( 'jquery' ), '2.9.7', true );
 	}
 
 	/**
@@ -277,7 +277,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 			<p><input name="cws_links_to" type="text" style="width:75%" id="cws-links-to" value="<?php echo esc_attr( $url ); ?>" /></p>
 			<p><label for="cws-links-to-new-tab"><input type="checkbox" name="cws_links_to_new_tab" id="cws-links-to-new-tab" value="_blank" <?php checked( (bool) $this->get_target( $post->ID ) ); ?>> <?php _e( 'Open this link in a new tab', 'page-links-to' ); ?></label></p>
 		</div>
-		<script src="<?php echo $this->get_url() . 'js/page-links-to.js?v=4'; ?>"></script>
+		<script src="<?php echo $this->get_url() . 'js/page-links-to.min.js?v=4'; ?>"></script>
 	<?php
 	}
 
