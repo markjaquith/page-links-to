@@ -185,14 +185,14 @@ module.exports = (grunt) ->
 					to: 'Version: <%= pkg.version %>'
 				]
 			plugin:
-				src: [ 'classes/plugin.php' ]
+				src: [ '<%= pkg.name %>.php' ]
 				overwrite: yes
 				replacements: [
 					from: /^(\s*?)const(\s+?)VERSION(\s*?)=(\s+?)'[^']+';/m
 					to: "$1const$2VERSION$3=$4'<%= pkg.version %>';"
 				,
 					from: /^(\s*?)const(\s+?)CSS_JS_VERSION(\s*?)=(\s+?)'[^']+';/m
-					to: "$1const$2CSS_JS_VERSION$3=$4'<%= pkg.version %>-release';"
+					to: "$1const$2CSS_JS_VERSION$3=$4'<%= pkg.version %>';"
 				]
 			svn_trunk_readme:
 				src: [ 'release/svn/<%= pkg.name %>/trunk/readme.md' ]

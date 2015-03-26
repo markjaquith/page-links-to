@@ -3,7 +3,7 @@
 Plugin Name: Page Links To
 Plugin URI: http://txfx.net/wordpress-plugins/page-links-to/
 Description: Allows you to point WordPress pages or posts to a URL of your choosing.  Good for setting up navigational links to non-WP sections of your site or to off-site resources.
-Version: 2.9.7-beta
+Version: 2.9.7-beta-2
 Author: Mark Jaquith
 Author URI: http://coveredwebservices.com/
 Text Domain: page-links-to
@@ -36,8 +36,9 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	const TARGETS_CACHE_KEY = 'plt_cache__targets';
 	const LINK_META_KEY = '_links_to';
 	const TARGET_META_KEY = '_links_to_target';
-	const VERSION = 'txfx_plt_schema_version';
+	const VERSION_KEY = 'txfx_plt_schema_version';
 	const FILE = __FILE__;
+	const CSS_JS_VERSION = '2.9.7-beta-2-release';
 
 	function __construct() {
 		self::$instance = $this;
@@ -98,7 +99,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	function maybe_upgrade() {
 		// In earlier versions, the meta keys were stored without a leading underscore.
 		// Since then, underscore has been codified as the standard for "something manages this" post meta.
-		if ( get_option( self::VERSION ) < 3 ) {
+		if ( get_option( self::VERSION_KEY ) < 3 ) {
 			global $wpdb;
 			$total_affected = 0;
 			foreach ( array( '', '_target', '_type' ) as $meta_key ) {
@@ -112,7 +113,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 			if ( $total_affected > 0 ) {
 				wp_cache_flush();
 			}
-			if ( update_option( self::VERSION, 3 ) ) {
+			if ( update_option( self::VERSION_KEY, 3 ) ) {
 				$this->flush_links_cache();
 				$this->flush_targets_cache();
 			}
@@ -123,7 +124,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * Enqueues front end scripts
 	 */
 	function wp_enqueue_scripts() {
-		wp_enqueue_script( 'page-links-to', $this->get_url() . 'js/new-tab.min.js', array( 'jquery' ), '2.9.7', true );
+		wp_enqueue_script( 'page-links-to', $this->get_url() . 'js/new-tab.min.js', array( 'jquery' ), self::CSS_JS_VERSION, true );
 	}
 
 	/**
