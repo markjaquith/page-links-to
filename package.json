@@ -2,7 +2,7 @@
   "name": "page-links-to",
   "title": "Page Links To",
   "description": "Lets you make a WordPress page (or other content type) link to an external URL of your choosing, instead of its WordPress URL.",
-  "version": "0.1.0",
+  "version": "2.9.7-beta",
   "homepage": "",
   "author": {
     "name": "Mark Jaquith",
@@ -21,7 +21,11 @@
     "grunt-contrib-watch": "~0.6.1",
     "grunt-contrib-clean": "~0.6.0",
     "grunt-contrib-copy": "~0.7.0",
-    "grunt-contrib-compress": "~0.12.0"
+    "grunt-contrib-compress": "~0.12.0",
+    "grunt-phpunit": "~0.3.6",
+    "grunt-text-replace": "~0.4.0",
+    "grunt-svn-checkout": "~0.1.1",
+    "grunt-push-svn": "~0.2.1"
   },
   "keywords": []
 }
