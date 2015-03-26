@@ -25,7 +25,8 @@
     "grunt-phpunit": "~0.3.6",
     "grunt-text-replace": "~0.4.0",
     "grunt-svn-checkout": "~0.1.1",
-    "grunt-push-svn": "~0.2.1"
+    "grunt-push-svn": "~0.2.1",
+    "coffeelint": "^1"
   },
   "keywords": []
 }

@@ -38,7 +38,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	const TARGET_META_KEY = '_links_to_target';
 	const VERSION_KEY = 'txfx_plt_schema_version';
 	const FILE = __FILE__;
-	const CSS_JS_VERSION = '2.9.7-beta-2-release';
+	const CSS_JS_VERSION = '2.9.7-beta-2';
 
 	function __construct() {
 		self::$instance = $this;
