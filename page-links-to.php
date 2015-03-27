@@ -73,10 +73,12 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 		$this->hook( 'do_meta_boxes', 20 );
 		$this->hook( 'wp_enqueue_scripts', 'start_buffer', -9999 );
 		$this->hook( 'wp_enqueue_scripts' );
+		$this->hook( 'wp_enqueue_scripts', 'jquery_protection', 9999 );
 		$this->hook( 'wp_head', 'end_buffer', 9999 );
 
 		// Non-standard callback hooks
-		$this->hook( 'load-post.php', 'load_post' );
+		$this->hook( 'load-post.php',      'load_post'  );
+		$this->hook( 'wp_default_scripts', 'log_jquery' );
 
 		// Standard hooks
 		$this->hook( 'wp_list_pages'       );
@@ -117,6 +119,29 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 				$this->flush_links_cache();
 				$this->flush_targets_cache();
 			}
+		}
+	}
+
+	/**
+	 * Logs data about core's jQuery
+	 */
+	public function log_jquery( $wp_scripts ) {
+		$this->jquery      = $wp_scripts->registered['jquery'];
+		$this->jquery_core = $wp_scripts->registered['jquery-core'];
+	}
+
+	/**
+	 * Prevents jQuery from being incorrectly overwritten
+	 */
+	public function jquery_protection() {
+		global $wp_scripts;
+
+		if ( $wp_scripts->registered['jquery-core'] !== $this->jquery_core ) {
+			$wp_scripts->registered['jquery-core'] = $this->jquery_core;
+		}
+
+		if ( $wp_scripts->registered['jquery'] !== $this->jquery ) {
+			$wp_scripts->registered['jquery'] = $this->jquery;
 		}
 	}
 
