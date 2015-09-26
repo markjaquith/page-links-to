@@ -136,11 +136,11 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	public function jquery_protection() {
 		global $wp_scripts;
 
-		if ( $wp_scripts->registered['jquery-core'] !== $this->jquery_core ) {
+		if ( property_exists( $this, 'jquery_core' ) && $wp_scripts->registered['jquery-core'] !== $this->jquery_core ) {
 			$wp_scripts->registered['jquery-core'] = $this->jquery_core;
 		}
 
-		if ( $wp_scripts->registered['jquery'] !== $this->jquery ) {
+		if ( property_exists( $this, 'jquery' ) && $wp_scripts->registered['jquery'] !== $this->jquery ) {
 			$wp_scripts->registered['jquery'] = $this->jquery;
 		}
 	}
