@@ -63,6 +63,9 @@ You can contribute (or report bugs) on [Github](https://github.com/markjaquith/p
 
 ## Changelog ##
 
+### 2.9.9 ###
+* Back out jQuery protection code that causes issues on some sites
+
 ### 2.9.8 ###
 * Added a Russian translation
 * Maintain a reference to WordPress' jQuery version
