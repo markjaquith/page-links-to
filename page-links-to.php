@@ -10,7 +10,7 @@ Text Domain: page-links-to
 Domain Path: /languages
 */
 
-/*  Copyright 2005-2015  Mark Jaquith
+/*  Copyright 2005-2017  Mark Jaquith
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
