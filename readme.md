@@ -63,8 +63,10 @@ You can contribute (or report bugs) on [Github](https://github.com/markjaquith/p
 
 ## Changelog ##
 
-### 2.9.7 ###
+### 2.9.8 ###
 * Added a Russian translation
+* Maintain a reference to WordPress' jQuery version
+* Modernize build tools
 
 ### 2.9.6 ###
 * Fixed an issue with redirects that have `@` in the URL
