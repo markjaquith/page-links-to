@@ -471,6 +471,11 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 				$link .= '#new_tab';
 			}
 		}
+		
+		if ( $link[0] == "/" ) {
+                  //It's a relative url
+                  return (is_ssl() ? 'https://' : 'http://') . $_SERVER["HTTP_HOST"] . $link;
+                }
 
 		return $link;
 	}
