@@ -22,10 +22,9 @@
     "grunt-contrib-clean": "~0.6.0",
     "grunt-contrib-copy": "~0.7.0",
     "grunt-contrib-compress": "~0.12.0",
-    "grunt-phpunit": "~0.3.6",
     "grunt-text-replace": "~0.4.0",
-    "grunt-svn-checkout": "~0.1.1",
-    "grunt-push-svn": "~0.2.1",
+    "grunt-phpunit": "~0.3.6",
+    "grunt-wp-deploy": "~1.0.3",
     "coffeelint": "^1"
   },
   "keywords": []

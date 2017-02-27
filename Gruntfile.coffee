@@ -1,18 +1,24 @@
 module.exports = (grunt) ->
-	# Regex, used twice
-	readmeReplacements = [
-		from: /^# (.*?)( #+)?$/mg
-		to: '=== $1 ==='
-	,
-		from: /^## (.*?)( #+)?$/mg
-		to: '== $1 =='
-	,
-		from: /^### (.*?)( #+)?$/mg
-		to: '= $1 ='
-	,
-		from: /^Stable tag:\s*?[\w.-]+(\s*?)$/mi
-		to: 'Stable tag: <%= pkg.version %>$1'
+
+	# Define CoffeeScript files in one place (no path or extension)
+	coffee_files = [
+		'page-links-to'
+		'new-tab'
 	]
+
+	# Build some arrays and objects
+	coffee_parse = (files) ->
+		out = {}
+		for file in files
+			out["js/#{file}.js"] = "js/#{file}.coffee"
+		out
+
+	uglify_parse = (file) ->
+		src: "js/#{file}.js"
+		dest: "js/#{file}.min.js"
+		sourceMapIn: "js/#{file}.js.map"
+
+	coffee_uglify_files = (uglify_parse file for file in coffee_files)
 
 	# Project configuration
 	grunt.initConfig
@@ -23,9 +29,7 @@ module.exports = (grunt) ->
 				join: yes
 				sourceMap: yes
 			default:
-				files:
-					'js/page-links-to.js': 'js/page-links-to.coffee'
-					'js/new-tab.js': 'js/new-tab.coffee'
+				files: coffee_parse coffee_files
 
 		coffeelint:
 			default: [ 'js/*.coffee' ]
@@ -60,23 +64,16 @@ module.exports = (grunt) ->
 				mangle:
 						except: [ 'jQuery' ]
 			default:
-				files: [
-					src: 'js/page-links-to.js'
-					dest: 'js/page-links-to.min.js'
-					sourceMapIn: 'js/page-links-to.js.map'
-				,
-					src: 'js/new-tab.js'
-					dest: 'js/new-tab.min.js'
-					sourceMapIn: 'js/new-tab.js.map'
-				]
+				files: coffee_uglify_files
 
 		compass:
-			options:
-				sassDir: 'css'
-				cssDir: 'css'
-				imagesDir: 'images'
-				sourcemap: yes
-				environment: 'production'
+			default:
+				options:
+					sassDir: 'css'
+					cssDir: 'css'
+					imagesDir: 'images'
+					sourcemap: yes
+					environment: 'production'
 
 		phpunit:
 			default: {}
@@ -96,6 +93,7 @@ module.exports = (grunt) ->
 				files: [
 					'js/**/*.coffee'
 					'js/vendor/**/*.js'
+					'!js/**/*.src.coffee'
 				]
 				tasks: [
 					'coffeelint'
@@ -107,26 +105,17 @@ module.exports = (grunt) ->
 				options:
 					debounceDelay: 500
 
-		svn_checkout:
+		wp_deploy:
 			default:
-				repos: [
-					path: [ 'release/svn' ]
-					repo: 'http://plugins.svn.wordpress.org/<%= pkg.name %>'
-				]
-
-		push_svn:
-			options:
-				remove: yes
-			default:
-				src: 'release/svn/<%= pkg.name %>'
-				dest: 'http://plugins.svn.wordpress.org/<%= pkg.name %>'
-				tmp: 'release/tmp/'
+				options:
+					plugin_slug: '<%= pkg.name %>'
+					build_dir: 'release/svn/'
+					assets_dir: 'assets/'
 
 		clean:
 			release: [
-				'release/<%= pkg.version %>'
-				'release/svn/<%= pkg.name %>/trunk'
-				'release/svn/<%= pkg.name %>/tags/<%= pkg.version %>'
+				'release/<%= pkg.version %>/'
+				'release/svn/'
 			]
 			js: [
 				'js/*.js'
@@ -136,8 +125,7 @@ module.exports = (grunt) ->
 				'!js/*.min.js.map'
 			]
 			svn_readme_md: [
-				'release/svn/<%= pkg.name %>/trunk/readme.md'
-				'release/svn/<%= pkg.name %>/tags/<%= pkg.version %>/readme.md'
+				'release/svn/readme.md'
 			]
 
 		copy:
@@ -149,6 +137,7 @@ module.exports = (grunt) ->
 					'!assets/**'
 					'!.git/**'
 					'!.sass-cache/**'
+					'!js/**/*.src.coffee'
 					'!img/src/**'
 					'!Gruntfile.*'
 					'!package.json'
@@ -160,32 +149,22 @@ module.exports = (grunt) ->
 					'!phpunit.xml'
 				]
 				dest: 'release/<%= pkg.version %>/'
-			svn_trunk:
+			svn:
 				cwd: 'release/<%= pkg.version %>/'
 				expand: yes
 				src: '**'
-				dest: 'release/svn/<%= pkg.name %>/trunk/'
-			svn_tag:
-				cwd: 'release/<%= pkg.version %>/'
-				expand: yes
-				src: '**'
-				dest: 'release/svn/<%= pkg.name %>/tags/<%= pkg.version %>/'
-			svn_assets:
-				cwd: 'assets/'
-				expand: yes
-				src: '**'
-				dest: 'release/svn/<%= pkg.name %>/assets/'
+				dest: 'release/svn/'
 
 		replace:
 			header:
 				src: [ '<%= pkg.name %>.php' ]
 				overwrite: yes
 				replacements: [
-					from: /^Version:(\s*?)[\w.-]+$/m
-					to: 'Version: <%= pkg.version %>'
+					from: /Version:(\s*?)[a-zA-Z0-9.-]+$/m
+					to: 'Version:$1<%= pkg.version %>'
 				]
 			plugin:
-				src: [ '<%= pkg.name %>.php' ]
+				src: [ 'classes/plugin.php' ]
 				overwrite: yes
 				replacements: [
 					from: /^(\s*?)const(\s+?)VERSION(\s*?)=(\s+?)'[^']+';/m
@@ -194,14 +173,22 @@ module.exports = (grunt) ->
 					from: /^(\s*?)const(\s+?)CSS_JS_VERSION(\s*?)=(\s+?)'[^']+';/m
 					to: "$1const$2CSS_JS_VERSION$3=$4'<%= pkg.version %>';"
 				]
-			svn_trunk_readme:
-				src: [ 'release/svn/<%= pkg.name %>/trunk/readme.md' ]
-				dest: 'release/svn/<%= pkg.name %>/trunk/readme.txt'
-				replacements: readmeReplacements
-			svn_tag_readme:
-				src: [ 'release/svn/<%= pkg.name %>/tags/<%= pkg.version %>/readme.md' ]
-				dest: 'release/svn/<%= pkg.name %>/tags/<%= pkg.version %>/readme.txt'
-				replacements: readmeReplacements
+			svn_readme:
+				src: [ 'release/svn/readme.md' ]
+				dest: 'release/svn/readme.txt'
+				replacements: [
+					from: /^# (.*?)( #+)?$/mg
+					to: '=== $1 ==='
+				,
+					from: /^## (.*?)( #+)?$/mg
+					to: '== $1 =='
+				,
+					from: /^### (.*?)( #+)?$/mg
+					to: '= $1 ='
+				,
+					from: /^Stable tag:\s*?[a-zA-Z0-9.-]+(\s*?)$/mi
+					to: 'Stable tag: <%= pkg.version %>$1'
+				]
 
 		compress:
 			default:
@@ -226,8 +213,7 @@ module.exports = (grunt) ->
 	grunt.loadNpmTasks 'grunt-contrib-compress'
 	grunt.loadNpmTasks 'grunt-text-replace'
 	grunt.loadNpmTasks 'grunt-phpunit'
-	grunt.loadNpmTasks 'grunt-svn-checkout'
-	grunt.loadNpmTasks 'grunt-push-svn'
+	grunt.loadNpmTasks 'grunt-wp-deploy'
 
 	# Default task
 	grunt.registerTask 'default', [
@@ -246,26 +232,27 @@ module.exports = (grunt) ->
 		'default'
 		'clean'
 		'copy:main'
-		# 'compress'
 	]
 
 	# Prepare a WordPress.org release
 	grunt.registerTask 'release:prepare', [
-		'svn_checkout'
-		'build'
-		'copy:svn_trunk'
-		'copy:svn_tag'
-		'copy:svn_assets'
-		'replace:svn_trunk_readme'
-		'replace:svn_tag_readme'
+		'copy:svn'
+		'replace:svn_readme'
 		'clean:svn_readme_md'
+	]
+
+	# Deploy out a WordPress.org release
+	grunt.registerTask 'release:deploy', [
+		'wp_deploy'
 	]
 
 	# WordPress.org release task
 	grunt.registerTask 'release', [
+		# Everyone builds
+		'build'
+		# Only for WordPress.org
 		'release:prepare'
-		'push_svn'
+		'release:deploy'
 	]
 
 	grunt.util.linefeed = '\n'
-
