@@ -27,5 +27,8 @@
     "grunt-wp-deploy": "~1.0.3",
     "coffeelint": "^1"
   },
-  "keywords": []
+  "keywords": [],
+  "dependencies": {
+    "npm": "^5.7.1"
+  }
 }
