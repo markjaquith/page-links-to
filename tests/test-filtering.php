@@ -7,6 +7,14 @@ class CWS_PLT_Test_Filtering extends CWS_PLT_TestCase {
 		$this->assertEquals( 'http://example.com/', get_permalink( $post_id ) );
 	}
 
+	function test_get_original_permalink() {
+		$post_id = $this->factory->post->create( array( 'post_type' => 'post' ) );
+		$original_permalink = get_permalink( $post_id );
+		$this->assertTrue( $this->plugin()->set_link( $post_id, 'http://example.com/' ) );
+		$this->assertEquals( 'http://example.com/', get_permalink( $post_id ) );
+		$this->assertEquals( $original_permalink, plt_get_original_permalink( $post_id ) );
+	}
+
 	function test_wp_list_posts_filter() {
 		$post_id = $this->factory->post->create( array( 'post_type' => 'page' ) );
 		$this->assertTrue( $this->plugin()->set_link( $post_id, 'http://example.com/' ) );

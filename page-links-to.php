@@ -40,6 +40,8 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	const FILE = __FILE__;
 	const CSS_JS_VERSION = '2.9.8';
 
+	protected $replace = true;
+
 	function __construct() {
 		self::$instance = $this;
 		$this->hook( 'init' );
@@ -461,18 +463,34 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * @return string output URL
 	 */
 	function link( $link, $post ) {
-		$post = get_post( $post );
+		if ( $this->replace ) {
+			$post = get_post( $post );
 
-		$meta_link = $this->get_link( $post->ID );
+			$meta_link = $this->get_link( $post->ID );
 
-		if ( $meta_link ) {
-			$link = esc_url( $meta_link );
-			if ( ! is_admin() && $this->get_target( $post->ID ) ) {
-				$link .= '#new_tab';
+			if ( $meta_link ) {
+				$link = esc_url( $meta_link );
+				if ( ! is_admin() && $this->get_target( $post->ID ) ) {
+					$link .= '#new_tab';
+				}
 			}
 		}
 
 		return $link;
+	}
+
+	/**
+	 * Returns the original URL of the post.
+	 *
+	 * @param null|int|WP_Post $post The post to fetch.
+	 * @return string The post's original URL.
+	 */
+	function original_link( $post = null ) {
+		$this->replace = false;
+		$url = get_permalink( $post );
+		$this->replace = true;
+
+		return $url;
 	}
 
 	/**
@@ -635,3 +653,13 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 
 // Bootstrap everything
 new CWS_PageLinksTo;
+
+/**
+ * Returns the original URL of the post.
+ *
+ * @param null|int|WP_Post $post The post to fetch.
+ * @return string The post's original URL.
+ */
+function plt_get_original_permalink( $post = null ) {
+	return CWS_PageLinksTo::$instance->original_link( $post );
+}
