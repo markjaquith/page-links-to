@@ -16,7 +16,7 @@ module.exports = (grunt) ->
 					[
 						'babelify'
 						{
-							presets: ['react']
+							presets: ['env']
 							plugins: ['add-module-exports', 'transform-class-properties', 'transform-object-rest-spread']
 						}
 					]
@@ -34,8 +34,7 @@ module.exports = (grunt) ->
 					]
 				]
 				browserifyOptions:
-					# standalone: ''
-					debug: yes
+					debug: no
 			default:
 				files:
 					'js/new-tab.min.js': 'js/new-tab.jsx'

@@ -73,14 +73,10 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 
 		// Non-standard priority hooks
 		$this->hook( 'do_meta_boxes', 20 );
-		// $this->hook( 'wp_enqueue_scripts', 'start_buffer', -9999 );
 		$this->hook( 'wp_enqueue_scripts' );
-		// $this->hook( 'wp_enqueue_scripts', 'jquery_protection', 9999 );
-		// $this->hook( 'wp_head', 'end_buffer', 9999 );
 
 		// Non-standard callback hooks
-		$this->hook( 'load-post.php',      'load_post'  );
-		$this->hook( 'wp_default_scripts', 'log_jquery' );
+		$this->hook( 'load-post.php', 'load_post'  );
 
 		// Standard hooks
 		$this->hook( 'wp_list_pages'       );
@@ -125,61 +121,10 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	}
 
 	/**
-	 * Logs data about core's jQuery
-	 */
-	public function log_jquery( $wp_scripts ) {
-		$this->jquery      = $wp_scripts->registered['jquery'];
-		$this->jquery_core = $wp_scripts->registered['jquery-core'];
-	}
-
-	/**
-	 * Prevents jQuery from being incorrectly overwritten
-	 */
-	public function jquery_protection() {
-		global $wp_scripts;
-
-		if ( $wp_scripts->registered['jquery-core'] !== $this->jquery_core ) {
-			$wp_scripts->registered['jquery-core'] = $this->jquery_core;
-		}
-
-		if ( $wp_scripts->registered['jquery'] !== $this->jquery ) {
-			$wp_scripts->registered['jquery'] = $this->jquery;
-		}
-	}
-
-	/**
 	 * Enqueues front end scripts
 	 */
 	function wp_enqueue_scripts() {
-		wp_enqueue_script( 'page-links-to', $this->get_url() . 'js/new-tab.min.js', array( 'jquery' ), self::CSS_JS_VERSION, true );
-	}
-
-	/**
-	 * Starts a buffer, for rescuing the jQuery object
-	 */
-	function start_buffer() {
-		ob_start( array( $this, 'buffer_callback' ) );
-	}
-
-	/**
-	 * Collects the buffer, and injects a `jQueryWP` JS object as a
-	 * copy of `jQuery`, so that dumb themes and plugins can't hurt it
-	 *
-	 * @return string the modified buffer
-	 */
-	function buffer_callback( $content ) {
-		$pattern = "#wp-includes/js/jquery/jquery\.js\?ver=([^']+)'></script>#";
-		if ( preg_match( $pattern, $content ) ) {
-			$content = preg_replace( $pattern, '$0<script>jQueryWP = jQuery;</script>', $content );
-		}
-		return $content;
-	}
-
-	/**
-	 * Flushes the buffer
-	 */
-	function end_buffer() {
-		ob_end_flush();
+		wp_enqueue_script( 'page-links-to', $this->get_url() . 'js/new-tab.min.js', array(), self::CSS_JS_VERSION, true );
 	}
 
 	/**

@@ -63,6 +63,11 @@ You can contribute (or report bugs) on [Github](https://github.com/markjaquith/p
 
 ## Changelog ##
 
+### 2.10.0 ###
+* Switch to ES6 and Babel from CoffeeScript
+* Remove jQuery as front-end requirement
+* Bump supported version
+
 ### 2.9.10 ###
 * Bump supported version
 
