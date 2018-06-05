@@ -1,86 +1,55 @@
 module.exports = (grunt) ->
 
-	# Define CoffeeScript files in one place (no path or extension)
-	coffee_files = [
-		'page-links-to'
-		'new-tab'
-	]
-
-	# Build some arrays and objects
-	coffee_parse = (files) ->
-		out = {}
-		for file in files
-			out["js/#{file}.js"] = "js/#{file}.coffee"
-		out
-
-	uglify_parse = (file) ->
-		src: "js/#{file}.js"
-		dest: "js/#{file}.min.js"
-		sourceMapIn: "js/#{file}.js.map"
-
-	coffee_uglify_files = (uglify_parse file for file in coffee_files)
-
 	# Project configuration
 	grunt.initConfig
 		pkg: grunt.file.readJSON('package.json')
 
-		coffee:
-			options:
-				join: yes
-				sourceMap: yes
-			default:
-				files: coffee_parse coffee_files
-
-		coffeelint:
-			default: [ 'js/*.coffee' ]
-			options:
-				no_tabs:
-					level: 'ignore'
-				max_line_length:
-					level: 'warn'
-				indentation:
-					level: 'ignore'
-
-		jshint:
-			default: []
-			options:
-				curly: yes
-				eqeqeq: yes
-				immed: yes
-				latedef: yes
-				newcap: yes
-				noarg: yes
-				sub: yes
-				undef: yes
-				boss: yes
-				eqnull: yes
-				globals:
-					exports: yes
-					module: no
-
-		uglify:
-			options:
-				sourceMap: yes
-				mangle:
-						except: [ 'jQuery' ]
-			default:
-				files: coffee_uglify_files
-
-		compass:
-			default:
-				options:
-					sassDir: 'css'
-					cssDir: 'css'
-					imagesDir: 'images'
-					sourcemap: yes
-					environment: 'production'
-
 		phpunit:
 			default: {}
 
+		browserify:
+			options:
+				paths: [
+					'../node_modules'
+				]
+				transform: [
+					[
+						'babelify'
+						{
+							presets: ['react']
+							plugins: ['add-module-exports', 'transform-class-properties', 'transform-object-rest-spread']
+						}
+					]
+					[
+						'extensify'
+						{
+							extensions: ['jsx']
+						}
+					]
+					[
+						'uglifyify'
+						{
+							global: yes
+						}
+					]
+				]
+				browserifyOptions:
+					# standalone: ''
+					debug: yes
+			default:
+				files:
+					'js/new-tab.min.js': 'js/new-tab.jsx'
+					'js/page-links-to.min.js': 'js/page-links-to.jsx'
+
 		watch:
 			php:
-				files: [ '**/*.php' ]
+				files: [
+					'**/*.php'
+					'!release/**'
+					'!node_modules/**'
+					'!.git/**'
+					'!.sass-cache/**'
+				]
 				tasks: [ 'phpunit' ]
 				options:
 					debounceDelay: 5000
@@ -89,21 +58,27 @@ module.exports = (grunt) ->
 				tasks: [ 'compass' ]
 				options:
 					debounceDelay: 500
-			scripts:
+			jsx:
 				files: [
-					'js/**/*.coffee'
-					'js/vendor/**/*.js'
-					'!js/**/*.src.coffee'
+					'js/*.jsx'
+					'js/**/*.jsx'
+					'!release/**'
+					'!node_modules/**'
+					'!.git/**'
+					'!.sass-cache/**'
 				]
 				tasks: [
-					'coffeelint'
-					'coffee'
-					'jshint'
-					'uglify'
-					'clean:js'
+					'browserify'
 				]
 				options:
 					debounceDelay: 500
+			package:
+				files: [
+					'package.json'
+				]
+				tasks: [
+					'replace'
+				]
 
 		wp_deploy:
 			default:
@@ -117,16 +92,13 @@ module.exports = (grunt) ->
 				'release/<%= pkg.version %>/'
 				'release/svn/'
 			]
-			js: [
-				'js/*.js'
-				'!js/*.min.js'
-				'js/*.src.coffee'
-				'js/*.js.map'
-				'!js/*.min.js.map'
-			]
 			svn_readme_md: [
 				'release/svn/readme.md'
 			]
+
+		notify_hooks:
+			options:
+				success: yes
 
 		copy:
 			main:
@@ -137,7 +109,6 @@ module.exports = (grunt) ->
 					'!assets/**'
 					'!.git/**'
 					'!.sass-cache/**'
-					'!js/**/*.src.coffee'
 					'!img/src/**'
 					'!Gruntfile.*'
 					'!package.json'
@@ -190,6 +161,16 @@ module.exports = (grunt) ->
 					to: 'Stable tag: <%= pkg.version %>$1'
 				]
 
+		prettier:
+			options:
+				singleQuote: yes
+				useTabs: yes
+				trailingComma: 'es5'
+			default:
+				src: [
+					'js/**.jsx'
+				]
+
 		compress:
 			default:
 				options:
@@ -201,41 +182,36 @@ module.exports = (grunt) ->
 				dest: '<%= pkg.name %>/'
 
 	# Load other tasks
-	grunt.loadNpmTasks 'grunt-contrib-jshint'
 	grunt.loadNpmTasks 'grunt-contrib-concat'
-	grunt.loadNpmTasks 'grunt-contrib-coffee'
-	grunt.loadNpmTasks 'grunt-coffeelint'
-	grunt.loadNpmTasks 'grunt-contrib-uglify'
-	grunt.loadNpmTasks 'grunt-contrib-compass'
+	grunt.loadNpmTasks 'grunt-browserify'
 	grunt.loadNpmTasks 'grunt-contrib-watch'
 	grunt.loadNpmTasks 'grunt-contrib-clean'
 	grunt.loadNpmTasks 'grunt-contrib-copy'
 	grunt.loadNpmTasks 'grunt-contrib-compress'
 	grunt.loadNpmTasks 'grunt-text-replace'
 	grunt.loadNpmTasks 'grunt-phpunit'
+	grunt.loadNpmTasks 'grunt-notify'
+	grunt.loadNpmTasks 'grunt-prettier'
 	grunt.loadNpmTasks 'grunt-wp-deploy'
+
+	grunt.task.run 'notify_hooks'
 
 	# Default task
 	grunt.registerTask 'default', [
 		'replace:header'
 		'replace:plugin'
-		'coffeelint'
-		'coffee'
-		'jshint'
-		'uglify'
-		'compass'
-		'clean:js'
+		'browserify'
 	]
 
 	# Build task
 	grunt.registerTask 'build', [
 		'default'
 		'clean'
-		'copy:main'
 	]
 
 	# Prepare a WordPress.org release
 	grunt.registerTask 'release:prepare', [
+		'copy:main'
 		'copy:svn'
 		'replace:svn_readme'
 		'clean:svn_readme_md'
