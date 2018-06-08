@@ -166,6 +166,17 @@ module.exports = function(grunt) {
 					},
 				],
 			},
+			readme: {
+				src: ['readme.md'],
+				overwrite: true,
+				replacements: [
+					{
+						from: /^Stable tag:\s*?[a-zA-Z0-9.-]+(\s*?)$/im,
+						to: 'Stable tag: <%= pkg.version %>$1',
+					}
+				]
+
+			},
 			svn_readme: {
 				src: ['release/svn/readme.md'],
 				dest: 'release/svn/readme.txt',
@@ -183,8 +194,8 @@ module.exports = function(grunt) {
 						to: '= $1 =',
 					},
 					{
-						from: /^Stable tag:\s*?[a-zA-Z0-9.-]+(\s*?)$/im,
-						to: 'Stable tag: <%= pkg.version %>$1',
+						from: /^.*travis-ci.org.*$/im,
+						to: '',
 					},
 				],
 			},
