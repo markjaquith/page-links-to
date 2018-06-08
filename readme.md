@@ -63,6 +63,9 @@ You can contribute (or report bugs) on [Github](https://github.com/markjaquith/p
 
 ## Changelog ##
 
+### 2.10.2 ###
+* Fix bug in Internet Explorer
+
 ### 2.10.1 ###
 * Version bump
 

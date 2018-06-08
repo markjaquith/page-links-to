@@ -13,6 +13,9 @@
 
 	// On page load, convert any existing new tab links.
 	d.addEventListener('DOMContentLoaded', () => {
-		[...d.getElementsByTagName('A')].forEach(newTab);
+		const anchors = d.getElementsByTagName('A');
+		for (let i = 0; i < anchors.length; i++) {
+			newTab(anchors[i]);
+		}
 	});
 })(document);

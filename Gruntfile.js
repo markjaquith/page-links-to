@@ -14,7 +14,16 @@ module.exports = function(grunt) {
 					[
 						'babelify',
 						{
-							presets: ['env'],
+							presets: [
+								[
+									'env',
+									{
+										targets: {
+											browsers: ['>0.25%'],
+										},
+									},
+								],
+							],
 							plugins: [
 								'add-module-exports',
 								'transform-class-properties',
@@ -238,11 +247,7 @@ module.exports = function(grunt) {
 	grunt.registerTask('release:deploy', ['wp_deploy']);
 
 	// WordPress.org release task
-	grunt.registerTask('release', [
-		'build',
-		'release:prepare',
-		'release:deploy',
-	]);
+	grunt.registerTask('release', ['build', 'release:prepare', 'release:deploy']);
 
 	grunt.util.linefeed = '\n';
 };
