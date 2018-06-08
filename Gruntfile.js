@@ -197,6 +197,10 @@ module.exports = function(grunt) {
 						from: /^.*travis-ci.org.*$/im,
 						to: '',
 					},
+					{
+						from: /\n{3,}/gm,
+						to: "\n\n",
+					},
 				],
 			},
 		},
