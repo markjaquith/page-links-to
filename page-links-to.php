@@ -1,37 +1,51 @@
 <?php
+/**
+ * The Page Links To plugin class.
+ *
+ * @package PageLinks
+ *
+ * Plugin Name: Page Links To
+ * Plugin URI: http://txfx.net/wordpress-plugins/page-links-to/
+ * Description: Allows you to point WordPress pages or posts to a URL of your choosing.  Good for setting up navigational links to non-WP sections of your site or to off-site resources.
+ * Version: 2.10.4
+ * Author: Mark Jaquith
+ * Author URI: https://coveredweb.com/
+ * Text Domain: page-links-to
+ * Domain Path: /languages
+ */
+
 /*
-Plugin Name: Page Links To
-Plugin URI: http://txfx.net/wordpress-plugins/page-links-to/
-Description: Allows you to point WordPress pages or posts to a URL of your choosing.  Good for setting up navigational links to non-WP sections of your site or to off-site resources.
-Version: 2.10.4
-Author: Mark Jaquith
-Author URI: http://coveredweb.com/
-Text Domain: page-links-to
-Domain Path: /languages
+Copyright 2005-2018  Mark Jaquith
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/*  Copyright 2005-2017  Mark Jaquith
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
-
-// Pull in WP Stack plugin library
+// Pull in WP Stack plugin library.
 include( dirname( __FILE__ ) . '/lib/wp-stack-plugin.php' );
 
+/**
+ * The Page Links To class.
+ */
 class CWS_PageLinksTo extends WP_Stack_Plugin {
+	/**
+	 * The class instance.
+	 *
+	 * @var CWS_PageLinksTo
+	 */
 	static $instance;
+
 	const LINKS_CACHE_KEY = 'plt_cache__links';
 	const TARGETS_CACHE_KEY = 'plt_cache__targets';
 	const LINK_META_KEY = '_links_to';
@@ -40,8 +54,16 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	const FILE = __FILE__;
 	const CSS_JS_VERSION = '2.10.4';
 
+	/**
+	 * Whether to replace WP links with their specified URLs.
+	 *
+	 * @var bool
+	 */
 	protected $replace = true;
 
+	/**
+	 * Class constructor. Adds init hook.
+	 */
 	function __construct() {
 		self::$instance = $this;
 		$this->hook( 'init' );
@@ -91,15 +113,15 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 		$this->hook( 'wp_enqueue_scripts' );
 
 		// Non-standard callback hooks.
-		$this->hook( 'load-post.php', 'load_post'  );
+		$this->hook( 'load-post.php', 'load_post' );
 
 		// Standard hooks.
-		$this->hook( 'wp_list_pages'       );
-		$this->hook( 'template_redirect'   );
-		$this->hook( 'save_post'           );
-		$this->hook( 'edit_attachment'     );
+		$this->hook( 'wp_list_pages' );
+		$this->hook( 'template_redirect' );
+		$this->hook( 'save_post' );
+		$this->hook( 'edit_attachment' );
 		$this->hook( 'wp_nav_menu_objects' );
-		$this->hook( 'plugin_row_meta'     );
+		$this->hook( 'plugin_row_meta' );
 
 		// Metadata validation grants users editing privileges for our custom fields.
 		register_meta( 'post', self::LINK_META_KEY,   null, '__return_true' );
@@ -119,7 +141,9 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 			$total_affected = 0;
 			foreach ( array( '', '_target', '_type' ) as $meta_key ) {
 				$meta_key = 'links_to' . $meta_key;
-				$affected = $wpdb->update( $wpdb->postmeta, array( 'meta_key' => '_' . $meta_key ), compact( 'meta_key' ) );
+				$affected = $wpdb->update( $wpdb->postmeta, array(
+					'meta_key' => '_' . $meta_key,
+				), compact( 'meta_key' ) );
 				if ( $affected ) {
 					$total_affected += $affected;
 				}
@@ -154,10 +178,11 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	}
 
 	/**
-	 * Returns a single piece of post meta
-	 * @param  integer $post_id a post ID
-	 * @param  string $key a post meta key
-	 * @return string|false the post meta, or false, if it doesn't exist
+	 * Returns a single piece of post meta.
+	 *
+	 * @param  integer $post_id a post ID.
+	 * @param  string  $key a post meta key.
+	 * @return string|false the post meta, or false, if it doesn't exist.
 	 */
 	function get_post_meta( $post_id, $key ) {
 		$meta = get_post_meta( absint( $post_id ), $key, true );
@@ -173,76 +198,96 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * @return array an array of links, keyed by post ID.
 	 */
 	function get_links() {
-		if ( false === $links = get_transient( self::LINKS_CACHE_KEY ) ) {
+		$links = get_transient( self::LINKS_CACHE_KEY );
+
+		if ( false === $links ) {
 			$db_links = $this->meta_by_key( self::LINK_META_KEY );
 			$links = array();
+
 			if ( $db_links ) {
 				foreach ( $db_links as $link ) {
 					$links[ intval( $link->post_id ) ] = $link->meta_value;
 				}
 			}
+
 			set_transient( self::LINKS_CACHE_KEY, $links, 10 * 60 );
 		}
+
 		return $links;
 	}
 
 	/**
-	 * Returns the link for the specified post ID
+	 * Returns the link for the specified post ID.
 	 *
-	 * @param  integer $post_id a post ID
-	 * @return mixed either a URL or false
+	 * @param  integer $post_id a post ID.
+	 * @return mixed either a URL or false.
 	 */
 	function get_link( $post_id ) {
 		return $this->get_post_meta( $post_id, self::LINK_META_KEY );
 	}
 
 	/**
-	 * Returns all targets for the current site
+	 * Returns all targets for the current site.
 	 *
-	 * @return array an array of targets, keyed by post ID
+	 * @return array an array of targets, keyed by post ID.
 	 */
 	function get_targets() {
-		if ( false === $targets = get_transient( self::TARGETS_CACHE_KEY ) ) {
+		$targets = get_transient( self::TARGETS_CACHE_KEY );
+
+		if ( false === $targets ) {
 			$db_targets = $this->meta_by_key( self::TARGET_META_KEY );
 			$targets = array();
+
 			if ( $db_targets ) {
 				foreach ( $db_targets as $target ) {
 					$targets[ intval( $target->post_id ) ] = true;
 				}
 			}
+
 			set_transient( self::TARGETS_CACHE_KEY, $targets, 10 * 60 );
 		}
+
 		return $targets;
 	}
 
 	/**
-	 * Returns the _blank target status for the specified post ID
+	 * Returns the _blank target status for the specified post ID.
 	 *
-	 * @param integer $post_id a post ID
-	 * @return bool whether it should open in a new tab
+	 * @param integer $post_id a post ID.
+	 * @return bool whether it should open in a new tab.
 	 */
 	function get_target( $post_id ) {
 		return (bool) $this->get_post_meta( $post_id, self::TARGET_META_KEY );
 	}
 
 	/**
-	 * Adds the meta box to the post or page edit screen
+	 * Adds the meta box to the post or page edit screen.
 	 *
-	 * @param string $page the name of the current page
-	 * @param string $context the current context
+	 * @param string $page the name of the current page.
+	 * @param string $context the current context.
+	 * @return void
 	 */
 	function do_meta_boxes( $page, $context ) {
-		// Plugins that use custom post types can use this filter to hide the
-		// PLT UI in their post type.
-		$plt_post_types = apply_filters( 'page-links-to-post-types', array_keys( get_post_types( array('show_ui' => true ) ) ) );
+		/*
+			Plugins that use custom post types can use this filter to hide the
+			PLT UI in their post type.
+		*/
+
+		$hook = 'page-links-to-post-types';
+
+		$plt_post_types = apply_filters( $hook, array_keys( get_post_types( array(
+			'show_ui' => true,
+		) ) ) );
 
 		if ( in_array( $page, $plt_post_types ) && 'advanced' === $context ) {
-			add_meta_box( 'page-links-to', _x( 'Page Links To', 'Meta box title', 'page-links-to'), array( $this, 'meta_box' ), $page, 'advanced', 'low' );
+			add_meta_box( 'page-links-to', _x( 'Page Links To', 'Meta box title', 'page-links-to' ), array( $this, 'meta_box' ), $page, 'advanced', 'low' );
 		}
 	}
 
 	/**
-	 * Outputs the Page Links To post screen meta box
+	 * Outputs the Page Links To post screen meta box.
+	 *
+	 * @return void
 	 */
 	function meta_box() {
 		$null = null;
@@ -259,7 +304,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 		}
 	?>
 		<p><?php _e( 'Point this content to:', 'page-links-to' ); ?></p>
-		<p><label><input type="radio" id="cws-links-to-choose-wp" name="cws_links_to_choice" value="wp" <?php checked( !$linked ); ?> /> <?php _e( 'Its normal WordPress URL', 'page-links-to' ); ?></label></p>
+		<p><label><input type="radio" id="cws-links-to-choose-wp" name="cws_links_to_choice" value="wp" <?php checked( ! $linked ); ?> /> <?php _e( 'Its normal WordPress URL', 'page-links-to' ); ?></label></p>
 		<p><label><input type="radio" id="cws-links-to-choose-custom" name="cws_links_to_choice" value="custom" <?php checked( $linked ); ?> /> <?php _e( 'A custom URL', 'page-links-to' ); ?></label></p>
 		<div style="webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;margin-left: 30px;" id="cws-links-to-custom-section" class="<?php echo ! $linked ? 'hide-if-js' : ''; ?>">
 			<p><input placeholder="http://" name="cws_links_to" type="text" style="width:75%" id="cws-links-to" value="<?php echo esc_attr( $url ); ?>" /></p>
@@ -270,20 +315,20 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	}
 
 	/**
-	 * Saves data on attachment save
+	 * Saves data on attachment save.
 	 *
-	 * @param  int $post_id
-	 * @return int the attachment post ID that was passed in
+	 * @param  int $post_id The ID of the post being saved.
+	 * @return int the attachment post ID that was passed in.
 	 */
 	function edit_attachment( $post_id ) {
 		return $this->save_post( $post_id );
 	}
 
 	/**
-	 * Saves data on post save
+	 * Saves data on post save.
 	 *
-	 * @param int $post_id a post ID
-	 * @return int the post ID that was passed in
+	 * @param int $post_id a post ID.
+	 * @return int the post ID that was passed in.
 	 */
 	function save_post( $post_id ) {
 		if ( isset( $_REQUEST['_cws_plt_nonce'] ) && wp_verify_nonce( $_REQUEST['_cws_plt_nonce'], 'cws_plt_' . $post_id ) ) {
@@ -304,10 +349,10 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	}
 
 	/**
-	 * Cleans up a URL
+	 * Cleans up a URL.
 	 *
-	 * @param string $url URL
-	 * @return string cleaned up URL
+	 * @param string $url URL.
+	 * @return string cleaned up URL.
 	 */
 	function clean_url( $url ) {
 		$url = trim( $url );
@@ -323,7 +368,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	/**
 	 * Have a post point to a custom URL.
 	 *
-	 * @param int $post_id post ID.
+	 * @param int    $post_id post ID.
 	 * @param string $url the URL to point the post to.
 	 * @return bool whether anything changed.
 	 */
@@ -400,29 +445,25 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	/**
 	 * Flushes the links transient cache.
 	 *
-	 * @param bool $condition whether to flush the cache.
-	 * @param string $type which cache to flush.
 	 * @return bool whether the flush attempt occurred.
 	 */
 	function flush_links_cache() {
-		delete_transient( self::LINKS_CACHE_KEY );
+		return delete_transient( self::LINKS_CACHE_KEY );
 	}
 
 	/**
 	 * Flushes the targets transient cache.
 	 *
-	 * @param bool $condition whether to flush the cache.
-	 * @param string $type which cache to flush.
 	 * @return bool whether the flush attempt occurred.
 	 */
 	function flush_targets_cache() {
-		delete_transient( self::TARGETS_CACHE_KEY );
+		return delete_transient( self::TARGETS_CACHE_KEY );
 	}
 
 	/**
-	 * Filter for Post links.
+	 * Filter for post links.
 	 *
-	 * @param string $link the URL for the post or page.
+	 * @param string      $link the URL for the post or page.
 	 * @param int|WP_Post $post post ID or object.
 	 * @return string output URL.
 	 */
@@ -459,6 +500,8 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 
 	/**
 	 * Performs a redirect.
+	 *
+	 * @return void
 	 */
 	function template_redirect() {
 		$link = $this->get_redirect();
@@ -470,7 +513,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	}
 
 	/**
-	 * gets the redirection URL
+	 * Gets the redirection URL.
 	 *
 	 * @return string|bool the redirection URL, or false.
 	 */
@@ -482,13 +525,13 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 		$link = $this->get_link( get_queried_object_id() );
 
 		// Convert server- and protocol-relative URLs to absolute URLs.
-		if ( "/" === $link[0] ) {
+		if ( '/' === $link[0] ) {
 			// Protocol-relative.
-			if ( "/" === $link[1] ) {
+			if ( '/' === $link[1] ) {
 				$link = set_url_scheme( 'http:' . $link );
 			} else {
 				// Host-relative.
-				$link = set_url_scheme( 'http://' . $_SERVER["HTTP_HOST"] . $link );
+				$link = set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $link );
 			}
 		}
 
@@ -512,8 +555,10 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 		$links = $this->get_links();
 		$targets = $this->get_targets();
 		$targets_by_url = array();
-		foreach( array_keys( $targets ) as $targeted_id )
-			$targets_by_url[$links[$targeted_id]] = true;
+
+		foreach ( array_keys( $targets ) as $targeted_id ) {
+			$targets_by_url[ $links[ $targeted_id ] ] = true;
+		}
 
 		if ( ! $links ) {
 			return $pages;
@@ -522,9 +567,10 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 		$this_url = ( is_ssl() ? 'https' : 'http' ) . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 
 		foreach ( (array) $links as $id => $page ) {
-			if ( isset( $targets_by_url[$page] ) ) {
+			if ( isset( $targets_by_url[ $page ] ) ) {
 				$page .= '#new_tab';
 			}
+
 			if ( str_replace( 'http://www.', 'http://', $this_url ) === str_replace( 'http://www.', 'http://', $page ) || ( is_home() && str_replace( 'http://www.', 'http://', trailingslashit( get_bloginfo( 'url' ) ) ) === str_replace( 'http://www.', 'http://', trailingslashit( $page ) ) ) ) {
 				$highlight = true;
 				$current_page = esc_url( $page );
@@ -542,28 +588,34 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 			$pages = preg_replace( '| class="([^"]+)current_page_item"|', ' class="$1"', $pages ); // Kill default highlighting.
 			$pages = preg_replace( '|<li class="([^"]+)"><a href="' . preg_quote( $current_page ) . '"|', '<li class="$1 current_page_item"><a href="' . $current_page . '"', $pages );
 		}
+
 		return $pages;
 	}
 
 	/**
-	 * Filters nav menu objects and adds target=_blank to the ones that need it
+	 * Filters nav menu objects and adds target=_blank to the ones that need it.
 	 *
-	 * @param  array $items nav menu items
-	 * @return array modified nav menu items
+	 * @param  array $items nav menu items.
+	 * @return array modified nav menu items.
 	 */
 	function wp_nav_menu_objects( $items ) {
 		$new_items = array();
+
 		foreach ( $items as $item ) {
 			if ( isset( $item->object_id ) && $this->get_target( $item->object_id ) ) {
 				$item->target = '_blank';
 			}
+
 			$new_items[] = $item;
 		}
+
 		return $new_items;
 	}
 
 	/**
-	 * Hooks in as a post is being loaded for editing and conditionally adds a notice
+	 * Hooks in as a post is being loaded for editing and conditionally adds a notice.
+	 *
+	 * @return void
 	 */
 	function load_post() {
 		if ( isset( $_GET['post'] ) && $this->get_link( (int) $_GET['post'] ) ) {
@@ -572,20 +624,24 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	}
 
 	/**
-	 * Outputs a notice that the current post item is pointed to a custom URL
+	 * Outputs a notice that the current post item is pointed to a custom URL.
+	 *
+	 * @return void
 	 */
 	function notify_of_external_link() {
-		?><div class="updated"><p><?php _e( '<strong>Note</strong>: This content is pointing to a custom URL. Use the &#8220;Page Links To&#8221; box to change this behavior.', 'page-links-to' ); ?></p></div><?php
+		?>
+		<div class="updated"><p><?php _e( '<strong>Note</strong>: This content is pointing to a custom URL. Use the &#8220;Page Links To&#8221; box to change this behavior.', 'page-links-to' ); ?></p></div>
+		<?php
 	}
 
 	/**
-	 * Adds a GitHub link to the plugin meta
+	 * Adds a GitHub link to the plugin meta.
 	 *
-	 * @param array $links the current array of links
-	 * @param string $file the current plugin being processed
-	 * @return array the modified array of links
+	 * @param array  $links the current array of links.
+	 * @param string $file the current plugin being processed.
+	 * @return array the modified array of links.
 	 */
-	function plugin_row_meta( $links, $file ) {
+	public function plugin_row_meta( $links, $file ) {
 		if ( $file === plugin_basename( self::FILE ) ) {
 			return array_merge(
 				$links,
@@ -597,25 +653,25 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	}
 
 	/**
-	 * Returns the URL of this plugin's directory
+	 * Returns the URL of this plugin's directory.
 	 *
-	 * @return string this plugin's directory URL
+	 * @return string this plugin's directory URL.
 	 */
 	public function get_url() {
 		return plugin_dir_url( self::FILE );
 	}
 
 	/**
-	 * Returns the filesystem path of this plugin's directory
+	 * Returns the filesystem path of this plugin's directory.
 	 *
-	 * @return string this plugin's directory filesystem path
+	 * @return string this plugin's directory filesystem path.
 	 */
 	public function get_path() {
 		return plugin_dir_path( self::FILE );
 	}
 }
 
-// Bootstrap everything
+// Bootstrap everything.
 new CWS_PageLinksTo;
 
 /**
