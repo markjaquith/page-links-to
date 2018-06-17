@@ -48,37 +48,52 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	}
 
 	/**
+	 * Get the plugin instance.
+	 *
+	 * @return CWS_PageLinksTo The plugin class instance.
+	 */
+	public static function get_instance() {
+		if ( ! self::$instance ) {
+			self::$instance = $this;
+		}
+
+		return self::$instance;
+	}
+
+	/**
 	 * Bootstraps the upgrade process and registers all the hooks.
 	 */
 	function init() {
-		// Check to see if any of our data needs to be upgraded
+		// Check to see if any of our data needs to be upgraded.
 		$this->maybe_upgrade();
 
-		// Load translation files
+		// Load translation files.
 		load_plugin_textdomain( 'page-links-to', false, basename( dirname( self::FILE ) ) . '/languages' );
 
-		// Register hooks
+		// Register hooks.
 		$this->register_hooks();
 	}
 
 	/**
-	 * Registers all the hooks
+	 * Registers all the hooks.
+	 *
+	 * @return void
 	 */
 	function register_hooks() {
-		// Hook in to URL generation
+		// Hook in to URL generation.
 		$this->hook( 'page_link',       'link', 20 );
 		$this->hook( 'post_link',       'link', 20 );
 		$this->hook( 'post_type_link',  'link', 20 );
 		$this->hook( 'attachment_link', 'link', 20 );
 
-		// Non-standard priority hooks
+		// Non-standard priority hooks.
 		$this->hook( 'do_meta_boxes', 20 );
 		$this->hook( 'wp_enqueue_scripts' );
 
-		// Non-standard callback hooks
+		// Non-standard callback hooks.
 		$this->hook( 'load-post.php', 'load_post'  );
 
-		// Standard hooks
+		// Standard hooks.
 		$this->hook( 'wp_list_pages'       );
 		$this->hook( 'template_redirect'   );
 		$this->hook( 'save_post'           );
@@ -86,7 +101,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 		$this->hook( 'wp_nav_menu_objects' );
 		$this->hook( 'plugin_row_meta'     );
 
-		// Metadata validation grants users editing privileges for our custom fields
+		// Metadata validation grants users editing privileges for our custom fields.
 		register_meta( 'post', self::LINK_META_KEY,   null, '__return_true' );
 		register_meta( 'post', self::TARGET_META_KEY, null, '__return_true' );
 	}
@@ -109,7 +124,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 					$total_affected += $affected;
 				}
 			}
-			// Only flush the cache if something changed
+			// Only flush the cache if something changed.
 			if ( $total_affected > 0 ) {
 				wp_cache_flush();
 			}
@@ -121,17 +136,17 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	}
 
 	/**
-	 * Enqueues front end scripts
+	 * Enqueues frontend scripts.
 	 */
 	function wp_enqueue_scripts() {
 		wp_enqueue_script( 'page-links-to', $this->get_url() . 'js/new-tab.min.js', array(), self::CSS_JS_VERSION, true );
 	}
 
 	/**
-	 * Returns post ids and meta values that have a given key
+	 * Returns post ids and meta values that have a given key.
 	 *
-	 * @param string $key post meta key
-	 * @return array|false objects with post_id and meta_value properties
+	 * @param string $key post meta key.
+	 * @return array|false objects with post_id and meta_value properties.
 	 */
 	function meta_by_key( $key ) {
 		global $wpdb;
@@ -153,9 +168,9 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	}
 
 	/**
-	 * Returns all links for the current site
+	 * Returns all links for the current site.
 	 *
-	 * @return array an array of links, keyed by post ID
+	 * @return array an array of links, keyed by post ID.
 	 */
 	function get_links() {
 		if ( false === $links = get_transient( self::LINKS_CACHE_KEY ) ) {
@@ -275,14 +290,16 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 			if ( ( ! isset( $_POST['cws_links_to_choice'] ) || 'custom' == $_POST['cws_links_to_choice'] ) && isset( $_POST['cws_links_to'] ) && strlen( $_POST['cws_links_to'] ) > 0 && $_POST['cws_links_to'] !== 'http://' ) {
 				$url = $this->clean_url( stripslashes( $_POST['cws_links_to'] ) );
 				$this->flush_links_if( $this->set_link( $post_id, $url ) );
-				if ( isset( $_POST['cws_links_to_new_tab'] ) )
+				if ( isset( $_POST['cws_links_to_new_tab'] ) ) {
 					$this->flush_targets_if( $this->set_link_new_tab( $post_id ) );
-				else
+				} else {
 					$this->flush_targets_if( $this->set_link_same_tab( $post_id ) );
+				}
 			} else {
 				$this->flush_links_if( $this->delete_link( $post_id ) );
 			}
 		}
+
 		return $post_id;
 	}
 
@@ -294,65 +311,67 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 */
 	function clean_url( $url ) {
 		$url = trim( $url );
+
 		// Starts with 'www.'. Probably a mistake. So add 'http://'.
 		if ( 0 === strpos( $url, 'www.' ) ) {
 			$url = 'http://' . $url;
 		}
+
 		return $url;
 	}
 
 	/**
-	 * Have a post point to a custom URL
+	 * Have a post point to a custom URL.
 	 *
-	 * @param int $post_id post ID
-	 * @param string $url the URL to point the post to
-	 * @return bool whether anything changed
+	 * @param int $post_id post ID.
+	 * @param string $url the URL to point the post to.
+	 * @return bool whether anything changed.
 	 */
 	function set_link( $post_id, $url ) {
 		return $this->flush_links_if( (bool) update_post_meta( $post_id, self::LINK_META_KEY, $url ) );
 	}
 
 	/**
-	 * Tell an custom URL post to open in a new tab
+	 * Tell an custom URL post to open in a new tab.
 	 *
-	 * @param int $post_id post ID
-	 * @return bool whether anything changed
+	 * @param int $post_id post ID.
+	 * @return bool whether anything changed.
 	 */
 	function set_link_new_tab( $post_id ) {
 		return $this->flush_targets_if( (bool) update_post_meta( $post_id, self::TARGET_META_KEY, '_blank' ) );
 	}
 
 	/**
-	 * Tell an custom URL post to open in the same tab
+	 * Tell an custom URL post to open in the same tab.
 	 *
-	 * @param int $post_id post ID
-	 * @return bool whether anything changed
+	 * @param int $post_id post ID.
+	 * @return bool whether anything changed.
 	 */
 	function set_link_same_tab( $post_id ) {
 		return $this->flush_targets_if( delete_post_meta( $post_id, self::TARGET_META_KEY ) );
 	}
 
 	/**
-	 * Discard a custom URL and point a post to its normal URL
+	 * Discard a custom URL and point a post to its normal URL.
 	 *
-	 * @param int $post_id post ID
-	 * @return bool whether the link was deleted
+	 * @param int $post_id post ID.
+	 * @return bool whether the link was deleted.
 	 */
 	function delete_link( $post_id ) {
 		$return = $this->flush_links_if( delete_post_meta( $post_id, self::LINK_META_KEY ) );
 		$this->flush_targets_if( delete_post_meta( $post_id, self::TARGET_META_KEY ) );
 
-		// Old, unused data that we can delete on the fly
+		// Old, unused data that we can delete on the fly.
 		delete_post_meta( $post_id, '_links_to_type' );
 
 		return $return;
 	}
 
 	/**
-	 * Flushes the links transient cache if the condition is true
+	 * Flushes the links transient cache if the condition is true.
 	 *
-	 * @param bool $condition whether to proceed with the flush
-	 * @return bool whether the flush happened
+	 * @param bool $condition whether to proceed with the flush.
+	 * @return bool whether the flush happened.
 	 */
 	function flush_links_if( $condition ) {
 		if ( $condition ) {
@@ -364,10 +383,10 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	}
 
 	/**
-	 * Flushes the targets transient cache if the condition is true
+	 * Flushes the targets transient cache if the condition is true.
 	 *
-	 * @param bool $condition whether to proceed with the flush
-	 * @return bool whether the flush happened
+	 * @param bool $condition whether to proceed with the flush.
+	 * @return bool whether the flush happened.
 	 */
 	function flush_targets_if( $condition ) {
 		if ( $condition ) {
@@ -379,33 +398,33 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	}
 
 	/**
-	 * Flushes the links transient cache
+	 * Flushes the links transient cache.
 	 *
-	 * @param bool $condition whether to flush the cache
-	 * @param string $type which cache to flush
-	 * @return bool whether the flush attempt occurred
+	 * @param bool $condition whether to flush the cache.
+	 * @param string $type which cache to flush.
+	 * @return bool whether the flush attempt occurred.
 	 */
 	function flush_links_cache() {
 		delete_transient( self::LINKS_CACHE_KEY );
 	}
 
 	/**
-	 * Flushes the targets transient cache
+	 * Flushes the targets transient cache.
 	 *
-	 * @param bool $condition whether to flush the cache
-	 * @param string $type which cache to flush
-	 * @return bool whether the flush attempt occurred
+	 * @param bool $condition whether to flush the cache.
+	 * @param string $type which cache to flush.
+	 * @return bool whether the flush attempt occurred.
 	 */
 	function flush_targets_cache() {
 		delete_transient( self::TARGETS_CACHE_KEY );
 	}
 
 	/**
-	 * Filter for Post links
+	 * Filter for Post links.
 	 *
-	 * @param string $link the URL for the post or page
-	 * @param int|WP_Post $post post ID or object
-	 * @return string output URL
+	 * @param string $link the URL for the post or page.
+	 * @param int|WP_Post $post post ID or object.
+	 * @return string output URL.
 	 */
 	function link( $link, $post ) {
 		if ( $this->replace ) {
@@ -439,7 +458,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	}
 
 	/**
-	 * Performs a redirect
+	 * Performs a redirect.
 	 */
 	function template_redirect() {
 		$link = $this->get_redirect();
@@ -453,7 +472,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	/**
 	 * gets the redirection URL
 	 *
-	 * @return string|bool the redirection URL, or false
+	 * @return string|bool the redirection URL, or false.
 	 */
 	function get_redirect() {
 		if ( ! is_singular() || ! get_queried_object_id() ) {
@@ -462,13 +481,13 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 
 		$link = $this->get_link( get_queried_object_id() );
 
-		// Convert server- and protocol-relative URLs to absolute URLs
+		// Convert server- and protocol-relative URLs to absolute URLs.
 		if ( "/" === $link[0] ) {
-			// Protocol-relative
+			// Protocol-relative.
 			if ( "/" === $link[1] ) {
 				$link = set_url_scheme( 'http:' . $link );
 			} else {
-				// Host-relative
+				// Host-relative.
 				$link = set_url_scheme( 'http://' . $_SERVER["HTTP_HOST"] . $link );
 			}
 		}
@@ -481,15 +500,15 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	}
 
 	/**
-	 * Filters the list of pages to alter the links and targets
+	 * Filters the list of pages to alter the links and targets.
 	 *
-	 * @param string $pages the wp_list_pages() HTML block from WordPress
-	 * @return string the modified HTML block
+	 * @param string $pages the wp_list_pages() HTML block from WordPress.
+	 * @return string the modified HTML block.
 	 */
 	function wp_list_pages( $pages ) {
 		$highlight = false;
 
-		// We use the "fetch all" versions here, because the pages might not be queried here
+		// We use the "fetch all" versions here, because the pages might not be queried here.
 		$links = $this->get_links();
 		$targets = $this->get_targets();
 		$targets_by_url = array();
@@ -520,7 +539,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 		}
 
 		if ( $highlight ) {
-			$pages = preg_replace( '| class="([^"]+)current_page_item"|', ' class="$1"', $pages ); // Kill default highlighting
+			$pages = preg_replace( '| class="([^"]+)current_page_item"|', ' class="$1"', $pages ); // Kill default highlighting.
 			$pages = preg_replace( '|<li class="([^"]+)"><a href="' . preg_quote( $current_page ) . '"|', '<li class="$1 current_page_item"><a href="' . $current_page . '"', $pages );
 		}
 		return $pages;
@@ -606,5 +625,5 @@ new CWS_PageLinksTo;
  * @return string The post's original URL.
  */
 function plt_get_original_permalink( $post = null ) {
-	return CWS_PageLinksTo::$instance->original_link( $post );
+	return CWS_PageLinksTo::get_instance()->original_link( $post );
 }
