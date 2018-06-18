@@ -32,13 +32,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-// Pull in WP Stack plugin library.
-include( dirname( __FILE__ ) . '/lib/wp-stack-plugin.php' );
-
 /**
  * The Page Links To class.
  */
-class CWS_PageLinksTo extends WP_Stack_Plugin {
+class CWS_PageLinksTo {
 	/**
 	 * The class instance.
 	 *
@@ -80,6 +77,37 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 		}
 
 		return self::$instance;
+	}
+
+	/**
+	 * Add a WordPress hook (action/filter).
+	 *
+	 * @param mixed $hook first parameter is the name of the hook. If second or third parameters are included, they will be used as a priority (if an integer) or as a class method callback name (if a string).
+	 */
+	public function hook( $hook ) {
+		$priority = 10;
+		$method = self::sanitize_method( $hook );
+		$args = func_get_args();
+		unset( $args[0] );
+		foreach ( (array) $args as $arg ) {
+			if ( is_int( $arg ) ) {
+				$priority = $arg;
+			} else {
+				$method = $arg;
+			}
+		}
+
+		return add_action( $hook, [ $this, $method ], $priority, 999 );
+	}
+
+	/**
+	 * Sanitizes method names with bad characters.
+	 *
+	 * @param string $method The raw method name.
+	 * @return string The sanitized method name.
+	 */
+	private static function sanitize_method( $method ) {
+		return str_replace( [ '.', '-' ], [ '_DOT_', '_DASH_' ], $method );
 	}
 
 	/**
@@ -153,8 +181,8 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 				wp_cache_flush();
 			}
 			if ( update_option( self::VERSION_KEY, 3 ) ) {
-				$this->flush_links_cache();
-				$this->flush_targets_cache();
+				self::flush_links_cache();
+				self::flush_targets_cache();
 			}
 		}
 	}
@@ -163,7 +191,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * Enqueues frontend scripts.
 	 */
 	function wp_enqueue_scripts() {
-		wp_enqueue_script( 'page-links-to', $this->get_url() . 'js/new-tab.min.js', array(), self::CSS_JS_VERSION, true );
+		wp_enqueue_script( 'page-links-to', self::get_url() . 'js/new-tab.min.js', array(), self::CSS_JS_VERSION, true );
 	}
 
 	/**
@@ -172,8 +200,9 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * @param string $key post meta key.
 	 * @return array|false objects with post_id and meta_value properties.
 	 */
-	function meta_by_key( $key ) {
+	public static function meta_by_key( $key ) {
 		global $wpdb;
+
 		return $wpdb->get_results( $wpdb->prepare( "SELECT post_id, meta_value FROM $wpdb->postmeta WHERE meta_key = %s", $key ) );
 	}
 
@@ -184,11 +213,13 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * @param  string  $key a post meta key.
 	 * @return string|false the post meta, or false, if it doesn't exist.
 	 */
-	function get_post_meta( $post_id, $key ) {
+	public static function get_post_meta( $post_id, $key ) {
 		$meta = get_post_meta( absint( $post_id ), $key, true );
+
 		if ( '' === $meta ) {
 			return false;
 		}
+
 		return $meta;
 	}
 
@@ -197,11 +228,11 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 *
 	 * @return array an array of links, keyed by post ID.
 	 */
-	function get_links() {
+	public static function get_links() {
 		$links = get_transient( self::LINKS_CACHE_KEY );
 
 		if ( false === $links ) {
-			$db_links = $this->meta_by_key( self::LINK_META_KEY );
+			$db_links = self::meta_by_key( self::LINK_META_KEY );
 			$links = array();
 
 			if ( $db_links ) {
@@ -222,8 +253,8 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * @param  integer $post_id a post ID.
 	 * @return mixed either a URL or false.
 	 */
-	function get_link( $post_id ) {
-		return $this->get_post_meta( $post_id, self::LINK_META_KEY );
+	public static function get_link( $post_id ) {
+		return self::get_post_meta( $post_id, self::LINK_META_KEY );
 	}
 
 	/**
@@ -231,11 +262,11 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 *
 	 * @return array an array of targets, keyed by post ID.
 	 */
-	function get_targets() {
+	public static function get_targets() {
 		$targets = get_transient( self::TARGETS_CACHE_KEY );
 
 		if ( false === $targets ) {
-			$db_targets = $this->meta_by_key( self::TARGET_META_KEY );
+			$db_targets = self::meta_by_key( self::TARGET_META_KEY );
 			$targets = array();
 
 			if ( $db_targets ) {
@@ -256,8 +287,8 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * @param integer $post_id a post ID.
 	 * @return bool whether it should open in a new tab.
 	 */
-	function get_target( $post_id ) {
-		return (bool) $this->get_post_meta( $post_id, self::TARGET_META_KEY );
+	public static function get_target( $post_id ) {
+		return (bool) self::get_post_meta( $post_id, self::TARGET_META_KEY );
 	}
 
 	/**
@@ -267,7 +298,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * @param string $context the current context.
 	 * @return void
 	 */
-	function do_meta_boxes( $page, $context ) {
+	public function do_meta_boxes( $page, $context ) {
 		/*
 			Plugins that use custom post types can use this filter to hide the
 			PLT UI in their post type.
@@ -289,13 +320,13 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 *
 	 * @return void
 	 */
-	function meta_box() {
+	public static function meta_box() {
 		$null = null;
 		$post = get_post( $null );
 		echo '<p>';
 		wp_nonce_field( 'cws_plt_' . $post->ID, '_cws_plt_nonce', false, true );
 		echo '</p>';
-		$url = $this->get_link( $post->ID );
+		$url = self::get_link( $post->ID );
 		if ( ! $url ) {
 			$linked = false;
 			$url = '';
@@ -308,9 +339,9 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 		<p><label><input type="radio" id="cws-links-to-choose-custom" name="cws_links_to_choice" value="custom" <?php checked( $linked ); ?> /> <?php _e( 'A custom URL', 'page-links-to' ); ?></label></p>
 		<div style="webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;margin-left: 30px;" id="cws-links-to-custom-section" class="<?php echo ! $linked ? 'hide-if-js' : ''; ?>">
 			<p><input placeholder="http://" name="cws_links_to" type="text" style="width:75%" id="cws-links-to" value="<?php echo esc_attr( $url ); ?>" /></p>
-			<p><label for="cws-links-to-new-tab"><input type="checkbox" name="cws_links_to_new_tab" id="cws-links-to-new-tab" value="_blank" <?php checked( (bool) $this->get_target( $post->ID ) ); ?>> <?php _e( 'Open this link in a new tab', 'page-links-to' ); ?></label></p>
+			<p><label for="cws-links-to-new-tab"><input type="checkbox" name="cws_links_to_new_tab" id="cws-links-to-new-tab" value="_blank" <?php checked( (bool) self::get_target( $post->ID ) ); ?>> <?php _e( 'Open this link in a new tab', 'page-links-to' ); ?></label></p>
 		</div>
-		<script src="<?php echo $this->get_url() . 'js/page-links-to.min.js?v=' . self::CSS_JS_VERSION; ?>"></script>
+		<script src="<?php echo self::get_url() . 'js/page-links-to.min.js?v=' . self::CSS_JS_VERSION; ?>"></script>
 	<?php
 	}
 
@@ -330,18 +361,18 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * @param int $post_id a post ID.
 	 * @return int the post ID that was passed in.
 	 */
-	function save_post( $post_id ) {
+	public static function save_post( $post_id ) {
 		if ( isset( $_REQUEST['_cws_plt_nonce'] ) && wp_verify_nonce( $_REQUEST['_cws_plt_nonce'], 'cws_plt_' . $post_id ) ) {
 			if ( ( ! isset( $_POST['cws_links_to_choice'] ) || 'custom' == $_POST['cws_links_to_choice'] ) && isset( $_POST['cws_links_to'] ) && strlen( $_POST['cws_links_to'] ) > 0 && $_POST['cws_links_to'] !== 'http://' ) {
-				$url = $this->clean_url( stripslashes( $_POST['cws_links_to'] ) );
-				$this->flush_links_if( $this->set_link( $post_id, $url ) );
+				$url = self::clean_url( stripslashes( $_POST['cws_links_to'] ) );
+				self::flush_links_if( self::set_link( $post_id, $url ) );
 				if ( isset( $_POST['cws_links_to_new_tab'] ) ) {
-					$this->flush_targets_if( $this->set_link_new_tab( $post_id ) );
+					self::flush_targets_if( self::set_link_new_tab( $post_id ) );
 				} else {
-					$this->flush_targets_if( $this->set_link_same_tab( $post_id ) );
+					self::flush_targets_if( self::set_link_same_tab( $post_id ) );
 				}
 			} else {
-				$this->flush_links_if( $this->delete_link( $post_id ) );
+				self::flush_links_if( self::delete_link( $post_id ) );
 			}
 		}
 
@@ -354,7 +385,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * @param string $url URL.
 	 * @return string cleaned up URL.
 	 */
-	function clean_url( $url ) {
+	public static function clean_url( $url ) {
 		$url = trim( $url );
 
 		// Starts with 'www.'. Probably a mistake. So add 'http://'.
@@ -372,8 +403,8 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * @param string $url the URL to point the post to.
 	 * @return bool whether anything changed.
 	 */
-	function set_link( $post_id, $url ) {
-		return $this->flush_links_if( (bool) update_post_meta( $post_id, self::LINK_META_KEY, $url ) );
+	public static function set_link( $post_id, $url ) {
+		return self::flush_links_if( (bool) update_post_meta( $post_id, self::LINK_META_KEY, $url ) );
 	}
 
 	/**
@@ -382,8 +413,8 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * @param int $post_id post ID.
 	 * @return bool whether anything changed.
 	 */
-	function set_link_new_tab( $post_id ) {
-		return $this->flush_targets_if( (bool) update_post_meta( $post_id, self::TARGET_META_KEY, '_blank' ) );
+	public static function set_link_new_tab( $post_id ) {
+		return self::flush_targets_if( (bool) update_post_meta( $post_id, self::TARGET_META_KEY, '_blank' ) );
 	}
 
 	/**
@@ -392,8 +423,8 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * @param int $post_id post ID.
 	 * @return bool whether anything changed.
 	 */
-	function set_link_same_tab( $post_id ) {
-		return $this->flush_targets_if( delete_post_meta( $post_id, self::TARGET_META_KEY ) );
+	public static function set_link_same_tab( $post_id ) {
+		return self::flush_targets_if( delete_post_meta( $post_id, self::TARGET_META_KEY ) );
 	}
 
 	/**
@@ -402,9 +433,9 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * @param int $post_id post ID.
 	 * @return bool whether the link was deleted.
 	 */
-	function delete_link( $post_id ) {
-		$return = $this->flush_links_if( delete_post_meta( $post_id, self::LINK_META_KEY ) );
-		$this->flush_targets_if( delete_post_meta( $post_id, self::TARGET_META_KEY ) );
+	public static function delete_link( $post_id ) {
+		$return = self::flush_links_if( delete_post_meta( $post_id, self::LINK_META_KEY ) );
+		self::flush_targets_if( delete_post_meta( $post_id, self::TARGET_META_KEY ) );
 
 		// Old, unused data that we can delete on the fly.
 		delete_post_meta( $post_id, '_links_to_type' );
@@ -418,9 +449,9 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * @param bool $condition whether to proceed with the flush.
 	 * @return bool whether the flush happened.
 	 */
-	function flush_links_if( $condition ) {
+	public static function flush_links_if( $condition ) {
 		if ( $condition ) {
-			$this->flush_links_cache();
+			self::flush_links_cache();
 			return true;
 		} else {
 			return false;
@@ -433,9 +464,9 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * @param bool $condition whether to proceed with the flush.
 	 * @return bool whether the flush happened.
 	 */
-	function flush_targets_if( $condition ) {
+	public static function flush_targets_if( $condition ) {
 		if ( $condition ) {
-			$this->flush_targets_cache();
+			self::flush_targets_cache();
 			return true;
 		} else {
 			return false;
@@ -447,7 +478,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 *
 	 * @return bool whether the flush attempt occurred.
 	 */
-	function flush_links_cache() {
+	public static function flush_links_cache() {
 		return delete_transient( self::LINKS_CACHE_KEY );
 	}
 
@@ -456,7 +487,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 *
 	 * @return bool whether the flush attempt occurred.
 	 */
-	function flush_targets_cache() {
+	public static function flush_targets_cache() {
 		return delete_transient( self::TARGETS_CACHE_KEY );
 	}
 
@@ -467,15 +498,15 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * @param int|WP_Post $post post ID or object.
 	 * @return string output URL.
 	 */
-	function link( $link, $post ) {
+	public function link( $link, $post ) {
 		if ( $this->replace ) {
 			$post = get_post( $post );
 
-			$meta_link = $this->get_link( $post->ID );
+			$meta_link = self::get_link( $post->ID );
 
 			if ( $meta_link ) {
 				$link = esc_url( $meta_link );
-				if ( ! is_admin() && $this->get_target( $post->ID ) ) {
+				if ( ! is_admin() && self::get_target( $post->ID ) ) {
 					$link .= '#new_tab';
 				}
 			}
@@ -504,7 +535,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * @return void
 	 */
 	function template_redirect() {
-		$link = $this->get_redirect();
+		$link = self::get_redirect();
 
 		if ( $link ) {
 			wp_redirect( $link, 301 );
@@ -517,12 +548,12 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 *
 	 * @return string|bool the redirection URL, or false.
 	 */
-	function get_redirect() {
+	public static function get_redirect() {
 		if ( ! is_singular() || ! get_queried_object_id() ) {
 			return false;
 		}
 
-		$link = $this->get_link( get_queried_object_id() );
+		$link = self::get_link( get_queried_object_id() );
 
 		// Convert server- and protocol-relative URLs to absolute URLs.
 		if ( '/' === $link[0] ) {
@@ -552,8 +583,8 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 		$highlight = false;
 
 		// We use the "fetch all" versions here, because the pages might not be queried here.
-		$links = $this->get_links();
-		$targets = $this->get_targets();
+		$links = self::get_links();
+		$targets = self::get_targets();
 		$targets_by_url = array();
 
 		foreach ( array_keys( $targets ) as $targeted_id ) {
@@ -598,11 +629,11 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * @param  array $items nav menu items.
 	 * @return array modified nav menu items.
 	 */
-	function wp_nav_menu_objects( $items ) {
+	public static function wp_nav_menu_objects( $items ) {
 		$new_items = array();
 
 		foreach ( $items as $item ) {
-			if ( isset( $item->object_id ) && $this->get_target( $item->object_id ) ) {
+			if ( isset( $item->object_id ) && self::get_target( $item->object_id ) ) {
 				$item->target = '_blank';
 			}
 
@@ -617,8 +648,8 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 *
 	 * @return void
 	 */
-	function load_post() {
-		if ( isset( $_GET['post'] ) && $this->get_link( (int) $_GET['post'] ) ) {
+	public function load_post() {
+		if ( isset( $_GET['post'] ) && self::get_link( (int) $_GET['post'] ) ) {
 			$this->hook( 'admin_notices', 'notify_of_external_link' );
 		}
 	}
@@ -628,7 +659,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 *
 	 * @return void
 	 */
-	function notify_of_external_link() {
+	public static function notify_of_external_link() {
 		?>
 		<div class="updated"><p><?php _e( '<strong>Note</strong>: This content is pointing to a custom URL. Use the &#8220;Page Links To&#8221; box to change this behavior.', 'page-links-to' ); ?></p></div>
 		<?php
@@ -641,7 +672,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 * @param string $file the current plugin being processed.
 	 * @return array the modified array of links.
 	 */
-	public function plugin_row_meta( $links, $file ) {
+	public static function plugin_row_meta( $links, $file ) {
 		if ( $file === plugin_basename( self::FILE ) ) {
 			return array_merge(
 				$links,
@@ -657,7 +688,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 *
 	 * @return string this plugin's directory URL.
 	 */
-	public function get_url() {
+	public static function get_url() {
 		return plugin_dir_url( self::FILE );
 	}
 
@@ -666,7 +697,7 @@ class CWS_PageLinksTo extends WP_Stack_Plugin {
 	 *
 	 * @return string this plugin's directory filesystem path.
 	 */
-	public function get_path() {
+	public static function get_path() {
 		return plugin_dir_path( self::FILE );
 	}
 }
