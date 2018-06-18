@@ -334,11 +334,24 @@ class CWS_PageLinksTo {
 			$linked = true;
 		}
 	?>
+		<style>
+		#cws-links-to-custom-section {
+			webkit-box-sizing: border-box;
+			-moz-box-sizing: border-box;
+			box-sizing: border-box;
+			margin-left: 30px;
+		}
+
+		#cws-links-to {
+			width: 75%;
+		}
+		</style>
+
 		<p><?php _e( 'Point this content to:', 'page-links-to' ); ?></p>
 		<p><label><input type="radio" id="cws-links-to-choose-wp" name="cws_links_to_choice" value="wp" <?php checked( ! $linked ); ?> /> <?php _e( 'Its normal WordPress URL', 'page-links-to' ); ?></label></p>
 		<p><label><input type="radio" id="cws-links-to-choose-custom" name="cws_links_to_choice" value="custom" <?php checked( $linked ); ?> /> <?php _e( 'A custom URL', 'page-links-to' ); ?></label></p>
-		<div style="webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;margin-left: 30px;" id="cws-links-to-custom-section" class="<?php echo ! $linked ? 'hide-if-js' : ''; ?>">
-			<p><input placeholder="http://" name="cws_links_to" type="text" style="width:75%" id="cws-links-to" value="<?php echo esc_attr( $url ); ?>" /></p>
+		<div id="cws-links-to-custom-section" class="<?php echo ! $linked ? 'hide-if-js' : ''; ?>">
+			<p><input placeholder="http://" name="cws_links_to" type="text" id="cws-links-to" value="<?php echo esc_attr( $url ); ?>" /></p>
 			<p><label for="cws-links-to-new-tab"><input type="checkbox" name="cws_links_to_new_tab" id="cws-links-to-new-tab" value="_blank" <?php checked( (bool) self::get_target( $post->ID ) ); ?>> <?php _e( 'Open this link in a new tab', 'page-links-to' ); ?></label></p>
 		</div>
 		<script src="<?php echo self::get_url() . 'js/page-links-to.min.js?v=' . self::CSS_JS_VERSION; ?>"></script>
