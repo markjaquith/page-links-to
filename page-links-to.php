@@ -48,6 +48,9 @@ class CWS_PageLinksTo {
 	const LINK_META_KEY = '_links_to';
 	const TARGET_META_KEY = '_links_to_target';
 	const VERSION_KEY = 'txfx_plt_schema_version';
+	const DISMISSED_NOTICES = 'page_links_dismissed_options';
+	const MESSAGE_ID = 3;
+	const SURVEY_URL = 'https://goo.gl/forms/8sTKH0LjPCCqBlrG2';
 	const FILE = __FILE__;
 	const CSS_JS_VERSION = '2.10.4';
 
@@ -142,6 +145,7 @@ class CWS_PageLinksTo {
 
 		// Non-standard callback hooks.
 		$this->hook( 'load-post.php', 'load_post' );
+		$this->hook( 'wp_ajax_plt_dismiss_notice', 'ajax_dismiss_notice' );
 
 		// Standard hooks.
 		$this->hook( 'wp_list_pages' );
@@ -150,6 +154,11 @@ class CWS_PageLinksTo {
 		$this->hook( 'edit_attachment' );
 		$this->hook( 'wp_nav_menu_objects' );
 		$this->hook( 'plugin_row_meta' );
+
+		// Notices.
+		if ( self::should_display_message() ) {
+			$this->hook( 'admin_notices', 'notify_generic' );
+		}
 
 		// Metadata validation grants users editing privileges for our custom fields.
 		register_meta( 'post', self::LINK_META_KEY,   null, '__return_true' );
@@ -299,20 +308,29 @@ class CWS_PageLinksTo {
 	 * @return void
 	 */
 	public function do_meta_boxes( $page, $context ) {
+		if ( self::is_supported_post_type( $page ) && 'advanced' === $context ) {
+			add_meta_box( 'page-links-to', _x( 'Page Links To', 'Meta box title', 'page-links-to' ), array( $this, 'meta_box' ), $page, 'advanced', 'low' );
+		}
+	}
+
+	/**
+	 * Determine whether a post type supports custom links.
+	 *
+	 * @param string $type The post type to check.
+	 * @return bool Whether this post type supports custom links.
+	 */
+	public static function is_supported_post_type( $type ) {
 		/*
 			Plugins that use custom post types can use this filter to hide the
 			PLT UI in their post type.
 		*/
-
 		$hook = 'page-links-to-post-types';
 
-		$plt_post_types = apply_filters( $hook, array_keys( get_post_types( array(
+		$supported_post_types = (array) apply_filters( $hook, array_keys( get_post_types( array(
 			'show_ui' => true,
 		) ) ) );
 
-		if ( in_array( $page, $plt_post_types ) && 'advanced' === $context ) {
-			add_meta_box( 'page-links-to', _x( 'Page Links To', 'Meta box title', 'page-links-to' ), array( $this, 'meta_box' ), $page, 'advanced', 'low' );
-		}
+		return in_array( $type, $supported_post_types );
 	}
 
 	/**
@@ -354,6 +372,23 @@ class CWS_PageLinksTo {
 			<p><input placeholder="http://" name="cws_links_to" type="text" id="cws-links-to" value="<?php echo esc_attr( $url ); ?>" /></p>
 			<p><label for="cws-links-to-new-tab"><input type="checkbox" name="cws_links_to_new_tab" id="cws-links-to-new-tab" value="_blank" <?php checked( (bool) self::get_target( $post->ID ) ); ?>> <?php _e( 'Open this link in a new tab', 'page-links-to' ); ?></label></p>
 		</div>
+
+		<?php if ( true ) { ?>
+			<style>
+			#cws-links-to-survey {
+				border: 1px solid #eee;
+			}
+
+			#cws-links-to-survey h3, #cws-links-to-survey p {
+				margin: 1em;
+			}
+			</style>
+			<div id="cws-links-to-survey">
+				<h3>New Features Coming Soon!</h3>
+				<p>Do you have a minute? <a target="_blank" href="<?php echo self::SURVEY_URL; ?>">Please take this quick survey</a> and help me decide what features to build next!</p>
+			</div>
+		<?php } ?>
+
 		<script src="<?php echo self::get_url() . 'js/page-links-to.min.js?v=' . self::CSS_JS_VERSION; ?>"></script>
 	<?php
 	}
@@ -667,6 +702,88 @@ class CWS_PageLinksTo {
 		}
 	}
 
+	public static function ajax_dismiss_notice() {
+		if ( isset( $_GET['plt_notice'] ) ) {
+			self::dismiss_notice( $_GET['plt_notice'] );
+		}
+	}
+
+	/**
+	 * Whether a message should be displayed.
+	 *
+	 * @return bool Whether to display the message.
+	 */
+	public static function should_display_message() {
+		$start_time = 1529283010;
+		$end_time = $start_time + WEEK_IN_SECONDS;
+
+		return time() > $start_time && time() < $end_time && ! self::has_dismissed_notice( self::MESSAGE_ID ) && current_user_can( 'manage_options' );
+	}
+
+	/**
+	 * Return the notices which have been dismissed.
+	 *
+	 * @return array The list of notice IDs that have been dismissed.
+	 */
+	public function get_dismissed_notices() {
+		return get_option( self::DISMISSED_NOTICES, array() );
+	}
+
+	/**
+	 * Mark a notice as dismissed.
+	 *
+	 * @param int $id The notice ID to dismiss.
+	 * @return void
+	 */
+	public static function dismiss_notice( $id ) {
+		$notices = self::get_dismissed_notices();
+		$notices[] = (int) $id;
+
+		$notices = array_unique( $notices );
+		update_option( self::DISMISSED_NOTICES, $notices );
+	}
+
+	/**
+	 * Whether anyone on this site has dismissed the given notice.
+	 *
+	 * @param int $id The ID of the notice.
+	 * @return bool Whether anyone has dismissed it.
+	 */
+	public static function has_dismissed_notice( $id ) {
+		$dismissed_notices = get_option( self::DISMISSED_NOTICES, array() );
+
+		return in_array( (int) $id, $dismissed_notices );
+	}
+
+	/**
+	 * Output the generic notice.
+	 *
+	 * @return void
+	 */
+	public static function notify_generic() {
+		?>
+		<div id="page-links-to-notification" class="notice updated is-dismissible"><?php _e( '<h3>Page Links To</h3><p>Do you have a minute? <a target="_blank" href="' . self::SURVEY_URL . '" class="plt-dismiss">Please take this quick survey</a> and help me decide what features to build next!</p><p><a class="button plt-dismiss" target="_blank" href="' . self::SURVEY_URL . '">Take the survey</a>&nbsp;&nbsp;<small><a href="#" class="plt-dismiss">No thanks</a></small></p>', 'page-links-to' ); ?></div>
+		<script>
+			(function($){
+				var $plt = $('#page-links-to-notification');
+				$plt
+					.on('click', '.notice-dismiss', function(e){
+						$.ajax( ajaxurl, {
+							type: 'GET',
+							data: {
+								action: 'plt_dismiss_notice',
+								plt_notice: <?php echo json_encode( self::MESSAGE_ID ); ?>
+							}
+						});
+					})
+					.on('click', '.plt-dismiss', function(e){
+						$(this).parents('.notice').first().find('.notice-dismiss').click();
+					});
+			})(jQuery);
+		</script>
+		<?php
+	}
+
 	/**
 	 * Outputs a notice that the current post item is pointed to a custom URL.
 	 *
@@ -674,7 +791,7 @@ class CWS_PageLinksTo {
 	 */
 	public static function notify_of_external_link() {
 		?>
-		<div class="updated"><p><?php _e( '<strong>Note</strong>: This content is pointing to a custom URL. Use the &#8220;Page Links To&#8221; box to change this behavior.', 'page-links-to' ); ?></p></div>
+		<div class="notice updated"><p><?php _e( '<strong>Note</strong>: This content is pointing to a custom URL. Use the &#8220;Page Links To&#8221; box to change this behavior.', 'page-links-to' ); ?></p></div>
 		<?php
 	}
 
