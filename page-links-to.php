@@ -43,8 +43,6 @@ class CWS_PageLinksTo {
 	 */
 	static $instance;
 
-	const LINKS_CACHE_KEY = 'plt_cache__links';
-	const TARGETS_CACHE_KEY = 'plt_cache__targets';
 	const LINK_META_KEY = '_links_to';
 	const TARGET_META_KEY = '_links_to_target';
 	const VERSION_KEY = 'txfx_plt_schema_version';
@@ -173,7 +171,7 @@ class CWS_PageLinksTo {
 	function maybe_upgrade() {
 		// In earlier versions, the meta keys were stored without a leading underscore.
 		// Since then, underscore has been codified as the standard for "something manages this" post meta.
-		if ( get_option( self::VERSION_KEY ) < 3 ) {
+		if ( ! get_option( self::VERSION_KEY ) || get_option( self::VERSION_KEY ) < 3 ) {
 			global $wpdb;
 			$total_affected = 0;
 			foreach ( array( '', '_target', '_type' ) as $meta_key ) {
@@ -189,10 +187,6 @@ class CWS_PageLinksTo {
 			if ( $total_affected > 0 ) {
 				wp_cache_flush();
 			}
-			if ( update_option( self::VERSION_KEY, 3 ) ) {
-				self::flush_links_cache();
-				self::flush_targets_cache();
-			}
 		}
 	}
 
@@ -201,18 +195,6 @@ class CWS_PageLinksTo {
 	 */
 	function wp_enqueue_scripts() {
 		wp_enqueue_script( 'page-links-to', self::get_url() . 'js/new-tab.min.js', array(), self::CSS_JS_VERSION, true );
-	}
-
-	/**
-	 * Returns post ids and meta values that have a given key.
-	 *
-	 * @param string $key post meta key.
-	 * @return array|false objects with post_id and meta_value properties.
-	 */
-	public static function meta_by_key( $key ) {
-		global $wpdb;
-
-		return $wpdb->get_results( $wpdb->prepare( "SELECT post_id, meta_value FROM $wpdb->postmeta WHERE meta_key = %s", $key ) );
 	}
 
 	/**
@@ -233,30 +215,6 @@ class CWS_PageLinksTo {
 	}
 
 	/**
-	 * Returns all links for the current site.
-	 *
-	 * @return array an array of links, keyed by post ID.
-	 */
-	public static function get_links() {
-		$links = get_transient( self::LINKS_CACHE_KEY );
-
-		if ( false === $links ) {
-			$db_links = self::meta_by_key( self::LINK_META_KEY );
-			$links = array();
-
-			if ( $db_links ) {
-				foreach ( $db_links as $link ) {
-					$links[ intval( $link->post_id ) ] = $link->meta_value;
-				}
-			}
-
-			set_transient( self::LINKS_CACHE_KEY, $links, 10 * 60 );
-		}
-
-		return $links;
-	}
-
-	/**
 	 * Returns the link for the specified post ID.
 	 *
 	 * @param  integer $post_id a post ID.
@@ -264,30 +222,6 @@ class CWS_PageLinksTo {
 	 */
 	public static function get_link( $post_id ) {
 		return self::get_post_meta( $post_id, self::LINK_META_KEY );
-	}
-
-	/**
-	 * Returns all targets for the current site.
-	 *
-	 * @return array an array of targets, keyed by post ID.
-	 */
-	public static function get_targets() {
-		$targets = get_transient( self::TARGETS_CACHE_KEY );
-
-		if ( false === $targets ) {
-			$db_targets = self::meta_by_key( self::TARGET_META_KEY );
-			$targets = array();
-
-			if ( $db_targets ) {
-				foreach ( $db_targets as $target ) {
-					$targets[ intval( $target->post_id ) ] = true;
-				}
-			}
-
-			set_transient( self::TARGETS_CACHE_KEY, $targets, 10 * 60 );
-		}
-
-		return $targets;
 	}
 
 	/**
@@ -413,14 +347,14 @@ class CWS_PageLinksTo {
 		if ( isset( $_REQUEST['_cws_plt_nonce'] ) && wp_verify_nonce( $_REQUEST['_cws_plt_nonce'], 'cws_plt_' . $post_id ) ) {
 			if ( ( ! isset( $_POST['cws_links_to_choice'] ) || 'custom' == $_POST['cws_links_to_choice'] ) && isset( $_POST['cws_links_to'] ) && strlen( $_POST['cws_links_to'] ) > 0 && $_POST['cws_links_to'] !== 'http://' ) {
 				$url = self::clean_url( stripslashes( $_POST['cws_links_to'] ) );
-				self::flush_links_if( self::set_link( $post_id, $url ) );
+				self::set_link( $post_id, $url );
 				if ( isset( $_POST['cws_links_to_new_tab'] ) ) {
-					self::flush_targets_if( self::set_link_new_tab( $post_id ) );
+					self::set_link_new_tab( $post_id );
 				} else {
-					self::flush_targets_if( self::set_link_same_tab( $post_id ) );
+					self::set_link_same_tab( $post_id );
 				}
 			} else {
-				self::flush_links_if( self::delete_link( $post_id ) );
+				self::delete_link( $post_id );
 			}
 		}
 
@@ -452,7 +386,7 @@ class CWS_PageLinksTo {
 	 * @return bool whether anything changed.
 	 */
 	public static function set_link( $post_id, $url ) {
-		return self::flush_links_if( (bool) update_post_meta( $post_id, self::LINK_META_KEY, $url ) );
+		return (bool) update_post_meta( $post_id, self::LINK_META_KEY, $url );
 	}
 
 	/**
@@ -462,7 +396,7 @@ class CWS_PageLinksTo {
 	 * @return bool whether anything changed.
 	 */
 	public static function set_link_new_tab( $post_id ) {
-		return self::flush_targets_if( (bool) update_post_meta( $post_id, self::TARGET_META_KEY, '_blank' ) );
+		return (bool) update_post_meta( $post_id, self::TARGET_META_KEY, '_blank' );
 	}
 
 	/**
@@ -472,7 +406,7 @@ class CWS_PageLinksTo {
 	 * @return bool whether anything changed.
 	 */
 	public static function set_link_same_tab( $post_id ) {
-		return self::flush_targets_if( delete_post_meta( $post_id, self::TARGET_META_KEY ) );
+		return delete_post_meta( $post_id, self::TARGET_META_KEY );
 	}
 
 	/**
@@ -482,61 +416,13 @@ class CWS_PageLinksTo {
 	 * @return bool whether the link was deleted.
 	 */
 	public static function delete_link( $post_id ) {
-		$return = self::flush_links_if( delete_post_meta( $post_id, self::LINK_META_KEY ) );
-		self::flush_targets_if( delete_post_meta( $post_id, self::TARGET_META_KEY ) );
+		$return = delete_post_meta( $post_id, self::LINK_META_KEY );
+		delete_post_meta( $post_id, self::TARGET_META_KEY );
 
 		// Old, unused data that we can delete on the fly.
 		delete_post_meta( $post_id, '_links_to_type' );
 
 		return $return;
-	}
-
-	/**
-	 * Flushes the links transient cache if the condition is true.
-	 *
-	 * @param bool $condition whether to proceed with the flush.
-	 * @return bool whether the flush happened.
-	 */
-	public static function flush_links_if( $condition ) {
-		if ( $condition ) {
-			self::flush_links_cache();
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	/**
-	 * Flushes the targets transient cache if the condition is true.
-	 *
-	 * @param bool $condition whether to proceed with the flush.
-	 * @return bool whether the flush happened.
-	 */
-	public static function flush_targets_if( $condition ) {
-		if ( $condition ) {
-			self::flush_targets_cache();
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	/**
-	 * Flushes the links transient cache.
-	 *
-	 * @return bool whether the flush attempt occurred.
-	 */
-	public static function flush_links_cache() {
-		return delete_transient( self::LINKS_CACHE_KEY );
-	}
-
-	/**
-	 * Flushes the targets transient cache.
-	 *
-	 * @return bool whether the flush attempt occurred.
-	 */
-	public static function flush_targets_cache() {
-		return delete_transient( self::TARGETS_CACHE_KEY );
 	}
 
 	/**
@@ -625,47 +511,28 @@ class CWS_PageLinksTo {
 	 * Filters the list of pages to alter the links and targets.
 	 *
 	 * @param string $output the wp_list_pages() HTML block from WordPress.
+	 * @param array $_args (Unused) the arguments passed to `wp_list_pages()`.
+	 * @param array $pages Array of WP_Post objects.
 	 * @return string the modified HTML block.
 	 */
-	function wp_list_pages( $output ) {
+	function wp_list_pages( $output, $_args, $pages ) {
 		$highlight = false;
 
-		// We use the "fetch all" versions here, because the pages might not be queried here.
-		$links = self::get_links();
-		$targets = self::get_targets();
-		$targets_by_url = array();
+		$this_url = esc_url_raw( set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']));
 
-		foreach ( array_keys( $targets ) as $targeted_id ) {
-			$targets_by_url[ $links[ $targeted_id ] ] = true;
-		}
+		foreach ( (array) $pages as $page ) {
+			$page_url = self::get_link( $page->ID );
 
-		if ( ! $links ) {
-			return $output;
-		}
-
-		$this_url = ( is_ssl() ? 'https' : 'http' ) . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-
-		foreach ( (array) $links as $id => $page ) {
-			if ( isset( $targets_by_url[ $page ] ) ) {
-				$page .= '#new_tab';
-			}
-
-			if ( str_replace( 'http://www.', 'http://', $this_url ) === str_replace( 'http://www.', 'http://', $page ) || ( is_home() && str_replace( 'http://www.', 'http://', trailingslashit( get_bloginfo( 'url' ) ) ) === str_replace( 'http://www.', 'http://', trailingslashit( $page ) ) ) ) {
+			if ( $page_url && $this_url === $page_url  ) {
 				$highlight = true;
-				$current_page = esc_url( $page );
-			}
-		}
-
-		if ( count( $targets_by_url ) ) {
-			foreach ( array_keys( $targets_by_url ) as $p ) {
-				$p = esc_url( $p . '#new_tab' );
-				$output = str_replace( '<a href="' . $p . '"', '<a href="' . $p . '" target="_blank"', $output );
+				$current_page = esc_url( $page_url );
+				$current_page_id = $page->ID;
 			}
 		}
 
 		if ( $highlight ) {
-			$output = preg_replace( '| class="([^"]+)current_page_item"|', ' class="$1"', $output ); // Kill default highlighting.
-			$output = preg_replace( '|<li class="([^"]+)"><a href="' . preg_quote( $current_page ) . '"|', '<li class="$1 current_page_item"><a href="' . $current_page . '"', $output );
+			$output = preg_replace( '|<li class="([^"]+) current_page_item"|', '<li class="$1"', $output ); // Kill default highlighting.
+			$output = preg_replace( '|<li class="(page_item page-item-' . $current_page_id . ')"|', '<li class="$1 current_page_item"', $output );
 		}
 
 		return $output;

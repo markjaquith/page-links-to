@@ -22,7 +22,7 @@ class CWS_PLT_Test_Filtering extends CWS_PLT_TestCase {
 		ob_start();
 		wp_list_pages();
 		$wp_list_pages = ob_get_clean();
-		$this->assertContains( 'target="_blank"', $wp_list_pages );
+		$this->assertContains( '#new_tab', $wp_list_pages );
 	}
 
 	function test_nav_menu_items_filter() {
