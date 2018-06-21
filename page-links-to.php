@@ -624,10 +624,10 @@ class CWS_PageLinksTo {
 	/**
 	 * Filters the list of pages to alter the links and targets.
 	 *
-	 * @param string $pages the wp_list_pages() HTML block from WordPress.
+	 * @param string $output the wp_list_pages() HTML block from WordPress.
 	 * @return string the modified HTML block.
 	 */
-	function wp_list_pages( $pages ) {
+	function wp_list_pages( $output ) {
 		$highlight = false;
 
 		// We use the "fetch all" versions here, because the pages might not be queried here.
@@ -640,7 +640,7 @@ class CWS_PageLinksTo {
 		}
 
 		if ( ! $links ) {
-			return $pages;
+			return $output;
 		}
 
 		$this_url = ( is_ssl() ? 'https' : 'http' ) . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
@@ -659,16 +659,16 @@ class CWS_PageLinksTo {
 		if ( count( $targets_by_url ) ) {
 			foreach ( array_keys( $targets_by_url ) as $p ) {
 				$p = esc_url( $p . '#new_tab' );
-				$pages = str_replace( '<a href="' . $p . '"', '<a href="' . $p . '" target="_blank"', $pages );
+				$output = str_replace( '<a href="' . $p . '"', '<a href="' . $p . '" target="_blank"', $output );
 			}
 		}
 
 		if ( $highlight ) {
-			$pages = preg_replace( '| class="([^"]+)current_page_item"|', ' class="$1"', $pages ); // Kill default highlighting.
-			$pages = preg_replace( '|<li class="([^"]+)"><a href="' . preg_quote( $current_page ) . '"|', '<li class="$1 current_page_item"><a href="' . $current_page . '"', $pages );
+			$output = preg_replace( '| class="([^"]+)current_page_item"|', ' class="$1"', $output ); // Kill default highlighting.
+			$output = preg_replace( '|<li class="([^"]+)"><a href="' . preg_quote( $current_page ) . '"|', '<li class="$1 current_page_item"><a href="' . $current_page . '"', $output );
 		}
 
-		return $pages;
+		return $output;
 	}
 
 	/**
