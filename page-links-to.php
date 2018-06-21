@@ -373,7 +373,7 @@ class CWS_PageLinksTo {
 			<p><label for="cws-links-to-new-tab"><input type="checkbox" name="cws_links_to_new_tab" id="cws-links-to-new-tab" value="_blank" <?php checked( (bool) self::get_target( $post->ID ) ); ?>> <?php _e( 'Open this link in a new tab', 'page-links-to' ); ?></label></p>
 		</div>
 
-		<?php if ( true ) { ?>
+		<?php if ( $this->should_display_message() ) { ?>
 			<style>
 			#cws-links-to-survey {
 				border: 1px solid #eee;
