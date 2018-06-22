@@ -152,6 +152,7 @@ class CWS_PageLinksTo {
 		$this->hook( 'edit_attachment' );
 		$this->hook( 'wp_nav_menu_objects' );
 		$this->hook( 'plugin_row_meta' );
+		$this->hook( 'display_post_states' );
 
 		// Notices.
 		if ( self::should_display_message() ) {
@@ -200,7 +201,7 @@ class CWS_PageLinksTo {
 	/**
 	 * Returns a single piece of post meta.
 	 *
-	 * @param  integer $post_id a post ID.
+	 * @param  int $post_id a post ID.
 	 * @param  string  $key a post meta key.
 	 * @return string|false the post meta, or false, if it doesn't exist.
 	 */
@@ -215,22 +216,28 @@ class CWS_PageLinksTo {
 	}
 
 	/**
-	 * Returns the link for the specified post ID.
+	 * Returns the link for the specified post.
 	 *
-	 * @param  integer $post_id a post ID.
+	 * @param  WP_Post|int $post a post or post ID.
 	 * @return mixed either a URL or false.
 	 */
-	public static function get_link( $post_id ) {
+	public static function get_link( $post ) {
+		$post = get_post( $post );
+		$post_id = empty( $post ) ? null : $post->ID;
+
 		return self::get_post_meta( $post_id, self::LINK_META_KEY );
 	}
 
 	/**
-	 * Returns the _blank target status for the specified post ID.
+	 * Returns the _blank target status for the specified post.
 	 *
-	 * @param integer $post_id a post ID.
+	 * @param  WP_Post|int $post a post or post ID.
 	 * @return bool whether it should open in a new tab.
 	 */
-	public static function get_target( $post_id ) {
+	public static function get_target( $post ) {
+		$post = get_post( $post );
+		$post_id = empty( $post ) ? null : $post->ID;
+
 		return (bool) self::get_post_meta( $post_id, self::TARGET_META_KEY );
 	}
 
@@ -677,6 +684,36 @@ class CWS_PageLinksTo {
 			);
 		} else {
 			return $links;
+		}
+	}
+
+	/**
+	 * Filter the post states to indicate which ones are linked using this plugin.
+	 *
+	 * @param array $states The existing post states.
+	 * @param WP_Post $post The current post object being displayed.
+	 * @return array The modified post states array.
+	 */
+	public static function display_post_states( $states, $post ) {
+		$link = self::get_link( $post );
+
+		if ( $link ) {
+			$output = self::post_state_css();
+			$output .= '<a href="' . esc_url( self::original_link( $post ) ) . '" title="' . esc_attr__( 'Default WordPress URL', 'page-links-to' ) . '"><span class="dashicons dashicons-wordpress-alt"></span></a>';
+			$output .= '<span class="dashicons dashicons-arrow-right-alt" style="font-size:1em;line-height:1.5em"><span class="screen-reader-text">' . __( 'links to', 'page-links-to' ) . '</span></span>';
+			$output .= '<a href="' . esc_url( $link ) . '" class="plt-post-state-link"><span class="dashicons dashicons-admin-links"></span><span class="url"> ' . esc_url( $link ) . '</span></a></a>';
+			$states['plt'] = $output;
+		}
+
+		return $states;
+	}
+
+	public static function post_state_css() {
+		static $output = false;
+
+		if ( ! $output ) {
+			return '<style>a.plt-post-state-link span.url { display: none; } a.plt-post-state-link:hover span.url { display: inline; }</style>';
+			$output = true;
 		}
 	}
 
