@@ -139,7 +139,6 @@ class CWS_PageLinksTo {
 
 		// Non-standard priority hooks.
 		$this->hook( 'do_meta_boxes', 20 );
-		$this->hook( 'wp_enqueue_scripts' );
 
 		// Non-standard callback hooks.
 		$this->hook( 'load-post.php', 'load_post' );
@@ -149,6 +148,7 @@ class CWS_PageLinksTo {
 		$this->hook( 'wp_list_pages' );
 		$this->hook( 'template_redirect' );
 		$this->hook( 'save_post' );
+		$this->hook( 'wp_enqueue_scripts' );
 		$this->hook( 'edit_attachment' );
 		$this->hook( 'wp_nav_menu_objects' );
 		$this->hook( 'plugin_row_meta' );
