@@ -384,6 +384,7 @@ class CWS_PageLinksTo {
 	 * @return bool whether anything changed.
 	 */
 	public static function set_link( $post_id, $url ) {
+		do_action( 'page_links_to_set_link', $post_id, $url );
 		return (bool) update_post_meta( $post_id, self::LINK_META_KEY, $url );
 	}
 
@@ -474,6 +475,39 @@ class CWS_PageLinksTo {
 			wp_redirect( $link, 301 );
 			exit;
 		}
+	}
+
+	/**
+	 * Retrieves all posts that have a specified custom URL.
+	 *
+	 * @return array Array of post objects.
+	 */
+	public static function get_custom_url_posts( $url ) {
+		$result = new WP_Query(array(
+			'post_type' => 'any',
+			'meta_key' => self::LINK_META_KEY,
+			'meta_value' => $url,
+			'posts_per_page' => -1,
+			'post_status' => 'any',
+		));
+
+		return $result->posts;
+	}
+
+	/**
+	 * Retrieves all posts that have a custom URL.
+	 *
+	 * @return array Array of post objects.
+	 */
+	public static function get_all_custom_url_posts() {
+		$result = new WP_Query(array(
+			'post_type' => 'any',
+			'meta_key' => self::LINK_META_KEY,
+			'posts_per_page' => -1,
+			'post_status' => 'any',
+		));
+
+		return $result->posts;
 	}
 
 	/**
@@ -691,9 +725,13 @@ class CWS_PageLinksTo {
 
 		if ( $link ) {
 			$output = self::post_state_css();
-			$output .= '<a href="' . esc_url( self::original_link( $post ) ) . '" title="' . esc_attr__( 'Default WordPress URL', 'page-links-to' ) . '"><span class="dashicons dashicons-wordpress-alt"></span></a>';
-			$output .= '<span class="dashicons dashicons-arrow-right-alt" style="font-size:1em;line-height:1.5em"><span class="screen-reader-text">' . __( 'links to', 'page-links-to' ) . '</span></span>';
-			$output .= '<a href="' . esc_url( $link ) . '" class="plt-post-state-link"><span class="dashicons dashicons-admin-links"></span><span class="url"> ' . esc_url( $link ) . '</span></a></a>';
+			$output_parts = array(
+				'original' => '<a href="' . esc_url( self::original_link( $post ) ) . '" title="' . esc_attr__( 'Default WordPress URL', 'page-links-to' ) . '"><span class="dashicons dashicons-wordpress-alt"></span></a>',
+				'arrow' => '<span class="dashicons dashicons-arrow-right-alt" style="font-size:1em;line-height:1.5em"><span class="screen-reader-text">' . __( 'links to', 'page-links-to' ) . '</span></span>',
+				'custom' => '<a href="' . esc_url( $link ) . '" class="plt-post-state-link"><span class="dashicons dashicons-admin-links"></span><span class="url"> ' . esc_url( $link ) . '</span></a></a>',
+			);
+			$output_parts = apply_filters( 'page_links_to_post_state_parts', $output_parts, $post, $link );
+			$output .= implode( $output_parts );
 			$states['plt'] = $output;
 		}
 
