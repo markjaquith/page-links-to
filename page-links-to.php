@@ -315,22 +315,10 @@ class CWS_PageLinksTo {
 		<div id="cws-links-to-custom-section" class="<?php echo ! $linked ? 'hide-if-js' : ''; ?>">
 			<p><input placeholder="http://" name="cws_links_to" type="text" id="cws-links-to" value="<?php echo esc_attr( $url ); ?>" /></p>
 			<p><label for="cws-links-to-new-tab"><input type="checkbox" name="cws_links_to_new_tab" id="cws-links-to-new-tab" value="_blank" <?php checked( (bool) self::get_target( $post->ID ) ); ?>> <?php _e( 'Open this link in a new tab', 'page-links-to' ); ?></label></p>
+			<?php do_action( 'page_links_to_meta_box_bottom' ); ?>
 		</div>
 
 		<?php if ( $this->should_display_message() ) { ?>
-			<style>
-			#cws-links-to-survey {
-				border: 1px solid #eee;
-			}
-
-			#cws-links-to-survey h3, #cws-links-to-survey p {
-				margin: 1em;
-			}
-			</style>
-			<div id="cws-links-to-survey">
-				<h3>New Features Coming Soon!</h3>
-				<p>Do you have a minute? <a target="_blank" href="<?php echo self::SURVEY_URL; ?>">Please take this quick survey</a> and help me decide what features to build next!</p>
-			</div>
 		<?php } ?>
 
 		<script src="<?php echo self::get_url() . 'js/page-links-to.min.js?v=' . self::CSS_JS_VERSION; ?>"></script>
