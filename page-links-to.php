@@ -121,6 +121,9 @@ class CWS_PageLinksTo {
 		// Load translation files.
 		load_plugin_textdomain( 'page-links-to', false, basename( dirname( self::FILE ) ) . '/languages' );
 
+		// Init hook.
+		do_action( 'page_links_to_init', $this );
+
 		// Register hooks.
 		$this->register_hooks();
 	}
