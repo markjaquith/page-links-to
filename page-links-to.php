@@ -522,6 +522,12 @@ class CWS_PageLinksTo {
 
 		$link = self::get_link( get_queried_object_id() );
 
+		$link = self::absolute_url( $link );
+
+		return $link;
+	}
+
+	public static function absolute_url( $link ) {
 		// Convert server- and protocol-relative URLs to absolute URLs.
 		if ( '/' === $link[0] ) {
 			// Protocol-relative.
@@ -731,7 +737,7 @@ class CWS_PageLinksTo {
 				'custom' => '<a href="' . esc_url( $link ) . '" class="plt-post-state-link"><span class="dashicons dashicons-admin-links"></span><span class="url"> ' . esc_url( $link ) . '</span></a></a>',
 			);
 			$output_parts = apply_filters( 'page_links_to_post_state_parts', $output_parts, $post, $link );
-			$output .= implode( $output_parts );
+			$output .= '<span class="plt-post-info">' . implode( $output_parts ) . '</span>';
 			$states['plt'] = $output;
 		}
 
@@ -742,7 +748,7 @@ class CWS_PageLinksTo {
 		static $output = false;
 
 		if ( ! $output ) {
-			return '<style>a.plt-post-state-link span.url { display: none; } a.plt-post-state-link:hover span.url { display: inline; }</style>';
+			return '<style>.plt-post-info {opacity: 0.3;} .wp-list-table tr:hover .plt-post-info {opacity: 1} a.plt-post-state-link span.url { display: none; } a.plt-post-state-link:hover span.url { display: inline; }</style>';
 			$output = true;
 		}
 	}
