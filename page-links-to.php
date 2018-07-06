@@ -446,7 +446,8 @@ class CWS_PageLinksTo {
 			$meta_link = self::get_link( $post->ID );
 
 			if ( $meta_link ) {
-				$link = esc_url( $meta_link );
+				$link = apply_filters( 'page_links_to_link', $meta_link, $post, $link );
+				$link = esc_url( $link );
 				if ( ! is_admin() && self::get_target( $post->ID ) ) {
 					$link .= '#new_tab';
 				}
