@@ -472,6 +472,7 @@ class CWS_PageLinksTo {
 		$link = self::get_redirect();
 
 		if ( $link ) {
+			do_action( 'page_links_to_redirect_url', get_queried_object_id(), $link );
 			wp_redirect( $link, 301 );
 			exit;
 		}
