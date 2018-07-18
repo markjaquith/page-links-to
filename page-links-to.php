@@ -7,7 +7,7 @@
  * Plugin Name: Page Links To
  * Plugin URI: http://txfx.net/wordpress-plugins/page-links-to/
  * Description: Allows you to point WordPress pages or posts to a URL of your choosing.  Good for setting up navigational links to non-WP sections of your site or to off-site resources.
- * Version: 2.11.1
+ * Version: 2.11.2
  * Author: Mark Jaquith
  * Author URI: https://coveredweb.com/
  * Text Domain: page-links-to
@@ -49,10 +49,10 @@ class CWS_PageLinksTo {
 	const TARGET_META_KEY = '_links_to_target';
 	const VERSION_KEY = 'txfx_plt_schema_version';
 	const DISMISSED_NOTICES = 'page_links_dismissed_options';
-	const MESSAGE_ID = 3;
-	const SURVEY_URL = 'https://goo.gl/forms/8sTKH0LjPCCqBlrG2';
+	const MESSAGE_ID = 4;
+	const NEWSLETTER_URL = 'https://pages.convertkit.com/8eb23c1339/1ce4614706';
 	const FILE = __FILE__;
-	const CSS_JS_VERSION = '2.11.1';
+	const CSS_JS_VERSION = '2.11.2';
 
 	/**
 	 * Whether to replace WP links with their specified URLs.
@@ -372,22 +372,6 @@ class CWS_PageLinksTo {
 			<p><input placeholder="http://" name="cws_links_to" type="text" id="cws-links-to" value="<?php echo esc_attr( $url ); ?>" /></p>
 			<p><label for="cws-links-to-new-tab"><input type="checkbox" name="cws_links_to_new_tab" id="cws-links-to-new-tab" value="_blank" <?php checked( (bool) self::get_target( $post->ID ) ); ?>> <?php _e( 'Open this link in a new tab', 'page-links-to' ); ?></label></p>
 		</div>
-
-		<?php if ( true ) { ?>
-			<style>
-			#cws-links-to-survey {
-				border: 1px solid #eee;
-			}
-
-			#cws-links-to-survey h3, #cws-links-to-survey p {
-				margin: 1em;
-			}
-			</style>
-			<div id="cws-links-to-survey">
-				<h3>New Features Coming Soon!</h3>
-				<p>Do you have a minute? <a target="_blank" href="<?php echo self::SURVEY_URL; ?>">Please take this quick survey</a> and help me decide what features to build next!</p>
-			</div>
-		<?php } ?>
 
 		<script src="<?php echo self::get_url() . 'js/page-links-to.min.js?v=' . self::CSS_JS_VERSION; ?>"></script>
 	<?php
@@ -714,10 +698,7 @@ class CWS_PageLinksTo {
 	 * @return bool Whether to display the message.
 	 */
 	public static function should_display_message() {
-		$start_time = 1529283010;
-		$end_time = $start_time + WEEK_IN_SECONDS;
-
-		return time() > $start_time && time() < $end_time && ! self::has_dismissed_notice( self::MESSAGE_ID ) && current_user_can( 'manage_options' );
+		return ! self::has_dismissed_notice( self::MESSAGE_ID ) && current_user_can( 'manage_options' );
 	}
 
 	/**
@@ -762,7 +743,13 @@ class CWS_PageLinksTo {
 	 */
 	public static function notify_generic() {
 		?>
-		<div id="page-links-to-notification" class="notice updated is-dismissible"><?php _e( '<h3>Page Links To</h3><p>Do you have a minute? <a target="_blank" href="' . self::SURVEY_URL . '" class="plt-dismiss">Please take this quick survey</a> and help me decide what features to build next!</p><p><a class="button plt-dismiss" target="_blank" href="' . self::SURVEY_URL . '">Take the survey</a>&nbsp;&nbsp;<small><a href="#" class="plt-dismiss">No thanks</a></small></p>', 'page-links-to' ); ?></div>
+		<div id="page-links-to-notification" class="notice updated is-dismissible"><h3><?php _e( 'Page Links To', 'page-links-to' ); ?></h3>
+			<p><?php _e( 'Thank you for using Page Links To!', 'page-links-to' ); ?></p>
+			<p><?php _e( 'I&#8217;ve been maintaining this plugin since 2005, and I love seeing the different ways people use it.', 'page-links-to' ); ?></p>
+			<p>&mdash; <i>Mark Jaquith</i></p>
+			<p><?php printf( __( 'P.S. Can I keep you up-to-date about <a target="_blank" href="%s" class="plt-dismiss">upcoming features &amp; updates</a>?', 'page-links-to' ), esc_url( self::NEWSLETTER_URL ) ); ?></p>
+			<p><a class="button plt-dismiss" target="_blank" href="<?php echo esc_url( self::NEWSLETTER_URL ); ?>"><?php _e( 'Give Me Updates', 'page-links-to' ); ?></a>&nbsp;&nbsp;<small><a href="javascript:void(0)" class="plt-dismiss"><?php _e( 'No thanks', 'page-links-to' ); ?></a></small></p>
+		</div>
 		<script>
 			(function($){
 				var $plt = $('#page-links-to-notification');
@@ -777,6 +764,7 @@ class CWS_PageLinksTo {
 						});
 					})
 					.on('click', '.plt-dismiss', function(e){
+						e.preventDefault();
 						$(this).parents('.notice').first().find('.notice-dismiss').click();
 					});
 			})(jQuery);
