@@ -7,7 +7,7 @@
  * Plugin Name: Page Links To
  * Plugin URI: http://txfx.net/wordpress-plugins/page-links-to/
  * Description: Allows you to point WordPress pages or posts to a URL of your choosing.  Good for setting up navigational links to non-WP sections of your site or to off-site resources.
- * Version: 2.11.1
+ * Version: 3.0.0-beta.1
  * Author: Mark Jaquith
  * Author URI: https://coveredweb.com/
  * Text Domain: page-links-to
@@ -50,7 +50,7 @@ class CWS_PageLinksTo {
 	const MESSAGE_ID = 3;
 	const SURVEY_URL = 'https://goo.gl/forms/8sTKH0LjPCCqBlrG2';
 	const FILE = __FILE__;
-	const CSS_JS_VERSION = '2.11.1';
+	const CSS_JS_VERSION = '3.0.0-beta.1';
 
 	/**
 	 * Whether to replace WP links with their specified URLs.
