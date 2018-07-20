@@ -66,6 +66,9 @@ You can contribute (or report bugs) on [Github](https://github.com/markjaquith/p
 
 ## Changelog ##
 
+### 2.11.2 ###
+* Newsletter
+
 ### 2.11.1 ###
 * Restore PHP 5.3 compatibility, broken in 2.11.0
 
