@@ -52,16 +52,21 @@ class CWS_PageLinksTo {
 	 */
 	public static function get_instance() {
 		if ( ! self::$instance ) {
-			self::$instance = $this;
+			self::$instance = new self();
 		}
 
 		return self::$instance;
+	}
+
+	public function get_file() {
+		return $this->file;
 	}
 
 	/**
 	 * Add a WordPress hook (action/filter).
 	 *
 	 * @param mixed $hook first parameter is the name of the hook. If second or third parameters are included, they will be used as a priority (if an integer) or as a class method callback name (if a string).
+	 * @return true Will always return true.
 	 */
 	public function hook( $hook ) {
 		$priority = 10;
@@ -95,6 +100,7 @@ class CWS_PageLinksTo {
 	 *
 	 * @param string $file The file to include.
 	 * @param array  $data A named array of data to globalize.
+	 * @return void
 	 */
 	public function include_file( $file, $data = array() ) {
 		extract( $data, EXTR_SKIP );
@@ -103,6 +109,8 @@ class CWS_PageLinksTo {
 
 	/**
 	 * Bootstraps the upgrade process and registers all the hooks.
+	 *
+	 * @return void
 	 */
 	public function init() {
 		// Check to see if any of our data needs to be upgraded.
@@ -136,6 +144,7 @@ class CWS_PageLinksTo {
 		// Non-standard callback hooks.
 		$this->hook( 'load-post.php', 'load_post' );
 		$this->hook( 'wp_ajax_plt_dismiss_notice', 'ajax_dismiss_notice' );
+		$this->hook( 'wp_ajax_plt_quick_add', 'ajax_quick_add' );
 
 		// Standard hooks.
 		$this->hook( 'wp_list_pages' );
@@ -146,6 +155,9 @@ class CWS_PageLinksTo {
 		$this->hook( 'wp_nav_menu_objects' );
 		$this->hook( 'plugin_row_meta' );
 		$this->hook( 'display_post_states' );
+		$this->hook( 'admin_footer' );
+		$this->hook( 'admin_enqueue_scripts' );
+		$this->hook( 'admin_menu' );
 
 		// Notices.
 		if ( self::should_display_message() ) {
@@ -161,6 +173,8 @@ class CWS_PageLinksTo {
 	 * Performs an upgrade for older versions
 	 *
 	 * * Version 3: Underscores the keys so they only show in the plugin's UI.
+	 *
+	 * @return void
 	 */
 	function maybe_upgrade() {
 		// In earlier versions, the meta keys were stored without a leading underscore.
@@ -186,9 +200,39 @@ class CWS_PageLinksTo {
 
 	/**
 	 * Enqueues frontend scripts.
+	 *
+	 * @return void
 	 */
 	public function wp_enqueue_scripts() {
 		wp_enqueue_script( 'page-links-to', $this->get_url() . 'js/new-tab.min.js', array(), self::CSS_JS_VERSION, true );
+	}
+
+	/**
+	 * Enqueues backend scripts.
+	 *
+	 * @return void
+	 */
+	public function admin_enqueue_scripts() {
+		wp_register_script( 'plt-quick-add', $this->get_url() . 'js/quick-add.min.js', array(), self::CSS_JS_VERSION, true );
+		wp_register_style( 'plt-quick-add', $this->get_url() . '/css/quick-add.css', array(), self::CSS_JS_VERSION );
+	}
+
+	/**
+	 * Adds the Add Page Link menu item.
+	 *
+	 * @return void
+	 */
+	public function admin_menu() {
+		add_submenu_page( 'edit.php?post_type=page', '', __( 'Add Page Link', 'page-links-pro' ), 'publish_pages', 'plt-add-page-link', '__return_empty_string' );
+	}
+
+	/**
+	 * Adds the quick-add HTML to the admin footer.
+	 *
+	 * @return void
+	 */
+	public function admin_footer() {
+		$this->include_file( 'templates/quick-add.php' );
 	}
 
 	/**
@@ -308,7 +352,7 @@ class CWS_PageLinksTo {
 			<?php do_action( 'page_links_to_meta_box_bottom' ); ?>
 		</div>
 
-		<script src="<?php echo esc_url( $this->get_url() ) . 'js/page-links-to.min.js?v=' . self::CSS_JS_VERSION; ?>"></script>
+		<script src="<?php echo esc_url( $this->get_url() ) . 'js/meta-box.min.js?v=' . self::CSS_JS_VERSION; ?>"></script>
 	<?php
 	}
 
@@ -599,6 +643,36 @@ class CWS_PageLinksTo {
 	public static function ajax_dismiss_notice() {
 		if ( isset( $_GET['plt_notice'] ) ) {
 			self::dismiss_notice( $_GET['plt_notice'] );
+		}
+	}
+
+	public function ajax_quick_add() {
+		if ( current_user_can( 'publish_posts' ) ) {
+			$post = stripslashes_deep( $_POST );
+			$title   = $post['plt_title'];
+			$url     = $post['plt_url'];
+			$slug    = $post['plt_slug'];
+			$publish = (bool) $post['plt_publish'];
+
+			$post_id = wp_insert_post(array(
+				'post_type' => 'page',
+				'post_status' => $publish ? 'publish' : 'draft',
+				'post_title' => $title,
+				'post_name' => $slug,
+			));
+
+			$this->set_link( $post_id, $url );
+
+			$post = get_post( $post_id );
+
+			wp_send_json_success( array(
+				'id'     => $post->ID,
+				'title'  => $post->post_title,
+				'wpUrl'  => $this->original_link( $post->ID ),
+				'url'    => $this->get_link( $post->ID ),
+				'slug'   => $post->post_name,
+				'status' => $post->post_status,
+			));
 		}
 	}
 

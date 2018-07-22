@@ -1,7 +1,45 @@
 module.exports = function(grunt) {
+	const ignores = [
+		'!node_modules/**',
+		'!release/**',
+		'!assets/**',
+		'!.git/**',
+		'!.sass-cache/**',
+		'!img/src/**',
+		'!Gruntfile.*',
+		'!package.json',
+		'!.gitignore',
+		'!.gitmodules',
+		'!tests/**',
+		'!bin/**',
+		'!.travis.yml',
+		'!phpunit.xml',
+	];
+
 	// Project configuration
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
+
+		sass: {
+			default: {
+				options: {
+					style: 'expanded',
+				},
+				files: {
+					'css/quick-add.css': 'sass/quick-add.sass',
+				},
+			},
+		},
+
+		postcss: {
+			default: {
+				src: 'css/*.css',
+				options: {
+					map: true,
+					processors: [require('autoprefixer'), require('cssnano')],
+				},
+			},
+		},
 
 		phpunit: {
 			default: {},
@@ -10,20 +48,12 @@ module.exports = function(grunt) {
 		browserify: {
 			options: {
 				paths: ['../node_modules'],
+				watch: true,
 				transform: [
 					[
 						'babelify',
 						{
-							presets: [
-								[
-									'env',
-									{
-										targets: {
-											browsers: ['>0.25%'],
-										},
-									},
-								],
-							],
+							presets: ['env', 'react'],
 							plugins: [
 								'add-module-exports',
 								'transform-class-properties',
@@ -37,56 +67,37 @@ module.exports = function(grunt) {
 							extensions: ['jsx'],
 						},
 					],
-					[
-						'uglifyify',
-						{
-							global: true,
-						},
-					],
+					// [
+					// 	'uglifyify',
+					// 	{
+					// 		global: true,
+					// 	},
+					// ],
 				],
 				browserifyOptions: {
-					debug: false,
+					debug: true,
 				},
 			},
 			default: {
 				files: {
 					'js/new-tab.min.js': 'js/new-tab.jsx',
-					'js/page-links-to.min.js': 'js/page-links-to.jsx',
+					'js/meta-box.min.js': 'js/meta-box.jsx',
+					'js/quick-add.min.js': 'js/quick-add.jsx',
 				},
 			},
 		},
 
 		watch: {
 			php: {
-				files: [
-					'**/*.php',
-					'!release/**',
-					'!node_modules/**',
-					'!.git/**',
-					'!.sass-cache/**',
-				],
+				files: ['**/*.php', ...ignores],
 				tasks: ['phpunit'],
 				options: {
 					debounceDelay: 5000,
 				},
 			},
 			sass: {
-				files: ['css/*.sass'],
-				tasks: ['compass'],
-				options: {
-					debounceDelay: 500,
-				},
-			},
-			jsx: {
-				files: [
-					'js/*.jsx',
-					'js/**/*.jsx',
-					'!release/**',
-					'!node_modules/**',
-					'!.git/**',
-					'!.sass-cache/**',
-				],
-				tasks: ['browserify'],
+				files: ['sass/**/*.sass', ...ignores],
+				tasks: ['sass', 'postcss'],
 				options: {
 					debounceDelay: 500,
 				},
@@ -120,23 +131,7 @@ module.exports = function(grunt) {
 
 		copy: {
 			main: {
-				src: [
-					'**',
-					'!node_modules/**',
-					'!release/**',
-					'!assets/**',
-					'!.git/**',
-					'!.sass-cache/**',
-					'!img/src/**',
-					'!Gruntfile.*',
-					'!package.json',
-					'!.gitignore',
-					'!.gitmodules',
-					'!tests/**',
-					'!bin/**',
-					'!.travis.yml',
-					'!phpunit.xml',
-				],
+				src: ['**', ...ignores],
 				dest: 'release/<%= pkg.version %>/',
 			},
 			svn: {
@@ -173,9 +168,8 @@ module.exports = function(grunt) {
 					{
 						from: /^Stable tag:\s*?[a-zA-Z0-9.-]+(\s*?)$/im,
 						to: 'Stable tag: <%= pkg.version %>$1',
-					}
-				]
-
+					},
+				],
 			},
 			svn_readme: {
 				src: ['release/svn/readme.md'],
@@ -199,7 +193,7 @@ module.exports = function(grunt) {
 					},
 					{
 						from: /\n{3,}/gm,
-						to: "\n\n",
+						to: '\n\n',
 					},
 				],
 			},
@@ -212,7 +206,7 @@ module.exports = function(grunt) {
 				trailingComma: 'es5',
 			},
 			default: {
-				src: ['js/**.jsx'],
+				src: ['js/**.jsx', 'Gruntfile.js'],
 			},
 		},
 
@@ -230,25 +224,23 @@ module.exports = function(grunt) {
 		},
 	});
 
-	// Load other tasks
-	grunt.loadNpmTasks('grunt-contrib-concat');
-	grunt.loadNpmTasks('grunt-browserify');
-	grunt.loadNpmTasks('grunt-contrib-watch');
-	grunt.loadNpmTasks('grunt-contrib-clean');
-	grunt.loadNpmTasks('grunt-contrib-copy');
-	grunt.loadNpmTasks('grunt-contrib-compress');
-	grunt.loadNpmTasks('grunt-text-replace');
-	grunt.loadNpmTasks('grunt-phpunit');
-	grunt.loadNpmTasks('grunt-notify');
-	grunt.loadNpmTasks('grunt-prettier');
-	grunt.loadNpmTasks('grunt-wp-deploy');
+	require('load-grunt-tasks')(grunt);
 	grunt.task.run('notify_hooks');
 
 	// Default task
-	grunt.registerTask('default', ['replace', 'browserify']);
+	grunt.registerTask('default', [
+		'replace',
+		'prettier',
+		'browserify',
+		'sass',
+		'postcss',
+	]);
 
 	// Build task
 	grunt.registerTask('build', ['default', 'clean']);
+
+	// Develop.
+	grunt.registerTask('dev', ['default', 'watch']);
 
 	// Prepare a WordPress.org release
 	grunt.registerTask('release:prepare', [
