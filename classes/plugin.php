@@ -158,6 +158,7 @@ class CWS_PageLinksTo {
 		$this->hook( 'admin_footer' );
 		$this->hook( 'admin_enqueue_scripts' );
 		$this->hook( 'admin_menu' );
+		$this->hook( 'admin_bar_menu', 999 );
 
 		// Notices.
 		if ( self::should_display_message() ) {
@@ -215,6 +216,22 @@ class CWS_PageLinksTo {
 	public function admin_enqueue_scripts() {
 		wp_register_script( 'plt-quick-add', $this->get_url() . 'js/quick-add.min.js', array(), self::CSS_JS_VERSION, true );
 		wp_register_style( 'plt-quick-add', $this->get_url() . '/css/quick-add.css', array(), self::CSS_JS_VERSION );
+	}
+
+	/**
+	 * Adds our items to the admin bar.
+	 *
+	 * @return WP_Admin_Bar The admin bar object.
+	 */
+	public function admin_bar_menu( $bar ) {
+		if ( is_admin() ) {
+			$bar->add_node( array(
+				'id' => 'new-page-link',
+				'title' => __( 'Page Link', 'page-links-to' ),
+				'parent' => 'new-content',
+				'href' => '#new-page-link',
+			));
+		}
 	}
 
 	/**

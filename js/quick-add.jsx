@@ -3,7 +3,9 @@ jQuery($ => {
 	const $form = $modal.find('form:first');
 	const $saveDraft = $('#plt-quick-add-save');
 	const $publish = $('#plt-quick-add-publish');
-	const $menuItem = $('a[href$="post_type=page&page=plt-add-page-link"]');
+	const $menuItem = $(
+		'a[href$="post_type=page&page=plt-add-page-link"], a[href$="#new-page-link"]'
+	);
 	const $messages = $modal.find('.messages');
 	const $shortUrlMessage = $modal.find('.short-url-message');
 	const $title = $modal.find('[name="title"]');
@@ -11,6 +13,7 @@ jQuery($ => {
 	const $slug = $modal.find('[name="slug"]');
 	const nonce = $modal.find('[name="plt_nonce"]').val();
 	const defaultSlugPlaceholder = $slug.prop('placeholder');
+	const fancyUrls = window.pltVars.fancyUrls;
 	const [yes, no] = [true, false];
 
 	const modalAction = action => () => $modal.dialog(action);
@@ -35,13 +38,13 @@ jQuery($ => {
 			.replace(/-{2,}/g, '-')
 			.replace(/[^a-z0-9-]/, '')
 			.replace(/^-/, '');
-	}
+	};
 
-	const addMessage = (message) => {
+	const addMessage = message => {
 		const $newMessage = $(`<p>${message}</p>`);
 		$messages.append($newMessage);
 		return $newMessage;
-	}
+	};
 
 	const addExpiringMessage = (message, duration) => {
 		const $newMessage = addMessage(message);
@@ -49,13 +52,16 @@ jQuery($ => {
 		return $newMessage;
 	};
 
-	const displayShortUrlMessage = (show) => $shortUrlMessage.toggle(show);
+	const displayShortUrlMessage = show => $shortUrlMessage.toggle(show);
 
 	const updateSlug = () => {
 		const placeholderSlug = makeSlugFromTitle($title.val());
 		const slug = makeSlugFromSlug($slug.val());
 
-		$slug.prop('placeholder', placeholderSlug.length ? placeholderSlug : defaultSlugPlaceholder);
+		$slug.prop(
+			'placeholder',
+			placeholderSlug.length ? placeholderSlug : defaultSlugPlaceholder
+		);
 		$slug.val(slug);
 	};
 
@@ -64,9 +70,15 @@ jQuery($ => {
 		func();
 	};
 
-	const hardUpdateSlug = noDefaultEvent(() => $slug.val(makeSlugFromTitle($slug.val())));
+	const hardUpdateSlug = noDefaultEvent(() =>
+		$slug.val(makeSlugFromTitle($slug.val()))
+	);
 
-	const handleShowSlugMessage = noDefaultEvent(() => displayShortUrlMessage($slug.prop('placeholder').length > 16 && !$slug.val().length));
+	const handleShowSlugMessage = noDefaultEvent(() =>
+		displayShortUrlMessage(
+			$slug.prop('placeholder').length > 16 && !$slug.val().length
+		)
+	);
 
 	const reset = () => {
 		$title.val('');
@@ -81,7 +93,8 @@ jQuery($ => {
 		$saveDraft.prop('disabled', !enabled);
 	};
 
-	const maybeUpdateButtons = () => updateButtons($title.val().length && $url.val().length);
+	const maybeUpdateButtons = () =>
+		updateButtons($title.val().length && $url.val().length);
 
 	const submit = ({ publish = yes } = {}) => {
 		const title = $title.val();
@@ -131,10 +144,14 @@ jQuery($ => {
 	});
 
 	// Events.
-	$title.keyup(updateSlug);
-	$title.keyup(handleShowSlugMessage);
-	$slug.keyup(updateSlug);
-	$slug.keyup(handleShowSlugMessage);
+	if (fancyUrls) {
+		$title.keyup(updateSlug);
+		$title.keyup(handleShowSlugMessage);
+		$slug.keyup(updateSlug);
+		$slug.keyup(handleShowSlugMessage);
+		$form.change(hardUpdateSlug);
+	}
+
 	$menuItem.click(clickMenuItem);
 	$saveDraft.click(saveDraft);
 	$publish.click(publish);
@@ -142,7 +159,6 @@ jQuery($ => {
 	$title.keyup(maybeUpdateButtons);
 	$url.keyup(maybeUpdateButtons);
 	$form.change(maybeUpdateButtons);
-	$form.change(hardUpdateSlug);
 
 	// Init.
 	reset();
