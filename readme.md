@@ -53,6 +53,7 @@ This plugin allows you to make a WordPress page (or post or custom post type) li
 ## Screenshots ##
 
 1. The Page Links To meta box in action
+2. The quick Add Page Link dialog.
 
 ## Frequently Asked Questions ##
 
