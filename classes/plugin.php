@@ -140,6 +140,7 @@ class CWS_PageLinksTo {
 
 		// Non-standard priority hooks.
 		$this->hook( 'do_meta_boxes', 20 );
+		$this->hook( 'admin_bar_menu', 999 );
 
 		// Non-standard callback hooks.
 		$this->hook( 'load-post.php', 'load_post' );
@@ -158,7 +159,11 @@ class CWS_PageLinksTo {
 		$this->hook( 'admin_footer' );
 		$this->hook( 'admin_enqueue_scripts' );
 		$this->hook( 'admin_menu' );
-		$this->hook( 'admin_bar_menu', 999 );
+
+		// Page row actions.
+		$this->hook( 'page_row_actions' );
+		$this->hook( 'post_row_actions', 'page_row_actions' );
+
 
 		// Notices.
 		if ( self::should_display_message() ) {
@@ -214,7 +219,8 @@ class CWS_PageLinksTo {
 	 * @return void
 	 */
 	public function admin_enqueue_scripts() {
-		wp_register_script( 'plt-quick-add', $this->get_url() . 'js/quick-add.min.js', array(), self::CSS_JS_VERSION, true );
+		wp_register_script( 'plt-clipboard', $this->get_url() . 'js/clipboard.min.js', array(), self::CSS_JS_VERSION, true );
+		wp_register_script( 'plt-quick-add', $this->get_url() . 'js/quick-add.min.js', array( 'plt-clipboard' ), self::CSS_JS_VERSION, true );
 		wp_register_style( 'plt-quick-add', $this->get_url() . '/css/quick-add.css', array(), self::CSS_JS_VERSION );
 	}
 
@@ -232,6 +238,39 @@ class CWS_PageLinksTo {
 				'href' => '#new-page-link',
 			));
 		}
+	}
+
+	/**
+	 * Filters the page row actions.
+	 *
+	 * @param array $actions The current array of actions.
+	 * @param WP_Post $post The current post row being processed.
+	 * @return array The updated array of actions.
+	 */
+	public function page_row_actions( $actions, $post ) {
+		if ( $this->get_link( $post ) ) {
+			$new_actions = array();
+			$inserted = false;
+			$original_html = '<a href="' . esc_attr( $this->original_link( $post->ID ) ) . '" class="plt-copy-short-url" data-clipboard-text="' . esc_attr( $this->original_link( $post->ID ) ) . '" data-original-text="' . __( 'Copy Short URL', 'page-links-to' ) . '">' . __( 'Copy Short URL', 'page-links-to' ) . '</a>';
+			$original_key = 'plt_original';
+
+			foreach ( $actions as $key => $html ) {
+				$new_actions[$key] = $html;
+
+				if ( 'view' === $key ) {
+					$inserted = true;
+					$new_actions[$original_key] = $original_html;
+				}
+			}
+
+			if ( ! $inserted ) {
+				$new_actions[$original_key] = $original_html;
+			}
+
+			$actions = $new_actions;
+		}
+
+		return $actions;
 	}
 
 	/**
@@ -769,10 +808,6 @@ class CWS_PageLinksTo {
 	public static function notify_generic() {
 		?>
 		<div id="page-links-to-notification" class="notice updated is-dismissible"><h3><?php _e( 'Page Links To', 'page-links-to' ); ?></h3>
-			<p><?php _e( 'Thank you for using Page Links To!', 'page-links-to' ); ?></p>
-			<p><?php _e( 'I&#8217;ve been maintaining this plugin since 2005, and I love seeing the different ways people use it.', 'page-links-to' ); ?></p>
-			<p>&mdash; <i>Mark Jaquith</i></p>
-			<p><?php printf( __( 'P.S. Can I keep you up-to-date about <a target="_blank" href="%s" class="plt-dismiss">upcoming features &amp; updates</a>?', 'page-links-to' ), esc_url( self::NEWSLETTER_URL ) ); ?></p>
 			<p><a class="button plt-dismiss" target="_blank" href="<?php echo esc_url( self::NEWSLETTER_URL ); ?>"><?php _e( 'Give Me Updates', 'page-links-to' ); ?></a>&nbsp;&nbsp;<small><a href="javascript:void(0)" class="plt-dismiss"><?php _e( 'No thanks', 'page-links-to' ); ?></a></small></p>
 		</div>
 		<script>
@@ -834,14 +869,12 @@ class CWS_PageLinksTo {
 	 * @return array The modified post states array.
 	 */
 	public function display_post_states( $states, $post ) {
-		$link = $this->get_link( $post );
+		$link = $this->absolute_url( $this->get_link( $post ) );
 
 		if ( $link ) {
-			$output = $this->post_state_css();
+			$output = '';
 			$output_parts = array(
-				'original' => '<a href="' . esc_url( $this->original_link( $post ) ) . '" title="' . esc_attr__( 'Default WordPress URL', 'page-links-to' ) . '"><span class="dashicons dashicons-wordpress-alt"></span></a>',
-				'arrow' => '<span class="dashicons dashicons-arrow-right-alt" style="font-size:1em;line-height:1.5em"><span class="screen-reader-text">' . __( 'links to', 'page-links-to' ) . '</span></span>',
-				'custom' => '<a href="' . esc_url( $link ) . '" class="plt-post-state-link"><span class="dashicons dashicons-admin-links"></span><span class="url"> ' . esc_url( $link ) . '</span></a>',
+				'custom' => '<a title="' . __( 'Linked URL', 'page-links-to' ) . '" href="' . esc_url( $link ) . '" class="plt-post-state-link"><span class="dashicons dashicons-admin-links"></span><span class="url"> ' . esc_url( $link ) . '</span></a>',
 			);
 			$output_parts = apply_filters( 'page_links_to_post_state_parts', $output_parts, $post, $link );
 			$output .= '<span class="plt-post-info">' . implode( $output_parts ) . '</span>';
@@ -849,15 +882,6 @@ class CWS_PageLinksTo {
 		}
 
 		return $states;
-	}
-
-	public static function post_state_css() {
-		static $output = false;
-
-		if ( ! $output ) {
-			return '<style>.plt-post-info {opacity: 0.3;} .wp-list-table tr:hover .plt-post-info {opacity: 1} a.plt-post-state-link span.url { display: none; } a.plt-post-state-link:hover span.url { display: inline; }</style>';
-			$output = true;
-		}
 	}
 
 	/**

@@ -8,8 +8,10 @@ wp_enqueue_style( 'plt-quick-add' );
 ?>
 
 <script>
-var pltVars = pltVars || [];
+var pltVars = pltVars || {};
 pltVars['fancyUrls'] = <?php echo json_encode( (bool) get_option( 'permalink_structure' ) ); ?>;
+pltVars['copied'] = <?php echo json_encode( __( 'Copied to Clipboard!', 'page-links-to' ) ); ?>;
+pltVars['browserNoSupportCopying'] = <?php echo json_encode( __( 'Sorry, your browser does not support copying.', 'page-links-to' ) ); ?>;
 </script>
 
 <div id="plt-quick-add" class="hidden">

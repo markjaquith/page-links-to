@@ -1,3 +1,32 @@
+// Copy to clipboard.
+jQuery($ => {
+	const $clipboardLinks = $('.plt-copy-short-url');
+	if (ClipboardJS.isSupported()) {
+		$clipboardLinks.click(e => e.preventDefault());
+	} else {
+		$clipboardLinks.hide();
+	}
+
+	const clipboard = new ClipboardJS('.plt-copy-short-url');
+	const copied = pltVars.copied;
+	const browserNoSupportCopying = pltVars.browserNoSupportCopying;
+
+	clipboard.on('success', e => {
+		const $trigger = $(e.trigger);
+
+		$trigger.text(copied);
+		setTimeout(() => $trigger.text($trigger.data('original-text')), 4000);
+	});
+
+	clipboard.on('error', e => {
+		const $trigger = $(e.trigger);
+
+		$trigger.text(browserNoSupportCopying);
+		setTimeout(() => $clipboardLinks.hide(), 4000);
+	});
+});
+
+// Quick Add.
 jQuery($ => {
 	const $modal = $('#plt-quick-add');
 	const $form = $modal.find('form:first');

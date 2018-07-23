@@ -130,6 +130,10 @@ module.exports = function(grunt) {
 		},
 
 		copy: {
+			clipboard: {
+				src: ['node_modules/clipboard/dist/clipboard.min.js'],
+				dest: 'js/clipboard.min.js',
+			},
 			main: {
 				src: ['**', ...ignores],
 				dest: 'release/<%= pkg.version %>/',
@@ -230,6 +234,7 @@ module.exports = function(grunt) {
 	// Default task
 	grunt.registerTask('default', [
 		'replace',
+		'copy:clipboard',
 		'prettier',
 		'browserify',
 		'sass',
