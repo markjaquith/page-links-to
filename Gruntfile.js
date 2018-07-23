@@ -67,12 +67,12 @@ module.exports = function(grunt) {
 							extensions: ['jsx'],
 						},
 					],
-					// [
-					// 	'uglifyify',
-					// 	{
-					// 		global: true,
-					// 	},
-					// ],
+					[
+						'uglifyify',
+						{
+							global: true,
+						},
+					],
 				],
 				browserifyOptions: {
 					debug: true,
