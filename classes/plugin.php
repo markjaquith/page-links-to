@@ -258,7 +258,7 @@ class CWS_PageLinksTo {
 	 * @return array The updated array of actions.
 	 */
 	public function page_row_actions( $actions, $post ) {
-		if ( $this->get_link( $post ) ) {
+		if ( self::get_link( $post ) ) {
 			$new_actions = array();
 			$inserted = false;
 			$original_html = '<a href="' . esc_attr( $this->original_link( $post->ID ) ) . '" class="plt-copy-short-url" data-clipboard-text="' . esc_attr( $this->original_link( $post->ID ) ) . '" data-original-text="' . __( 'Copy Short URL', 'page-links-to' ) . '">' . __( 'Copy Short URL', 'page-links-to' ) . '</a>';
@@ -384,7 +384,7 @@ class CWS_PageLinksTo {
 	 *
 	 * @return void
 	 */
-	public static function meta_box() {
+	public function meta_box() {
 		$null = null;
 		$post = get_post( $null );
 		echo '<p>';
@@ -398,19 +398,6 @@ class CWS_PageLinksTo {
 			$linked = true;
 		}
 	?>
-		<style>
-		#cws-links-to-custom-section {
-			webkit-box-sizing: border-box;
-			-moz-box-sizing: border-box;
-			box-sizing: border-box;
-			margin-left: 30px;
-		}
-
-		#cws-links-to {
-			width: 75%;
-		}
-		</style>
-
 		<p><?php _e( 'Point this content to:', 'page-links-to' ); ?></p>
 		<p><label><input type="radio" id="cws-links-to-choose-wp" name="cws_links_to_choice" value="wp" <?php checked( ! $linked ); ?> /> <?php _e( 'Its normal WordPress URL', 'page-links-to' ); ?></label></p>
 		<p><label><input type="radio" id="cws-links-to-choose-custom" name="cws_links_to_choice" value="custom" <?php checked( $linked ); ?> /> <?php _e( 'A custom URL', 'page-links-to' ); ?></label></p>
@@ -709,7 +696,7 @@ class CWS_PageLinksTo {
 	 * @return void
 	 */
 	public function load_post() {
-		if ( isset( $_GET['post'] ) && $this->get_link( (int) $_GET['post'] ) ) {
+		if ( isset( $_GET['post'] ) && self::get_link( (int) $_GET['post'] ) ) {
 			$this->hook( 'edit_form_after_title' );
 			$this->hook( 'admin_notices', 'notify_of_external_link' );
 			$this->replace = false;
@@ -759,7 +746,7 @@ class CWS_PageLinksTo {
 				'id'      => $post->ID,
 				'title'   => $post->post_title,
 				'wpUrl'   => $this->original_link( $post->ID ),
-				'url'     => $this->get_link( $post->ID ),
+				'url'     => self::get_link( $post->ID ),
 				'slug'    => $post->post_name,
 				'status'  => $post->post_status,
 				'message' => $message,
@@ -858,7 +845,7 @@ class CWS_PageLinksTo {
 	public function edit_form_after_title() {
 		$this->replace = true;
 		$post = get_post();
-		$link = $this->get_link( $post );
+		$link = self::get_link( $post );
 
 		if ( ! $link ) {
 			return;
@@ -874,7 +861,7 @@ class CWS_PageLinksTo {
 	 * @param string $file the current plugin being processed.
 	 * @return array the modified array of links.
 	 */
-	public static function plugin_row_meta( $links, $file ) {
+	public function plugin_row_meta( $links, $file ) {
 		if ( $file === plugin_basename( $this->file ) ) {
 			return array_merge(
 				$links,
@@ -893,7 +880,7 @@ class CWS_PageLinksTo {
 	 * @return array The modified post states array.
 	 */
 	public function display_post_states( $states, $post ) {
-		$link = $this->absolute_url( $this->get_link( $post ) );
+		$link = $this->absolute_url( self::get_link( $post ) );
 
 		if ( $link ) {
 			$output = '';
