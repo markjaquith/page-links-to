@@ -722,7 +722,8 @@ class CWS_PageLinksTo {
 	 * @return bool Whether to display the message.
 	 */
 	public static function should_display_message() {
-		return ! self::has_dismissed_notice( self::MESSAGE_ID ) && current_user_can( 'manage_options' );
+		return false;
+		// return ! self::has_dismissed_notice( self::MESSAGE_ID ) && current_user_can( 'manage_options' );
 	}
 
 	/**
