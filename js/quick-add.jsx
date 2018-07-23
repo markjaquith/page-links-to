@@ -4,10 +4,12 @@ jQuery($ => {
 	const $saveDraft = $('#plt-quick-add-save');
 	const $publish = $('#plt-quick-add-publish');
 	const $menuItem = $('a[href$="post_type=page&page=plt-add-page-link"]');
-	const $message = $modal.find('.message');
+	const $messages = $modal.find('.messages');
+	const $shortUrlMessage = $modal.find('.short-url-message');
 	const $title = $modal.find('[name="title"]');
 	const $url = $modal.find('[name="url"]');
 	const $slug = $modal.find('[name="slug"]');
+	const nonce = $modal.find('[name="plt_nonce"]').val();
 	const defaultSlugPlaceholder = $slug.prop('placeholder');
 	const [yes, no] = [true, false];
 
@@ -16,7 +18,7 @@ jQuery($ => {
 	const open = modalAction('open');
 	const close = modalAction('close');
 
-	const makeSlug = (title = '') => {
+	const makeSlugFromTitle = (title = '') => {
 		return title
 			.toLowerCase()
 			.replace(/\s+/g, '-')
@@ -26,19 +28,35 @@ jQuery($ => {
 			.replace(/^-/, '');
 	};
 
-	const setMessage = (message) => {
-		$message.html(message);
-	};
-
-	const setExpiringMessage = (message, duration) => {
-		setMessage(message);
-		setTimeout(() => setMessage(''), duration);
+	const makeSlugFromSlug = (slug = '') => {
+		return slug
+			.toLowerCase()
+			.replace(/\s+/g, '-')
+			.replace(/-{2,}/g, '-')
+			.replace(/[^a-z0-9-]/, '')
+			.replace(/^-/, '');
 	}
 
-	const updateSlug = () => {
-		const slug = makeSlug($title.val());
+	const addMessage = (message) => {
+		const $newMessage = $(`<p>${message}</p>`);
+		$messages.append($newMessage);
+		return $newMessage;
+	}
 
-		$slug.prop('placeholder', slug.length ? slug : defaultSlugPlaceholder);
+	const addExpiringMessage = (message, duration) => {
+		const $newMessage = addMessage(message);
+		setTimeout(() => $newMessage.fadeOut(), duration);
+		return $newMessage;
+	};
+
+	const displayShortUrlMessage = (show) => $shortUrlMessage.toggle(show);
+
+	const updateSlug = () => {
+		const placeholderSlug = makeSlugFromTitle($title.val());
+		const slug = makeSlugFromSlug($slug.val());
+
+		$slug.prop('placeholder', placeholderSlug.length ? placeholderSlug : defaultSlugPlaceholder);
+		$slug.val(slug);
 	};
 
 	const noDefaultEvent = func => e => {
@@ -46,32 +64,48 @@ jQuery($ => {
 		func();
 	};
 
+	const hardUpdateSlug = noDefaultEvent(() => $slug.val(makeSlugFromTitle($slug.val())));
+
+	const handleShowSlugMessage = noDefaultEvent(() => displayShortUrlMessage($slug.prop('placeholder').length > 16 && !$slug.val().length));
+
 	const reset = () => {
 		$title.val('');
 		$url.val('');
 		$slug.val('');
+		$slug.prop('placeholder', defaultSlugPlaceholder);
+		maybeUpdateButtons();
 	};
+
+	const updateButtons = (enabled = yes) => {
+		$publish.prop('disabled', !enabled);
+		$saveDraft.prop('disabled', !enabled);
+	};
+
+	const maybeUpdateButtons = () => updateButtons($title.val().length && $url.val().length);
 
 	const submit = ({ publish = yes } = {}) => {
 		const title = $title.val();
 		const url = $url.val();
-		let slug = $slug.val() ? $slug.val() : makeSlug(title);
+		let slug = $slug.val() ? $slug.val() : makeSlugFromTitle(title);
 
-		$.post(ajaxurl, {
-			action: 'plt_quick_add',
-			plt_title: title,
-			plt_url: url,
-			plt_slug: slug,
-			plt_publish: publish ? 1 : 0,
-		},
-		(response) => {
-			const { status } = response.data;
-			const statusText = 'publish' === status ? 'published' : 'saved';
-			const delay = 1500;
-			reset();
-			setExpiringMessage(`Link ${statusText}!`, delay);
-			setTimeout(close, delay);
-		});
+		$.post(
+			ajaxurl,
+			{
+				action: 'plt_quick_add',
+				plt_title: title,
+				plt_url: url,
+				plt_slug: slug,
+				plt_publish: publish ? 1 : 0,
+				plt_nonce: nonce,
+			},
+			response => {
+				const { message } = response.data;
+				const delay = 5000;
+				reset();
+				$title.focus();
+				addExpiringMessage(message, delay);
+			}
+		);
 	};
 
 	const clickMenuItem = noDefaultEvent(() => (isOpen() ? close() : open()));
@@ -98,8 +132,18 @@ jQuery($ => {
 
 	// Events.
 	$title.keyup(updateSlug);
+	$title.keyup(handleShowSlugMessage);
+	$slug.keyup(updateSlug);
+	$slug.keyup(handleShowSlugMessage);
 	$menuItem.click(clickMenuItem);
 	$saveDraft.click(saveDraft);
 	$publish.click(publish);
 	$form.submit(publish);
+	$title.keyup(maybeUpdateButtons);
+	$url.keyup(maybeUpdateButtons);
+	$form.change(maybeUpdateButtons);
+	$form.change(hardUpdateSlug);
+
+	// Init.
+	reset();
 });

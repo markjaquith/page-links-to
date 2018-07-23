@@ -223,7 +223,7 @@ class CWS_PageLinksTo {
 	 * @return void
 	 */
 	public function admin_menu() {
-		add_submenu_page( 'edit.php?post_type=page', '', __( 'Add Page Link', 'page-links-pro' ), 'publish_pages', 'plt-add-page-link', '__return_empty_string' );
+		add_submenu_page( 'edit.php?post_type=page', '', __( 'Add Page Link', 'page-links-pro' ), 'edit_pages', 'plt-add-page-link', '__return_empty_string' );
 	}
 
 	/**
@@ -232,7 +232,9 @@ class CWS_PageLinksTo {
 	 * @return void
 	 */
 	public function admin_footer() {
-		$this->include_file( 'templates/quick-add.php' );
+		if ( current_user_can( 'edit_pages' ) ) {
+			$this->include_file( 'templates/quick-add.php' );
+		}
 	}
 
 	/**
@@ -559,23 +561,29 @@ class CWS_PageLinksTo {
 		return $link;
 	}
 
-	public static function absolute_url( $link ) {
+	/**
+	 * Makes a relative URL into an absolute one.
+	 *
+	 * @param string $link The relative URL.
+	 * @return string The absolute URL.
+	 */
+	public static function absolute_url( $url ) {
 		// Convert server- and protocol-relative URLs to absolute URLs.
-		if ( '/' === $link[0] ) {
+		if ( '/' === $url[0] ) {
 			// Protocol-relative.
-			if ( '/' === $link[1] ) {
-				$link = set_url_scheme( 'http:' . $link );
+			if ( '/' === $url[1] ) {
+				$url = set_url_scheme( 'http:' . $url );
 			} else {
 				// Host-relative.
-				$link = set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $link );
+				$url = set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $url );
 			}
 		}
 
-		if ( 'mailto' !== parse_url( $link, PHP_URL_SCHEME ) ) {
-			$link = str_replace( '@', '%40', $link );
+		if ( 'mailto' !== parse_url( $url, PHP_URL_SCHEME ) ) {
+			$url = str_replace( '@', '%40', $url );
 		}
 
-		return $link;
+		return $url;
 	}
 
 	/**
@@ -640,19 +648,31 @@ class CWS_PageLinksTo {
 		}
 	}
 
+	/**
+	 * Ajax handler for dismissing a notice.
+	 *
+	 * @return void
+	 */
 	public static function ajax_dismiss_notice() {
 		if ( isset( $_GET['plt_notice'] ) ) {
 			self::dismiss_notice( $_GET['plt_notice'] );
 		}
 	}
 
+	/**
+	 * Ajad handler for creating a page link.
+	 *
+	 * @return void
+	 */
 	public function ajax_quick_add() {
-		if ( current_user_can( 'publish_posts' ) ) {
+		if ( current_user_can( 'edit_pages' ) ) {
+			check_ajax_referer( 'plt-quick-add', 'plt_nonce' );
+
 			$post = stripslashes_deep( $_POST );
 			$title   = $post['plt_title'];
 			$url     = $post['plt_url'];
 			$slug    = $post['plt_slug'];
-			$publish = (bool) $post['plt_publish'];
+			$publish = (bool) $post['plt_publish'] && current_user_can( 'publish_pages' );
 
 			$post_id = wp_insert_post(array(
 				'post_type' => 'page',
@@ -665,13 +685,16 @@ class CWS_PageLinksTo {
 
 			$post = get_post( $post_id );
 
+			$message = $publish ? __( 'New page link published!', 'page-links-to' ) : __( 'Page link draft saved!', 'page-links-to' );
+
 			wp_send_json_success( array(
-				'id'     => $post->ID,
-				'title'  => $post->post_title,
-				'wpUrl'  => $this->original_link( $post->ID ),
-				'url'    => $this->get_link( $post->ID ),
-				'slug'   => $post->post_name,
-				'status' => $post->post_status,
+				'id'      => $post->ID,
+				'title'   => $post->post_title,
+				'wpUrl'   => $this->original_link( $post->ID ),
+				'url'     => $this->get_link( $post->ID ),
+				'slug'    => $post->post_name,
+				'status'  => $post->post_status,
+				'message' => $message,
 			));
 		}
 	}
@@ -792,15 +815,15 @@ class CWS_PageLinksTo {
 	 * @param WP_Post $post The current post object being displayed.
 	 * @return array The modified post states array.
 	 */
-	public static function display_post_states( $states, $post ) {
-		$link = self::get_link( $post );
+	public function display_post_states( $states, $post ) {
+		$link = $this->get_link( $post );
 
 		if ( $link ) {
-			$output = self::post_state_css();
+			$output = $this->post_state_css();
 			$output_parts = array(
-				'original' => '<a href="' . esc_url( self::original_link( $post ) ) . '" title="' . esc_attr__( 'Default WordPress URL', 'page-links-to' ) . '"><span class="dashicons dashicons-wordpress-alt"></span></a>',
+				'original' => '<a href="' . esc_url( $this->original_link( $post ) ) . '" title="' . esc_attr__( 'Default WordPress URL', 'page-links-to' ) . '"><span class="dashicons dashicons-wordpress-alt"></span></a>',
 				'arrow' => '<span class="dashicons dashicons-arrow-right-alt" style="font-size:1em;line-height:1.5em"><span class="screen-reader-text">' . __( 'links to', 'page-links-to' ) . '</span></span>',
-				'custom' => '<a href="' . esc_url( $link ) . '" class="plt-post-state-link"><span class="dashicons dashicons-admin-links"></span><span class="url"> ' . esc_url( $link ) . '</span></a></a>',
+				'custom' => '<a href="' . esc_url( $link ) . '" class="plt-post-state-link"><span class="dashicons dashicons-admin-links"></span><span class="url"> ' . esc_url( $link ) . '</span></a>',
 			);
 			$output_parts = apply_filters( 'page_links_to_post_state_parts', $output_parts, $post, $link );
 			$output .= '<span class="plt-post-info">' . implode( $output_parts ) . '</span>';
