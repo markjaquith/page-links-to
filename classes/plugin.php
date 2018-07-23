@@ -141,6 +141,7 @@ class CWS_PageLinksTo {
 		// Non-standard priority hooks.
 		$this->hook( 'do_meta_boxes', 20 );
 		$this->hook( 'admin_bar_menu', 999 );
+		$this->hook( 'wp_ajax_sample-permalink', 'disable_replacements', -999 );
 
 		// Non-standard callback hooks.
 		$this->hook( 'load-post.php', 'load_post' );
@@ -202,6 +203,15 @@ class CWS_PageLinksTo {
 				wp_cache_flush();
 			}
 		}
+	}
+
+	/**
+	 * Disables replacements.
+	 *
+	 * @return void
+	 */
+	public function disable_replacements() {
+		$this->replace = false;
 	}
 
 	/**
@@ -699,8 +709,10 @@ class CWS_PageLinksTo {
 	 * @return void
 	 */
 	public function load_post() {
-		if ( isset( $_GET['post'] ) && self::get_link( (int) $_GET['post'] ) ) {
+		if ( isset( $_GET['post'] ) && $this->get_link( (int) $_GET['post'] ) ) {
+			$this->hook( 'edit_form_after_title' );
 			$this->hook( 'admin_notices', 'notify_of_external_link' );
+			$this->replace = false;
 		}
 	}
 
@@ -841,6 +853,18 @@ class CWS_PageLinksTo {
 		?>
 		<div class="notice updated"><p><?php _e( '<strong>Note</strong>: This content is pointing to a custom URL. Use the &#8220;Page Links To&#8221; box to change this behavior.', 'page-links-to' ); ?></p></div>
 		<?php
+	}
+
+	public function edit_form_after_title() {
+		$this->replace = true;
+		$post = get_post();
+		$link = $this->get_link( $post );
+
+		if ( ! $link ) {
+			return;
+		}
+
+		echo '<div class="plt-links-to"><strong>' . __( 'Links to:', 'page-links-to' ) . '</strong> <a href="' . esc_url( $link ) . '">' . esc_html( $link ) . '</a> <button type="button" class="edit-slug button button-small hide-if-no-js">Edit</button></div>';
 	}
 
 	/**

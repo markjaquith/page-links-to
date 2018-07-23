@@ -7,6 +7,11 @@ jQuery($ => {
 		$clipboardLinks.hide();
 	}
 
+	$('.plt-links-to button').click(e => {
+		$('#cws-links-to').focus();
+	});
+
+
 	const clipboard = new ClipboardJS('.plt-copy-short-url');
 	const copied = pltVars.copied;
 	const browserNoSupportCopying = pltVars.browserNoSupportCopying;
