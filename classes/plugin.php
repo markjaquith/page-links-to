@@ -647,7 +647,7 @@ class CWS_PageLinksTo {
 	 * @param array $pages Array of WP_Post objects.
 	 * @return string the modified HTML block.
 	 */
-	function wp_list_pages( $output, $_args, $pages ) {
+	function wp_list_pages( $output, $_args = array(), $pages = array() ) {
 		$highlight = false;
 
 		$this_url = esc_url_raw( set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']));
