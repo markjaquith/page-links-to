@@ -231,7 +231,7 @@ class CWS_PageLinksTo {
 	public function admin_enqueue_scripts() {
 		wp_register_script( 'plt-clipboard', $this->get_url() . 'js/clipboard.min.js', array(), self::CSS_JS_VERSION, true );
 		wp_register_script( 'plt-quick-add', $this->get_url() . 'js/quick-add.min.js', array( 'plt-clipboard' ), self::CSS_JS_VERSION, true );
-		wp_register_style( 'plt-quick-add', $this->get_url() . '/css/quick-add.css', array(), self::CSS_JS_VERSION );
+		wp_register_style( 'plt-quick-add', $this->get_url() . 'css/quick-add.css', array(), self::CSS_JS_VERSION );
 	}
 
 	/**
