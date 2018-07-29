@@ -114,6 +114,7 @@ module.exports = function(grunt) {
 					plugin_slug: '<%= pkg.name %>',
 					build_dir: 'release/svn/',
 					assets_dir: 'assets/',
+					svn_user: 'markjaquith',
 				},
 			},
 		},
