@@ -156,6 +156,12 @@ module.exports = function(grunt) {
 						from: /Version:(\s*?)[a-zA-Z0-9.-]+$/m,
 						to: 'Version:$1<%= pkg.version %>',
 					},
+				],
+			},
+			plugin: {
+				src: ['classes/plugin.php'],
+				overwrite: true,
+				replacements: [
 					{
 						from: /^(\s*?)const(\s+?)VERSION(\s*?)=(\s+?)'[^']+';/m,
 						to: "$1const$2VERSION$3=$4'<%= pkg.version %>';",
