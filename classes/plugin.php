@@ -399,6 +399,12 @@ class CWS_PageLinksTo {
 	 * @return bool Whether this post type supports custom links.
 	 */
 	public static function is_supported_post_type( $type ) {
+		if ( is_object( $type ) ) {
+			if ( isset( $type->id ) ) {
+				$type = $type->id;
+			}
+		}
+
 		/*
 			Plugins that use custom post types can use this filter to hide the
 			PLT UI in their post type.
@@ -838,29 +844,56 @@ class CWS_PageLinksTo {
 	 * @return void
 	 */
 	public static function notify_generic() {
-		?>
-		<div id="page-links-to-notification" class="notice updated is-dismissible"><h3><?php _e( 'Page Links To', 'page-links-to' ); ?></h3>
-			<p><a class="button plt-dismiss" target="_blank" href="<?php echo esc_url( self::NEWSLETTER_URL ); ?>"><?php _e( 'Give Me Updates', 'page-links-to' ); ?></a>&nbsp;&nbsp;<small><a href="javascript:void(0)" class="plt-dismiss"><?php _e( 'No thanks', 'page-links-to' ); ?></a></small></p>
-		</div>
-		<script>
-			(function($){
-				var $plt = $('#page-links-to-notification');
-				$plt
-					.on('click', '.notice-dismiss', function(e){
-						$.ajax( ajaxurl, {
-							type: 'GET',
-							data: {
-								action: 'plt_dismiss_notice',
-								plt_notice: <?php echo json_encode( self::MESSAGE_ID ); ?>
-							}
+		if ( self::is_block_editor() ) {
+			self::block_editor_notification( 'Note: This content is pointing to a custom URL. Use the “Custom Link” area in “Status and Visibility” to control this.', 'info');
+		} else {
+			?>
+			<div id="page-links-to-notification" class="notice updated is-dismissible"><h3><?php _e( 'Page Links To', 'page-links-to' ); ?></h3>
+				<p><a class="button plt-dismiss" target="_blank" href="<?php echo esc_url( self::NEWSLETTER_URL ); ?>"><?php _e( 'Give Me Updates', 'page-links-to' ); ?></a>&nbsp;&nbsp;<small><a href="javascript:void(0)" class="plt-dismiss"><?php _e( 'No thanks', 'page-links-to' ); ?></a></small></p>
+			</div>
+			<script>
+				(function($){
+					var $plt = $('#page-links-to-notification');
+					$plt
+						.on('click', '.notice-dismiss', function(e){
+							$.ajax( ajaxurl, {
+								type: 'GET',
+								data: {
+									action: 'plt_dismiss_notice',
+									plt_notice: <?php echo json_encode( self::MESSAGE_ID ); ?>
+								}
+							});
+						})
+						.on('click', '.plt-dismiss', function(e){
+							e.preventDefault();
+							$(this).parents('.notice').first().find('.notice-dismiss').click();
 						});
-					})
-					.on('click', '.plt-dismiss', function(e){
-						e.preventDefault();
-						$(this).parents('.notice').first().find('.notice-dismiss').click();
-					});
-			})(jQuery);
-		</script>
+				})(jQuery);
+			</script>
+			<?php
+		}
+	}
+
+	public static function is_block_editor() {
+		$current_screen = get_current_screen();
+		return method_exists( $current_screen, 'is_block_editor' ) && $current_screen->is_block_editor();
+	}
+
+	public static function block_editor_notification( $text, $type = 'info' ) {
+		if ( ! in_array( $type, array( "error", "warning", "info" ) ) ) {
+			return;
+		}
+
+		$type = ucfirst( $type );
+		$method = "create{$type}Notice";
+		?>
+			<script>
+				document.addEventListener('DOMContentLoaded', function() {
+					if (wp.data !== undefined) {
+						wp.data.dispatch('core/notices').<?php echo $method; ?>(<?php echo json_encode( $text ); ?>, {isDismissible: true, id: 'page-links-to-notice'});
+					}
+				});
+			</script>
 		<?php
 	}
 
@@ -870,9 +903,13 @@ class CWS_PageLinksTo {
 	 * @return void
 	 */
 	public static function notify_of_external_link() {
-		?>
-		<div class="notice updated"><p><?php _e( '<strong>Note</strong>: This content is pointing to a custom URL. Use the &#8220;Page Links To&#8221; box to change this behavior.', 'page-links-to' ); ?></p></div>
-		<?php
+		if ( self::is_block_editor() ) {
+			self::block_editor_notification( 'Note: This content is pointing to a custom URL. Use the “Custom Link” area in “Status and Visibility” to control this.', 'info');
+		} else {
+			?>
+				<div class="notice updated"><p><?php _e( '<strong>Note</strong>: This content is pointing to a custom URL. Use the &#8220;Page Links To&#8221; box to change this behavior.', 'page-links-to' ); ?></p></div>
+			<?php
+		}
 	}
 
 	public function edit_form_after_title() {
