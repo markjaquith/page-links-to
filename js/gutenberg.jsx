@@ -19,13 +19,15 @@ class LinksTo extends Component {
 
 		const toggleStatus = () => {
 			console.log('toggleStatus');
-			this.setState(prevState => { enabled: !prevState.enabled });
+			this.setState(prevState => {
+				enabled: !prevState.enabled;
+			});
 			enabled && onUpdateLink(meta, null);
 		};
 
-		const updateLink = (link) => {
+		const updateLink = link => {
 			onUpdateLink(meta, link);
-		}
+		};
 
 		return (
 			<Fragment>
@@ -33,12 +35,16 @@ class LinksTo extends Component {
 					<label htmlFor={id}>Custom Link</label>
 					<FormToggle id={id} checked={!!enabled} onChange={toggleStatus} />
 				</PluginPostStatusInfo>
-				{enabled &&
+				{enabled && (
 					<PluginPostStatusInfo>
 						<label htmlFor={textId}>Links to</label>
-						<TextControl value={url} onChange={updateLink} placeholder="https://" />
+						<TextControl
+							value={url}
+							onChange={updateLink}
+							placeholder="https://"
+						/>
 					</PluginPostStatusInfo>
-				}
+				)}
 			</Fragment>
 		);
 	}
@@ -50,7 +56,7 @@ const PageLinksTo = compose([
 	})),
 	withDispatch(dispatch => ({
 		onUpdateLink: (meta, link) => {
-			dispatch('core/editor').editPost({ meta: { ...meta, '_links_to': link } });
+			dispatch('core/editor').editPost({ meta: { ...meta, _links_to: link } });
 		},
 	})),
 	withInstanceId,
