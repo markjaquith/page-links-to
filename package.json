@@ -51,6 +51,9 @@
   },
   "keywords": [],
   "dependencies": {
+    "@wordpress/components": "^1.0.1",
+    "@wordpress/compose": "^1.0.1",
+    "@wordpress/data": "^1.0.1",
     "clipboard": "^2.0.1"
   }
 }

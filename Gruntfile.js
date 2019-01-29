@@ -67,12 +67,12 @@ module.exports = function(grunt) {
 							extensions: ['jsx'],
 						},
 					],
-					[
-						'uglifyify',
-						{
-							global: true,
-						},
-					],
+					// [
+					// 	'uglifyify',
+					// 	{
+					// 		global: true,
+					// 	},
+					// ],
 				],
 				browserifyOptions: {
 					debug: true,
@@ -83,6 +83,7 @@ module.exports = function(grunt) {
 					'js/new-tab.min.js': 'js/new-tab.jsx',
 					'js/meta-box.min.js': 'js/meta-box.jsx',
 					'js/quick-add.min.js': 'js/quick-add.jsx',
+					'js/gutenberg.min.js': 'js/gutenberg.jsx',
 				},
 			},
 		},

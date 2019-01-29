@@ -170,6 +170,7 @@ class CWS_PageLinksTo {
 			$this->hook( 'admin_notices', 'notify_generic' );
 		}
 
+
 		$post_type_names = array_keys( get_post_types() );
 
 		foreach ( $post_type_names as $type ) {
@@ -261,6 +262,9 @@ class CWS_PageLinksTo {
 		wp_register_script( 'plt-clipboard', $this->get_url() . 'js/clipboard.min.js', array(), self::CSS_JS_VERSION, true );
 		wp_register_script( 'plt-quick-add', $this->get_url() . 'js/quick-add.min.js', array( 'plt-clipboard' ), self::CSS_JS_VERSION, true );
 		wp_register_style( 'plt-quick-add', $this->get_url() . 'css/quick-add.css', array(), self::CSS_JS_VERSION );
+
+		// Gutenberg.
+		wp_enqueue_script( 'plt-gutenberg', $this->get_url() . 'js/gutenberg.min.js', array( 'wp-edit-post', 'wp-element', 'wp-plugins' ), self::CSS_JS_VERSION, true );
 	}
 
 	/**
