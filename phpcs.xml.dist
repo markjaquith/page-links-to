@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<ruleset name="Slightly relaxed WordPress coding standards">
+	<description>Based on the WordPress coding standards</description>
+
+	<rule ref="PHPCompatibility"/>
+	<config name="testVersion" value="7.0-"/>
+
+	<rule ref="WordPress-Core">
+		<exclude name="WordPress.Arrays.MultipleStatementAlignment"/>
+		<exclude name="Generic.PHP.DisallowShortOpenTag"/>
+		<exclude name="Generic.PHP.DisallowAlternativePHPTags"/>
+		<exclude name="WordPress.Files.FileName"/>
+		<exclude name="WordPress.PHP.YodaConditions"/>
+		<exclude name="WordPress.PHP.DontExtract"/>
+		<exclude name="Generic.Formatting.MultipleStatementAlignment"/>
+	</rule>
+
+	<rule ref="PEAR.Functions.FunctionCallSignature">
+		<severity>0</severity>
+	</rule>
+	<rule ref="PEAR.Functions.FunctionCallSignature.SpaceAfterOpenBracket"/>
+	<rule ref="PEAR.Functions.FunctionCallSignature.SpaceBeforeCloseBracket"/>
+
+	<rule ref="WordPress-Docs"/>
+	<!-- Will uncomment this when I start requiring PHP 5.4+ in 2019 -->
+	<!--<rule ref="Generic.Arrays.DisallowLongArraySyntax"/>-->
+</ruleset>
