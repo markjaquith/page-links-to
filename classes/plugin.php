@@ -165,15 +165,44 @@ class CWS_PageLinksTo {
 		$this->hook( 'page_row_actions' );
 		$this->hook( 'post_row_actions', 'page_row_actions' );
 
-
 		// Notices.
 		if ( self::should_display_message() ) {
 			$this->hook( 'admin_notices', 'notify_generic' );
 		}
 
-		// Metadata validation grants users editing privileges for our custom fields.
-		register_meta( 'post', self::LINK_META_KEY,   null, '__return_true' );
-		register_meta( 'post', self::TARGET_META_KEY, null, '__return_true' );
+		$post_type_names = array_keys( get_post_types() );
+
+		foreach ( $post_type_names as $type ) {
+			if ( self::is_supported_post_type( $type ) ) {
+				$this->register_meta( self::LINK_META_KEY, $type );
+				$this->register_meta( self::TARGET_META_KEY, $type );
+			}
+		}
+	}
+
+	/**
+	 * Registers a post meta key for a given post type.
+	 *
+	 * @param string $key The key name.
+	 * @param string $post_type The post type.
+	 * @return boolean Whether the meta key was registered.
+	 */
+	public function register_meta( $key, $post_type ) {
+		return register_meta(
+			'post',
+			$key,
+			array(
+				'object_type' => $post_type,
+				'type' => 'string',
+				'single' => true,
+				'show_in_rest' => true,
+				'auth_callback' => array( $this, 'rest_auth' ),
+			)
+		);
+	}
+
+	public function rest_auth( $allowed, $meta_key, $post_id, $user_id, $cap, $caps ) {
+		return user_can( $user_id, 'edit_post', $post_id );
 	}
 
 	/**
