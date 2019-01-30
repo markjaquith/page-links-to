@@ -7,7 +7,8 @@ const { registerPlugin } = wp.plugins;
 
 class LinksTo extends Component {
 	state = {
-		enabled: null,
+		enabled: false,
+		prevValue: '',
 	};
 
 	render() {
@@ -15,19 +16,23 @@ class LinksTo extends Component {
 		const id = `plt-toggle-${instanceId}`;
 		const textId = `plt-links-to-${instanceId}`;
 		const url = meta._links_to || '';
-		const enabled = this.state.enabled || (url && url.length > 0);
-
-		const toggleStatus = () => {
-			console.log('toggleStatus');
-			this.setState(prevState => {
-				enabled: !prevState.enabled;
-			});
-			enabled && onUpdateLink(meta, null);
-		};
+		let initiallyEnabled = this.state.enabled === true || (url && url.length > 0);
 
 		const updateLink = link => {
+			console.log('updateLink', {link, meta});
 			onUpdateLink(meta, link);
 		};
+
+		const toggleStatus = () => {
+			initiallyEnabled = false; // No longer needed.
+			console.log('toggleStatus', {state: this.state, meta});
+			this.setState(prevState => ({
+				enabled: !prevState.enabled,
+			}));
+			onUpdateLink(meta, null);
+		};
+
+		const enabled = this.state.enabled || initiallyEnabled;
 
 		return (
 			<Fragment>

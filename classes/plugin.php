@@ -387,7 +387,7 @@ class CWS_PageLinksTo {
 	 * @return void
 	 */
 	public function do_meta_boxes( $page, $context ) {
-		if ( self::is_supported_post_type( $page ) && 'advanced' === $context ) {
+		if ( ! self::is_block_editor() && self::is_supported_post_type( $page ) && 'advanced' === $context ) {
 			add_meta_box( 'page-links-to', _x( 'Page Links To', 'Meta box title', 'page-links-to' ), array( $this, 'meta_box' ), $page, 'advanced', 'low' );
 		}
 	}
