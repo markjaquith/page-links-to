@@ -42,7 +42,11 @@ module.exports = function(grunt) {
 		},
 
 		phpunit: {
-			default: {},
+			default: {
+				options: {
+					bin: 'vendor/bin/phpunit',
+				}
+			},
 		},
 
 		browserify: {
