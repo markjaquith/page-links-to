@@ -7,32 +7,26 @@ const { registerPlugin } = wp.plugins;
 
 class LinksTo extends Component {
 	state = {
-		enabled: false,
-		prevValue: '',
-	};
+		prevUrl: '',
+	}
 
 	render() {
 		const { instanceId, meta, onUpdateLink } = this.props;
+		const { prevUrl } = this.state;
 		const id = `plt-toggle-${instanceId}`;
 		const textId = `plt-links-to-${instanceId}`;
 		const url = meta._links_to || '';
-		let initiallyEnabled = this.state.enabled === true || (url && url.length > 0);
+		const enabled = url && url.length > 0;
+		const displayUrl = url || this.state.prevUrl;
 
 		const updateLink = link => {
-			console.log('updateLink', {link, meta});
 			onUpdateLink(meta, link);
 		};
 
 		const toggleStatus = () => {
-			initiallyEnabled = false; // No longer needed.
-			console.log('toggleStatus', {state: this.state, meta});
-			this.setState(prevState => ({
-				enabled: !prevState.enabled,
-			}));
-			onUpdateLink(meta, null);
+			onUpdateLink(meta, enabled ? null : prevUrl);
+			url && this.setState({ prevUrl: url });
 		};
-
-		const enabled = this.state.enabled || initiallyEnabled;
 
 		return (
 			<Fragment>
@@ -40,11 +34,12 @@ class LinksTo extends Component {
 					<label htmlFor={id}>Custom Link</label>
 					<FormToggle id={id} checked={!!enabled} onChange={toggleStatus} />
 				</PluginPostStatusInfo>
+
 				{enabled && (
 					<PluginPostStatusInfo>
 						<label htmlFor={textId}>Links to</label>
 						<TextControl
-							value={url}
+							value={displayUrl}
 							onChange={updateLink}
 							placeholder="https://"
 						/>

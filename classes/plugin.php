@@ -133,9 +133,9 @@ class CWS_PageLinksTo {
 	 */
 	function register_hooks() {
 		// Hook in to URL generation.
-		$this->hook( 'page_link',       'link', 20 );
-		$this->hook( 'post_link',       'link', 20 );
-		$this->hook( 'post_type_link',  'link', 20 );
+		$this->hook( 'page_link', 'link', 20 );
+		$this->hook( 'post_link', 'link', 20 );
+		$this->hook( 'post_type_link', 'link', 20 );
 		$this->hook( 'attachment_link', 'link', 20 );
 
 		// Non-standard priority hooks.
@@ -169,7 +169,6 @@ class CWS_PageLinksTo {
 		if ( self::should_display_message() ) {
 			$this->hook( 'admin_notices', 'notify_generic' );
 		}
-
 
 		$post_type_names = array_keys( get_post_types() );
 
@@ -646,9 +645,7 @@ class CWS_PageLinksTo {
 			return false;
 		}
 
-		$link = self::get_link( get_queried_object_id() );
-
-		$link = self::absolute_url( $link );
+		$link = self::absolute_url( self::get_link( get_queried_object_id() ) );
 
 		return $link;
 	}

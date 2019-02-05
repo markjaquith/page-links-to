@@ -45,7 +45,7 @@ module.exports = function(grunt) {
 			default: {
 				options: {
 					bin: 'vendor/bin/phpunit',
-				}
+				},
 			},
 		},
 
