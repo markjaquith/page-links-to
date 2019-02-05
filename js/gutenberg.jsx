@@ -1,4 +1,4 @@
-const { FormToggle, PanelRow, TextControl } = wp.components;
+const { PanelRow, TextControl, CheckboxControl } = wp.components;
 const { withInstanceId, compose } = wp.compose;
 const { withSelect, withDispatch } = wp.data;
 const { Fragment, Component } = wp.element;
@@ -42,21 +42,16 @@ class LinksTo extends Component {
 	};
 
 	render() {
-		const { instanceId } = this.props;
-		const id = `plt-toggle-${instanceId}`;
-		const textId = `plt-links-to-${instanceId}`;
-
 		return (
 			<Fragment>
 				<PluginPostStatusInfo>
-					<label htmlFor={id}>Custom Link</label>
-					<FormToggle id={id} checked={this.enabled()} onChange={this.toggleStatus} />
+					<CheckboxControl label="Custom Permalink" checked={this.enabled()} onChange={this.toggleStatus} />
 				</PluginPostStatusInfo>
 
 				{this.enabled() && (
 					<PluginPostStatusInfo>
-						<label htmlFor={textId}>Links to</label>
 						<TextControl
+							label="Links to"
 							value={this.getDisplayUrl()}
 							onChange={this.updateLink}
 							placeholder="https://"

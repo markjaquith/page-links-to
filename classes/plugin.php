@@ -842,7 +842,7 @@ class CWS_PageLinksTo {
 	 */
 	public static function notify_generic() {
 		if ( self::is_block_editor() ) {
-			self::block_editor_notification( 'Note: This content is pointing to a custom URL. Use the “Custom Link” area in “Status and Visibility” to control this.', 'info');
+			self::block_editor_notification( 'Note: This content is pointing to a custom URL. Use the “Custom Permalink” checkbox in “Status and Visibility” to control this.', 'info');
 		} else {
 			?>
 			<div id="page-links-to-notification" class="notice updated is-dismissible"><h3><?php _e( 'Page Links To', 'page-links-to' ); ?></h3>
