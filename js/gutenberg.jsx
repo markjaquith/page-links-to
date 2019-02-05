@@ -6,41 +6,59 @@ const { PluginPostStatusInfo } = wp.editPost;
 const { registerPlugin } = wp.plugins;
 
 class LinksTo extends Component {
+	constructor(props) {
+		super(props);
+		this.toggleStatus = this.toggleStatus.bind(this);
+		this.updateLink = this.updateLink.bind(this);
+	}
+
 	state = {
 		prevUrl: '',
 	}
 
-	render() {
-		const { instanceId, meta, onUpdateLink } = this.props;
+	getUrl() {
+		const { meta } = this.props;
+		return meta._links_to || '';
+	}
+
+	getDisplayUrl() {
 		const { prevUrl } = this.state;
+		return this.getUrl() || prevUrl;
+	}
+
+	enabled() {
+		return this.getUrl().length > 0;
+	}
+
+	toggleStatus() {
+		const { prevUrl } = this.state;
+		this.updateLink(this.enabled() ? null : prevUrl);
+		this.enabled() && this.setState({ prevUrl: this.getUrl() });
+	}
+
+	updateLink(link) {
+		const { meta, onUpdateLink } = this.props;
+		onUpdateLink(meta, link);
+	};
+
+	render() {
+		const { instanceId } = this.props;
 		const id = `plt-toggle-${instanceId}`;
 		const textId = `plt-links-to-${instanceId}`;
-		const url = meta._links_to || '';
-		const enabled = url && url.length > 0;
-		const displayUrl = url || this.state.prevUrl;
-
-		const updateLink = link => {
-			onUpdateLink(meta, link);
-		};
-
-		const toggleStatus = () => {
-			onUpdateLink(meta, enabled ? null : prevUrl);
-			url && this.setState({ prevUrl: url });
-		};
 
 		return (
 			<Fragment>
 				<PluginPostStatusInfo>
 					<label htmlFor={id}>Custom Link</label>
-					<FormToggle id={id} checked={!!enabled} onChange={toggleStatus} />
+					<FormToggle id={id} checked={this.enabled()} onChange={this.toggleStatus} />
 				</PluginPostStatusInfo>
 
-				{enabled && (
+				{this.enabled() && (
 					<PluginPostStatusInfo>
 						<label htmlFor={textId}>Links to</label>
 						<TextControl
-							value={displayUrl}
-							onChange={updateLink}
+							value={this.getDisplayUrl()}
+							onChange={this.updateLink}
 							placeholder="https://"
 						/>
 					</PluginPostStatusInfo>
