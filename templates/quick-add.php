@@ -1,10 +1,5 @@
 <?php
 defined( 'WPINC' ) or die;
-
-wp_enqueue_script( 'jquery-ui-dialog' );
-wp_enqueue_style( 'wp-jquery-ui-dialog' );
-wp_enqueue_script( 'plt-quick-add' );
-wp_enqueue_style( 'plt-quick-add' );
 ?>
 
 <script>
