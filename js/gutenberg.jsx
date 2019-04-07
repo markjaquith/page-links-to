@@ -14,7 +14,7 @@ class LinksTo extends Component {
 
 	state = {
 		prevUrl: '',
-	}
+	};
 
 	getUrl() {
 		const { meta } = this.props;
@@ -39,13 +39,17 @@ class LinksTo extends Component {
 	updateLink(link) {
 		const { meta, onUpdateLink } = this.props;
 		onUpdateLink(meta, link);
-	};
+	}
 
 	render() {
 		return (
 			<Fragment>
 				<PluginPostStatusInfo>
-					<CheckboxControl label="Custom Permalink" checked={this.enabled()} onChange={this.toggleStatus} />
+					<CheckboxControl
+						label="Custom Permalink"
+						checked={this.enabled()}
+						onChange={this.toggleStatus}
+					/>
 				</PluginPostStatusInfo>
 
 				{this.enabled() && (

@@ -1,4 +1,10 @@
 <?php
+/**
+ * The Page Links To plugin.
+ *
+ * @package PageLinksTo
+ */
+
 defined( 'WPINC' ) or die;
 
 /**
@@ -58,6 +64,12 @@ class CWS_PageLinksTo {
 		return self::$instance;
 	}
 
+
+	/**
+	 * Returns the main plugin file path.
+	 *
+	 * @return string The main plugin file path.
+	 */
 	public function get_file() {
 		return $this->file;
 	}
@@ -201,6 +213,17 @@ class CWS_PageLinksTo {
 		);
 	}
 
+	/**
+	 * Determines REST API authentication.
+	 *
+	 * @param bool   $allowed Whether it is allowed.
+	 * @param string $meta_key The meta key being checked.
+	 * @param int    $post_id The post ID being checked.
+	 * @param int    $user_id The user ID being checked.
+	 * @param string $cap The current capability.
+	 * @param array  $caps All capabilities.
+	 * @return bool Whether the user can do it.
+	 */
 	public function rest_auth( $allowed, $meta_key, $post_id, $user_id, $cap, $caps ) {
 		return user_can( $user_id, 'edit_post', $post_id );
 	}
@@ -301,16 +324,16 @@ class CWS_PageLinksTo {
 			$original_key = 'plt_original';
 
 			foreach ( $actions as $key => $html ) {
-				$new_actions[$key] = $html;
+				$new_actions[ $key ] = $html;
 
 				if ( 'view' === $key ) {
 					$inserted = true;
-					$new_actions[$original_key] = $original_html;
+					$new_actions[ $original_key ] = $original_html;
 				}
 			}
 
 			if ( ! $inserted ) {
-				$new_actions[$original_key] = $original_html;
+				$new_actions[ $original_key ] = $original_html;
 			}
 
 			$actions = $new_actions;
@@ -342,8 +365,8 @@ class CWS_PageLinksTo {
 	/**
 	 * Returns a single piece of post meta.
 	 *
-	 * @param  int $post_id a post ID.
-	 * @param  string  $key a post meta key.
+	 * @param  int    $post_id a post ID.
+	 * @param  string $key a post meta key.
 	 * @return string|false the post meta, or false, if it doesn't exist.
 	 */
 	public static function get_post_meta( $post_id, $key ) {
@@ -439,7 +462,7 @@ class CWS_PageLinksTo {
 		} else {
 			$linked = true;
 		}
-	?>
+		?>
 		<p><?php _e( 'Point this content to:', 'page-links-to' ); ?></p>
 		<p><label><input type="radio" id="cws-links-to-choose-wp" name="cws_links_to_choice" value="wp" <?php checked( ! $linked ); ?> /> <?php _e( 'Its normal WordPress URL', 'page-links-to' ); ?></label></p>
 		<p><label><input type="radio" id="cws-links-to-choose-custom" name="cws_links_to_choice" value="custom" <?php checked( $linked ); ?> /> <?php _e( 'A custom URL', 'page-links-to' ); ?></label></p>
@@ -450,7 +473,7 @@ class CWS_PageLinksTo {
 		</div>
 
 		<script src="<?php echo esc_url( $this->get_url() ) . 'js/meta-box.min.js?v=' . self::CSS_JS_VERSION; ?>"></script>
-	<?php
+		<?php
 	}
 
 	/**
@@ -609,6 +632,7 @@ class CWS_PageLinksTo {
 	/**
 	 * Retrieves all posts that have a specified custom URL.
 	 *
+	 * @param string $url The URL to check.
 	 * @return array Array of post objects.
 	 */
 	public static function get_custom_url_posts( $url ) {
@@ -657,7 +681,7 @@ class CWS_PageLinksTo {
 	/**
 	 * Makes a relative URL into an absolute one.
 	 *
-	 * @param string $link The relative URL.
+	 * @param string $url The relative URL.
 	 * @return string The absolute URL.
 	 */
 	public static function absolute_url( $url ) {
@@ -683,19 +707,19 @@ class CWS_PageLinksTo {
 	 * Filters the list of pages to alter the links and targets.
 	 *
 	 * @param string $output the wp_list_pages() HTML block from WordPress.
-	 * @param array $_args (Unused) the arguments passed to `wp_list_pages()`.
-	 * @param array $pages Array of WP_Post objects.
+	 * @param array  $_args (Unused) the arguments passed to `wp_list_pages()`.
+	 * @param array  $pages Array of WP_Post objects.
 	 * @return string the modified HTML block.
 	 */
 	function wp_list_pages( $output, $_args = array(), $pages = array() ) {
 		$highlight = false;
 
-		$this_url = esc_url_raw( set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']));
+		$this_url = esc_url_raw( set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ) );
 
 		foreach ( (array) $pages as $page ) {
 			$page_url = self::get_link( $page->ID );
 
-			if ( $page_url && $this_url === $page_url  ) {
+			if ( $page_url && $this_url === $page_url ) {
 				$highlight = true;
 				$current_page = esc_url( $page_url );
 				$current_page_id = $page->ID;
@@ -801,7 +825,6 @@ class CWS_PageLinksTo {
 	 */
 	public static function should_display_message() {
 		return false;
-		// return ! self::has_dismissed_notice( self::MESSAGE_ID ) && current_user_can( 'manage_options' );
 	}
 
 	/**
@@ -846,7 +869,7 @@ class CWS_PageLinksTo {
 	 */
 	public static function notify_generic() {
 		if ( self::is_block_editor() ) {
-			self::block_editor_notification( 'Note: This content is pointing to a custom URL. Use the “Custom Permalink” checkbox in “Status and Visibility” to control this.', 'info');
+			self::block_editor_notification( 'Note: This content is pointing to a custom URL. Use the “Custom Permalink” checkbox in “Status and Visibility” to control this.', 'info' );
 		} else {
 			?>
 			<div id="page-links-to-notification" class="notice updated is-dismissible"><h3><?php _e( 'Page Links To', 'page-links-to' ); ?></h3>
@@ -875,13 +898,25 @@ class CWS_PageLinksTo {
 		}
 	}
 
+	/**
+	 * Whether the user is using the block editor (Gutenberg).
+	 *
+	 * @return bool
+	 */
 	public static function is_block_editor() {
 		$current_screen = get_current_screen();
 		return method_exists( $current_screen, 'is_block_editor' ) && $current_screen->is_block_editor();
 	}
 
+	/**
+	 * Create a block editor notification.
+	 *
+	 * @param string $text The notification.
+	 * @param string $type The type of notification.
+	 * @return void
+	 */
 	public static function block_editor_notification( $text, $type = 'info' ) {
-		if ( ! in_array( $type, array( "error", "warning", "info" ) ) ) {
+		if ( ! in_array( $type, array( 'error', 'warning', 'info' ) ) ) {
 			return;
 		}
 
@@ -905,7 +940,7 @@ class CWS_PageLinksTo {
 	 */
 	public static function notify_of_external_link() {
 		if ( self::is_block_editor() ) {
-			self::block_editor_notification( 'Note: This content is pointing to a custom URL. Use the “Custom Link” area in “Status and Visibility” to control this.', 'info');
+			self::block_editor_notification( 'Note: This content is pointing to a custom URL. Use the “Custom Link” area in “Status and Visibility” to control this.', 'info' );
 		} else {
 			?>
 				<div class="notice updated"><p><?php _e( '<strong>Note</strong>: This content is pointing to a custom URL. Use the &#8220;Page Links To&#8221; box to change this behavior.', 'page-links-to' ); ?></p></div>
@@ -913,6 +948,11 @@ class CWS_PageLinksTo {
 		}
 	}
 
+	/**
+	 * Inserts an Edit link after the title.
+	 *
+	 * @return void
+	 */
 	public function edit_form_after_title() {
 		$this->replace = true;
 		$post = get_post();
@@ -946,7 +986,7 @@ class CWS_PageLinksTo {
 	/**
 	 * Filter the post states to indicate which ones are linked using this plugin.
 	 *
-	 * @param array $states The existing post states.
+	 * @param array   $states The existing post states.
 	 * @param WP_Post $post The current post object being displayed.
 	 * @return array The modified post states array.
 	 */
