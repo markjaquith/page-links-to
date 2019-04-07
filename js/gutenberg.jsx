@@ -10,10 +10,12 @@ class LinksTo extends Component {
 		super(props);
 		this.toggleStatus = this.toggleStatus.bind(this);
 		this.updateLink = this.updateLink.bind(this);
+		this.state.enabled = this.hasUrl();
 	}
 
 	state = {
 		prevUrl: '',
+		// enabled: null,
 	};
 
 	getUrl() {
@@ -26,12 +28,30 @@ class LinksTo extends Component {
 		return this.getUrl() || prevUrl;
 	}
 
-	enabled() {
+	hasUrl() {
 		return this.getUrl().length > 0;
+	}
+
+	enabled() {
+		return this.state.enabled;
 	}
 
 	toggleStatus() {
 		const { prevUrl } = this.state;
+		console.log({ prevUrl, enabled: this.enabled(), url: this.getUrl() });
+
+		this.setState(prevState => {
+			const newState = {
+				enabled: !prevState.enabled,
+			};
+
+			if (prevState.enabled) {
+				newState.prevUrl = this.getUrl();
+			}
+
+			return newState;
+		});
+
 		this.updateLink(this.enabled() ? null : prevUrl);
 		this.enabled() && this.setState({ prevUrl: this.getUrl() });
 	}

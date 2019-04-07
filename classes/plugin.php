@@ -869,7 +869,7 @@ class CWS_PageLinksTo {
 	 */
 	public static function notify_generic() {
 		if ( self::is_block_editor() ) {
-			self::block_editor_notification( 'Note: This content is pointing to a custom URL. Use the “Custom Permalink” checkbox in “Status and Visibility” to control this.', 'info' );
+			// Nothing right now.
 		} else {
 			?>
 			<div id="page-links-to-notification" class="notice updated is-dismissible"><h3><?php _e( 'Page Links To', 'page-links-to' ); ?></h3>
@@ -940,7 +940,8 @@ class CWS_PageLinksTo {
 	 */
 	public static function notify_of_external_link() {
 		if ( self::is_block_editor() ) {
-			self::block_editor_notification( 'Note: This content is pointing to a custom URL. Use the “Custom Link” area in “Status and Visibility” to control this.', 'info' );
+			// Disabled, currently, because these notifications can block the title, which is annoying.
+			false && self::block_editor_notification( 'Note: This content is pointing to a custom URL. Use the “Custom Link” area in “Status and Visibility” to control this.', 'info' );
 		} else {
 			?>
 				<div class="notice updated"><p><?php _e( '<strong>Note</strong>: This content is pointing to a custom URL. Use the &#8220;Page Links To&#8221; box to change this behavior.', 'page-links-to' ); ?></p></div>
