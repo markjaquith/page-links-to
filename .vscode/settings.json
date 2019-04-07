@@ -1,0 +1,6 @@
+{
+	"phpcs.standard": "${workspaceFolder}phpcs.xml",
+	"phpcs.executablePath": "vendor/bin/phpcs",
+	"phpcbf.standard": "${workspaceFolder}phpcs.xml",
+	"phpcbf.executablePath": "vendor/bin/phpcbf",
+}

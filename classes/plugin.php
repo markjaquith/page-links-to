@@ -272,7 +272,8 @@ class CWS_PageLinksTo {
 	/**
 	 * Adds our items to the admin bar.
 	 *
-	 * @return WP_Admin_Bar The admin bar object.
+	 * @param WP_Admin_Bar $bar The admin bar object.
+	 * @return void
 	 */
 	public function admin_bar_menu( $bar ) {
 		if ( is_admin() ) {
@@ -288,7 +289,7 @@ class CWS_PageLinksTo {
 	/**
 	 * Filters the page row actions.
 	 *
-	 * @param array $actions The current array of actions.
+	 * @param array   $actions The current array of actions.
 	 * @param WP_Post $post The current post row being processed.
 	 * @return array The updated array of actions.
 	 */
