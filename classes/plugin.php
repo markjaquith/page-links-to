@@ -81,9 +81,9 @@ class CWS_PageLinksTo {
 	 * @return true Will always return true.
 	 */
 	public function hook( $hook ) {
+		$args = func_get_args();
 		$priority = 10;
 		$method = self::sanitize_method( $hook );
-		$args = func_get_args();
 		unset( $args[0] );
 		foreach ( (array) $args as $arg ) {
 			if ( is_int( $arg ) ) {
