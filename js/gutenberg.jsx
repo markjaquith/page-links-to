@@ -9,18 +9,18 @@ class LinksTo extends Component {
 	constructor(props) {
 		super(props);
 		this.toggleStatus = this.toggleStatus.bind(this);
+		this.toggleNewTab = this.toggleNewTab.bind(this);
 		this.updateLink = this.updateLink.bind(this);
 		this.state.enabled = this.hasUrl();
 	}
 
 	state = {
 		prevUrl: '',
-		// enabled: null,
+		prevNewTab: false,
 	};
 
 	getUrl() {
-		const { meta } = this.props;
-		return meta._links_to || '';
+		return this.props.meta._links_to || '';
 	}
 
 	getDisplayUrl() {
@@ -32,13 +32,16 @@ class LinksTo extends Component {
 		return this.getUrl().length > 0;
 	}
 
+	opensInNewTab() {
+		return this.props.meta._links_to_target === '_blank';
+	}
+
 	enabled() {
 		return this.state.enabled;
 	}
 
 	toggleStatus() {
 		const { prevUrl } = this.state;
-		console.log({ prevUrl, enabled: this.enabled(), url: this.getUrl() });
 
 		this.setState(prevState => {
 			const newState = {
@@ -52,13 +55,29 @@ class LinksTo extends Component {
 			return newState;
 		});
 
-		this.updateLink(this.enabled() ? null : prevUrl);
-		this.enabled() && this.setState({ prevUrl: this.getUrl() });
+		if (this.enabled()) {
+			this.updateLink(null);
+			this.setState({
+				prevUrl: this.getUrl(),
+				prevNewTab: this.opensInNewTab(),
+			});
+		} else {
+			this.updateLink(prevUrl);
+		}
+	}
+
+	toggleNewTab() {
+		this.updateNewTab(!this.opensInNewTab());
 	}
 
 	updateLink(link) {
 		const { meta, onUpdateLink } = this.props;
 		onUpdateLink(meta, link);
+	}
+
+	updateNewTab(enabled) {
+		const { meta, onUpdateNewTab } = this.props;
+		onUpdateNewTab(meta, enabled);
 	}
 
 	render() {
@@ -73,14 +92,23 @@ class LinksTo extends Component {
 				</PluginPostStatusInfo>
 
 				{this.enabled() && (
-					<PluginPostStatusInfo>
-						<TextControl
-							label="Links to"
-							value={this.getDisplayUrl()}
-							onChange={this.updateLink}
-							placeholder="https://"
-						/>
-					</PluginPostStatusInfo>
+					<div>
+						<PluginPostStatusInfo>
+							<TextControl
+								label="Links to"
+								value={this.getDisplayUrl()}
+								onChange={this.updateLink}
+								placeholder="https://"
+							/>
+						</PluginPostStatusInfo>
+						<PluginPostStatusInfo>
+							<CheckboxControl
+								label="Open in new tab"
+								checked={this.opensInNewTab()}
+								onChange={this.toggleNewTab}
+							/>
+						</PluginPostStatusInfo>
+					</div>
 				)}
 			</Fragment>
 		);
@@ -94,6 +122,11 @@ const PageLinksTo = compose([
 	withDispatch(dispatch => ({
 		onUpdateLink: (meta, link) => {
 			dispatch('core/editor').editPost({ meta: { ...meta, _links_to: link } });
+		},
+		onUpdateNewTab: (meta, enabled) => {
+			dispatch('core/editor').editPost({
+				meta: { ...meta, _links_to_target: enabled ? '_blank' : '' },
+			});
 		},
 	})),
 	withInstanceId,
