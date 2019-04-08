@@ -41,7 +41,7 @@ class LinksTo extends Component {
 	}
 
 	toggleStatus() {
-		const { prevUrl } = this.state;
+		const { prevUrl, prevNewTab } = this.state;
 
 		this.setState(prevState => {
 			const newState = {
@@ -56,13 +56,20 @@ class LinksTo extends Component {
 		});
 
 		if (this.enabled()) {
+			// If it was enabled before they clicked, they are disabling it.
 			this.updateLink(null);
+			this.updateNewTab(false);
+
+			// Hold on to the previous state, in case they change their mind.
 			this.setState({
 				prevUrl: this.getUrl(),
 				prevNewTab: this.opensInNewTab(),
 			});
 		} else {
+			// If it was disabled before thy clicked, they are enabling it.
+			// We should restore the previous states of the url and new tab checkbox.
 			this.updateLink(prevUrl);
+			this.updateNewTab(prevNewTab);
 		}
 	}
 
@@ -92,7 +99,7 @@ class LinksTo extends Component {
 				</PluginPostStatusInfo>
 
 				{this.enabled() && (
-					<div>
+					<Fragment>
 						<PluginPostStatusInfo>
 							<TextControl
 								label="Links to"
@@ -108,7 +115,7 @@ class LinksTo extends Component {
 								onChange={this.toggleNewTab}
 							/>
 						</PluginPostStatusInfo>
-					</div>
+					</Fragment>
 				)}
 			</Fragment>
 		);
