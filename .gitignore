@@ -1,8 +1,24 @@
+# macOS nonsense
 .DS_Store
+
+# NPM
 /node_modules
+
+# Plugin relases
 /release
+
+# Composer
 /vendor
+
+# Cypress
+cypress/screenshots/
+cypress/videos/
+cypress.env.json
+
+# Intermediate JS files
 /js/*.js
 /js/*.map
+
+# But permit final JS files
 !/js/*.min.js
 !/js/*.min.js.map
