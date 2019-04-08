@@ -1,6 +1,13 @@
 import faker from 'faker'
+import { isSymbol } from 'util';
+import { isContext } from 'vm';
 
-describe('Quick links', () => {
+describe('Quick Links', () => {
+	const subMenuTitle = 'Add Page Link';
+	const publishSlug = `${faker.lorem.slug().toLowerCase()}-${faker.lorem.slug().toLowerCase()}-${faker.random.number()}`;
+	const linkedUrl = 'https://wordpress.org/';
+	const draftTitle = `${faker.lorem.word()} ${faker.lorem.word()} ${faker.random.number()}`;
+	const draftSlug = `${faker.lorem.slug().toLowerCase()}-${faker.lorem.slug().toLowerCase()}-${faker.random.number()}`;
 
 	before(() => {
 		cy.login();
@@ -8,119 +15,234 @@ describe('Quick links', () => {
 			whitelist: () => true,
 		});
 		cy.visit('/wp-admin/');
+		cy.location('pathname').should('eq', '/wp-admin/');
 	});
 
-	it('can see the menu item', () => {
-		const subMenuTitle = 'Add Page Link';
-		const customSlug = `${faker.random.word().toLowerCase()}-${faker.random.word().toLowerCase()}`;
-		const linkedUrl = 'https://wordpress.org/';
+	beforeEach(() => {
+		// Aliases.
+		cy.get('#plt-quick-add').as('modal');
+		cy.get('.ui-dialog-titlebar-close').first().as('modalCloseButton');
+		cy.get('#menu-pages').as('menu');
+		cy.get('@menu').contains(subMenuTitle).as('subMenuItem');
+		cy.get('#plt-quick-add-publish').as('publish');
+		cy.get('#plt-quick-add-save').as('save');
+		cy.get('@modal').find('input[name="title"]').as('title');
+		cy.get('@modal').find('input[name="url"]').as('url');
+		cy.get('@modal').find('input[name="slug"]').as('slug');
+		cy.get('@modal').find('.short-url-message').as('lengthWarning');
+	});
 
-		cy.location('pathname').should('eq', '/wp-admin/');
+	context('submenu item', () => {
+		it('starts hidden', () => {
+			cy.get('@subMenuItem')
+				.should('not.be.visible');
+		});
 
-		cy.get('#plt-quick-add')
-			.as('modal')
-			.should('not.be.visible');
-		
-		cy.get('#menu-pages')
-			.as('menu')
-			.find(subMenuTitle)
-			.should('not.be.visible')
-		
-		cy.get('@menu')
-			.hoverWpMenuItem()
-			.contains(subMenuTitle)
-			.click()
+		it('is visible on hover', () => {
+			cy.get('@menu')
+				.hoverWpMenuItem();
+
+			cy.get('@subMenuItem')
+				.should('be.visible');
+		});
+	});
+
+	context('modal', () => {
+		it('starts hidden', () => {
+			cy.get('@modal')
+				.should('not.be.visible');
+		});
+
+		it('is visible after clicking submenu item', () => {
+			cy.get('@subMenuItem')
+				.click();
+
+			cy.get('@modal')
+				.should('be.visible');
+		});
+
+		it('is closed after clicking the close button', () => {
+			cy.get('@modalCloseButton')
+				.click();
+
+			cy.get('@modal')
+				.should('not.be.visible');
+		});
+
+		it('is closed after clicking outside the modal', () => {
+			cy.get('@subMenuItem')
+				.click();
+
+			cy.get('@modal')
+				.should('be.visible');
+
+			cy.get('body')
+				.click(1, 1);
+
+			cy.get('@modal')
+				.should('not.be.visible');
 			
-		cy.get('@modal')
-			.should('be.visible');
-		
-		cy.get('#plt-quick-add-publish')
-			.as('publish')
-			.should('be.disabled');
-		
-		cy.get('#plt-quick-add-save')
-			.as('save')
-			.should('be.disabled');
+			cy.get('@subMenuItem')
+				.click();
 
-		cy.get('@modal')
-			.find('input[name="title"]')
-			.as('title')
-			.should('be.empty');
-		
-		cy.get('@modal')
-			.find('input[name="url"]')
-			.as('url')
-			.should('be.empty');
+			cy.get('@modal')
+				.should('be.visible');
+		});
+	});
 
-		cy.get('@modal')
-			.find('input[name="slug"]')
-			.as('slug')
-			.should('be.empty');
-		
-		cy.get('@title')
-			.type('Short Title');
+	context('title', () => {
+		it('starts empty', () => {
+			cy.get('@title')
+				.should('be.empty');
+		});
+	});
 
-		cy.get('@slug')
-			.should('have.attr', 'placeholder', 'short-title');
-		
-		cy.get('@modal')
-			.find('.short-url-message')
-			.as('lengthWarning')
-			.should('not.be.visible');
-		
-		cy.get('@url')
-			.type(linkedUrl);
-		
-		cy.get('@save')
-			.should('not.be.disabled');
+	context('URL', () => {
+		it('starts empty', () => {
+			cy.get('@url')
+				.should('be.empty');
+		});
+	});
 
-		cy.get('@publish')
-			.should('not.be.disabled');
+	context('slug', () => {
+		it('starts empty', () => {
+			cy.get('@slug')
+				.should('be.empty');
+		});
+	});
 
-		cy.get('@title')
-			.clear();
-		
-		cy.get('@publish')
-			.should('be.disabled');
-		
-		cy.get('@save')
-			.should('be.disabled');
+	context('save and publish', () => {
+		it('start disabled', () => {
+			cy.get('@publish')
+				.should('be.disabled');
 
-		cy.get('@title')
-			.type('Short Two');
+			cy.get('@save')
+				.should('be.disabled');
+		});
+	});
 
-		cy.get('@slug')
-			.should('have.attr', 'placeholder', 'short-two');
+	context('slug', () => {
+		it('is populated as title is typed', () => {
+			cy.get('@title')
+				.type('Short Title');
 
-		cy.get('@save')
-			.should('not.be.disabled');
+			cy.get('@slug')
+				.should('have.attr', 'placeholder', 'short-title');
 
-		cy.get('@publish')
-			.should('not.be.disabled');
+			cy.get('@title')
+				.type(' link');
 
-		cy.get('@title')
-			.clear()
-			.type('Super Long Title Way Too Long');
-		
-		cy.get('@lengthWarning')
-			.should('be.visible');
-		
-		cy.get('@slug')
-			.type(customSlug);
-		
-		cy.get('@publish')
-			.click();
-		
-		cy.get('@modal')
-			.contains('New page link published!');
-		
-		cy.request({
-			url: `/${customSlug}/`,
-			followRedirect: false,
-		})
-			.then(resp => {
-				expect(resp.status).to.eq(301)
-				expect(resp.redirectedToUrl).to.eq(linkedUrl)
-			});
+			cy.get('@slug')
+				.should('have.attr', 'placeholder', 'short-title-link');
+		});
+	});
+
+	context('modal', () => {
+		it('shows length warning for short slugs', () => {
+			cy.get('@lengthWarning')
+				.should('not.be.visible');
+		});
+	});
+
+	context('save and publish', () => {
+		it('are enabled after URL and title are provided', () => {		
+			cy.get('@url')
+				.type(linkedUrl);
+			
+			cy.get('@save')
+				.should('not.be.disabled');
+
+			cy.get('@publish')
+				.should('not.be.disabled');
+		});
+
+		it('but are disabled again if the title is emptied', () => {
+			cy.get('@title')
+				.clear();
+
+			cy.get('@publish')
+				.should('be.disabled');
+
+			cy.get('@save')
+				.should('be.disabled');
+		});
+
+		it('and are re-enabled after the title is re-populated', () => {
+			cy.get('@title')
+				.type('Short Two');
+
+			cy.get('@slug')
+				.should('have.attr', 'placeholder', 'short-two');
+
+			cy.get('@save')
+				.should('not.be.disabled');
+
+			cy.get('@publish')
+				.should('not.be.disabled');
+		});
+	});
+
+	context('modal', () => {
+		it('shows a warning for long slugs', () => {
+			cy.get('@title')
+				.clear()
+				.type('Super Long Title Way Too Long');
+
+			cy.get('@lengthWarning')
+				.should('be.visible');
+		});
+			
+		it('gives feedback when a new link is published', () => {
+			cy.get('@slug')
+				.type(publishSlug);
+
+			cy.get('@publish')
+				.click();
+
+			cy.get('@modal')
+				.contains('New page link published!');
+		});
+	});
+
+	context('short URL', () => {
+		it('should redirect to its custom URL', () => {
+			cy.request({
+				url: `/${publishSlug}/`,
+				followRedirect: false,
+			})
+				.then(resp => {
+					expect(resp.status).to.eq(301)
+					expect(resp.redirectedToUrl).to.eq(linkedUrl)
+				});
+		});
+	});
+
+	context('modal', () => {
+		it('gives feedback when a new link is saved as a draft', () => {
+			cy.get('@title')
+				.type(draftTitle);
+			cy.get('@slug')
+				.type(draftSlug);
+			cy.get('@url')
+				.type(linkedUrl);
+			cy.get('@save')
+				.should('not.be.disabled')
+				.click();
+			cy.get('@modal')
+				.contains('Page link draft saved!');
+		});
+	});
+
+	context('short URL', () => {
+		it('should 404 (because it is a draft)', () => {
+			cy.request({
+				url: `/${draftSlug}/`,
+				followRedirect: false,
+			})
+				.then(resp => {
+					expect(resp.status).to.eq(301)
+					expect(resp.redirectedToUrl).to.eq(linkedUrl)
+				});
+		});
 	});
 });
