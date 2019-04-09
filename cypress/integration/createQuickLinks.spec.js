@@ -41,7 +41,6 @@ describe('Quick Links', () => {
 		it('is visible on hover', () => {
 			cy.get('@menu')
 				.hoverWpMenuItem();
-
 			cy.get('@subMenuItem')
 				.should('be.visible');
 		});
@@ -56,7 +55,6 @@ describe('Quick Links', () => {
 		it('is visible after clicking submenu item', () => {
 			cy.get('@subMenuItem')
 				.click();
-
 			cy.get('@modal')
 				.should('be.visible');
 		});
@@ -64,7 +62,6 @@ describe('Quick Links', () => {
 		it('is closed after clicking the close button', () => {
 			cy.get('@modalCloseButton')
 				.click();
-
 			cy.get('@modal')
 				.should('not.be.visible');
 		});
@@ -72,19 +69,14 @@ describe('Quick Links', () => {
 		it('is closed after clicking outside the modal', () => {
 			cy.get('@subMenuItem')
 				.click();
-
 			cy.get('@modal')
 				.should('be.visible');
-
 			cy.get('body')
 				.click(1, 1);
-
 			cy.get('@modal')
 				.should('not.be.visible');
-			
 			cy.get('@subMenuItem')
 				.click();
-
 			cy.get('@modal')
 				.should('be.visible');
 		});
@@ -115,7 +107,6 @@ describe('Quick Links', () => {
 		it('start disabled', () => {
 			cy.get('@publish')
 				.should('be.disabled');
-
 			cy.get('@save')
 				.should('be.disabled');
 		});
@@ -125,13 +116,10 @@ describe('Quick Links', () => {
 		it('is populated as title is typed', () => {
 			cy.get('@title')
 				.type('Short Title');
-
 			cy.get('@slug')
 				.should('have.attr', 'placeholder', 'short-title');
-
 			cy.get('@title')
 				.type(' link');
-
 			cy.get('@slug')
 				.should('have.attr', 'placeholder', 'short-title-link');
 		});
@@ -148,10 +136,8 @@ describe('Quick Links', () => {
 		it('are enabled after URL and title are provided', () => {		
 			cy.get('@url')
 				.type(linkedUrl);
-			
 			cy.get('@save')
 				.should('not.be.disabled');
-
 			cy.get('@publish')
 				.should('not.be.disabled');
 		});
@@ -159,10 +145,8 @@ describe('Quick Links', () => {
 		it('but are disabled again if the title is emptied', () => {
 			cy.get('@title')
 				.clear();
-
 			cy.get('@publish')
 				.should('be.disabled');
-
 			cy.get('@save')
 				.should('be.disabled');
 		});
@@ -170,13 +154,10 @@ describe('Quick Links', () => {
 		it('and are re-enabled after the title is re-populated', () => {
 			cy.get('@title')
 				.type('Short Two');
-
 			cy.get('@slug')
 				.should('have.attr', 'placeholder', 'short-two');
-
 			cy.get('@save')
 				.should('not.be.disabled');
-
 			cy.get('@publish')
 				.should('not.be.disabled');
 		});
@@ -187,7 +168,6 @@ describe('Quick Links', () => {
 			cy.get('@title')
 				.clear()
 				.type('Super Long Title Way Too Long');
-
 			cy.get('@lengthWarning')
 				.should('be.visible');
 		});
@@ -195,10 +175,8 @@ describe('Quick Links', () => {
 		it('gives feedback when a new link is published', () => {
 			cy.get('@slug')
 				.type(publishSlug);
-
 			cy.get('@publish')
 				.click();
-
 			cy.get('@modal')
 				.contains('New page link published!');
 		});
@@ -211,8 +189,8 @@ describe('Quick Links', () => {
 				followRedirect: false,
 			})
 				.then(resp => {
-					expect(resp.status).to.eq(301)
-					expect(resp.redirectedToUrl).to.eq(linkedUrl)
+					expect(resp.status).to.eq(301);
+					expect(resp.redirectedToUrl).to.eq(linkedUrl);
 				});
 		});
 	});
@@ -234,14 +212,26 @@ describe('Quick Links', () => {
 	});
 
 	context('short URL', () => {
-		it('should 404 (because it is a draft)', () => {
+		it('should redirect to its custom URL (because we are logged in)', () => {
 			cy.request({
 				url: `/${draftSlug}/`,
 				followRedirect: false,
 			})
 				.then(resp => {
-					expect(resp.status).to.eq(301)
-					expect(resp.redirectedToUrl).to.eq(linkedUrl)
+					expect(resp.status).to.eq(301);
+					expect(resp.redirectedToUrl).to.eq(linkedUrl);
+				});
+		});
+
+		it('should 404 (because we logged out)', () => {
+			cy.get('#wp-admin-bar-logout a').click({force: true});
+			cy.request({
+				url: `/${draftSlug}/`,
+				followRedirect: false,
+				failOnStatusCode: false,
+			})
+				.then(resp => {
+					expect(resp.status).to.eq(404);
 				});
 		});
 	});
