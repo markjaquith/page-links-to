@@ -189,7 +189,7 @@ jQuery($ => {
 			at: 'center',
 			of: window,
 		});
-	}
+	};
 
 	$(window)
 		.scroll(repositionModal)
