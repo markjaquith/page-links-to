@@ -222,7 +222,7 @@ module.exports = function(grunt) {
 				trailingComma: 'es5',
 			},
 			default: {
-				src: ['js/**.jsx', 'Gruntfile.js'],
+				src: ['js/**.jsx', 'Gruntfile.js', 'cypress/integration/**.js'],
 			},
 		},
 
