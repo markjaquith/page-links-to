@@ -31,3 +31,37 @@ Cypress.Commands.add(
 		});
 	}
 );
+
+const wpCli = command => {
+	cy.exec(`wp ${command}`, {
+		log: false,
+		failOnNonZeroExit: false,
+	});
+};
+
+Cypress.Commands.add('wpCli', command => {
+	wpCli(command);
+	Cypress.log({
+		name: 'runWpCliCommand',
+		displayName: 'WPCLI',
+		message: `Ran command: ${command}`,
+	});
+});
+
+Cypress.Commands.add('activatePlugin', plugin => {
+	wpCli(`plugin install --activate ${plugin}`);
+	Cypress.log({
+		name: 'activatePlugin',
+		displayName: 'Activate Plugin',
+		message: `Activated ${plugin}`,
+	});
+});
+
+Cypress.Commands.add('deactivatePlugin', plugin => {
+	wpCli(`plugin deactivate ${plugin}`);
+	Cypress.log({
+		name: 'deactivatePlugin',
+		displayName: 'Deactivate Plugin',
+		message: `Deactivated ${plugin}`,
+	});
+});

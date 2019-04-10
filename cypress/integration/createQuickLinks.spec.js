@@ -18,7 +18,7 @@ describe('Quick Links', () => {
 	const linkedUrl = 'https://wordpress.org/';
 	const draftTitle = postTitle();
 	const longTitle = 'Super Long Title Way Too Long';
-	const draftSlug = postSlug();
+	const draftSlug = 'draft-' + postSlug();
 
 	before(() => {
 		cy.login();
@@ -189,29 +189,6 @@ describe('Quick Links', () => {
 				.should('not.be.disabled')
 				.click();
 			cy.get('@modal').contains('Page link draft saved!');
-		});
-	});
-
-	context('short URL', () => {
-		it('should redirect to its custom URL (because we are logged in)', () => {
-			cy.request({
-				url: `/${draftSlug}/`,
-				followRedirect: false,
-			}).then(resp => {
-				expect(resp.status).to.eq(301);
-				expect(resp.redirectedToUrl).to.eq(linkedUrl);
-			});
-		});
-
-		it('should 404 (because we logged out)', () => {
-			cy.get('@logout').click({ force: true });
-			cy.request({
-				url: `/${draftSlug}/`,
-				followRedirect: false,
-				failOnStatusCode: false,
-			}).then(resp => {
-				expect(resp.status).to.eq(404);
-			});
 		});
 	});
 });
