@@ -1,11 +1,5 @@
 import faker from 'faker';
 
-const postSlug = () => {
-	const parts = [faker.lorem.slug(), faker.lorem.slug(), faker.random.number()];
-
-	return parts.join('-');
-};
-
 const postTitle = () => {
 	const parts = [faker.lorem.word(), faker.lorem.word(), faker.random.number()];
 
@@ -13,12 +7,9 @@ const postTitle = () => {
 };
 
 describe('Classic Editor', () => {
-	const subMenuTitle = 'Add Page Link';
-	const publishSlug = postSlug();
 	const linkedUrl = 'https://wordpress.org/';
 	const linkedUrl2 = 'https://wordpress.com/';
 	const draftTitle = postTitle();
-	const longTitle = 'Super Long Title Way Too Long';
 	const draftSlug = draftTitle.toLowerCase().replace(/ /g, '-');
 
 	before(() => {
@@ -48,28 +39,6 @@ describe('Classic Editor', () => {
 			.as('saveButton');
 		cy.get('#publish')
 			.as('publishButton');
-		// cy.get('#plt-quick-add')
-		// 	.as('modal');
-		// cy.get('.ui-dialog-titlebar-close').first()
-		// 	.as('modalCloseButton');
-		// cy.get('#menu-pages')
-		// 	.as('menu');
-		// cy.get('@menu').contains(subMenuTitle)
-		// 	.as('subMenuItem');
-		// cy.get('#plt-quick-add-publish')
-		// 	.as('publish');
-		// cy.get('#plt-quick-add-save')
-		// 	.as('save');
-		// cy.get('@modal').find('input[name="title"]')
-		// 	.as('title');
-		// cy.get('@modal').find('input[name="url"]')
-		// 	.as('url');
-		// cy.get('@modal').find('input[name="slug"]')
-		// 	.as('slug');
-		// cy.get('@modal').find('.short-url-message')
-		// 	.as('lengthWarning');
-		// cy.get('#wp-admin-bar-logout a')
-		// 	.as('logout');
 	});
 
 	context('meta box', () => {
