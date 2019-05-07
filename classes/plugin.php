@@ -591,7 +591,7 @@ class CWS_PageLinksTo {
 			if ( $meta_link ) {
 				$link = apply_filters( 'page_links_to_link', $meta_link, $post, $link );
 				$link = esc_url( $link );
-				if ( ! is_admin() && self::get_target( $post->ID ) ) {
+				if ( ! is_admin() && !  (defined( 'REST_REQUEST' ) && REST_REQUEST ) && self::get_target( $post->ID ) ) {
 					$link .= '#new_tab';
 				}
 			}
