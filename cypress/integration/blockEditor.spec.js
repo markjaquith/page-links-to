@@ -7,8 +7,12 @@ const postTitle = () => {
 };
 
 const getSidebarInputByLabel = label => {
-	return cy.get('@sidebar').contains(label).siblings('input').first();
-}
+	return cy
+		.get('@sidebar')
+		.contains(label)
+		.siblings('input')
+		.first();
+};
 
 const selectors = {
 	saveButton: () => cy.get('.editor-post-save-draft'),
@@ -21,7 +25,7 @@ const selectors = {
 
 const clickCheckbox = () => {
 	selectors.chooseCustom().click();
-}
+};
 
 describe('Block Editor', () => {
 	const linkedUrl = 'https://wordpress.org/';
@@ -53,7 +57,10 @@ describe('Block Editor', () => {
 		it('is not checked', () => {
 			cy.get('button.nux-dot-tip__disable').click();
 			cy.get('@title').type(draftTitle);
-			selectors.chooseCustom().should('be.visible').and('not.be.checked');
+			selectors
+				.chooseCustom()
+				.should('be.visible')
+				.and('not.be.checked');
 		});
 
 		it('has not revealed its contents', () => {
@@ -63,7 +70,10 @@ describe('Block Editor', () => {
 		it('is not checked after saving a draft', () => {
 			selectors.saveButton().click();
 			selectors.savedNotice().should('be.visible');
-			selectors.chooseCustom().should('be.visible').and('not.be.checked');
+			selectors
+				.chooseCustom()
+				.should('be.visible')
+				.and('not.be.checked');
 		});
 
 		it('shows contents when checked', () => {
@@ -82,7 +92,10 @@ describe('Block Editor', () => {
 	context('url', () => {
 		it('persists through checking/unchecking', () => {
 			clickCheckbox();
-			selectors.url().clear().type(linkedUrl);
+			selectors
+				.url()
+				.clear()
+				.type(linkedUrl);
 			clickCheckbox();
 			clickCheckbox();
 			selectors.url().should('have.value', linkedUrl);
