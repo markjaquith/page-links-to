@@ -160,7 +160,7 @@ jQuery($ => {
 
 	$modal.dialog({
 		title: 'Add Page Link',
-		dialogClass: 'wp-dialog',
+		dialogClass: 'wp-dialog plt-ui-dialog',
 		autoOpen: no,
 		draggable: no,
 		width: 'auto',
@@ -173,8 +173,27 @@ jQuery($ => {
 			of: window,
 		},
 		open: () => $('.ui-widget-overlay').bind('click', close),
-		create: () => $('.ui-dialog-titlebar-close').addClass('ui-button'),
+		create: () => {
+			$('.plt-ui-dialog .ui-dialog-titlebar-close').addClass('ui-button');
+			$('.plt-ui-dialog').css({ position: 'fixed' });
+		},
 	});
+
+	const repositionModal = () => {
+		if (!isOpen()) {
+			return;
+		}
+
+		$modal.dialog('option', 'position', {
+			my: 'center',
+			at: 'center',
+			of: window,
+		});
+	};
+
+	$(window)
+		.scroll(repositionModal)
+		.resize(repositionModal);
 
 	// Events.
 	if (fancyUrls) {

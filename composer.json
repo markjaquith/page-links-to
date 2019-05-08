@@ -1,0 +1,14 @@
+{
+    "name": "Page Links To",
+    "description": "Lets you make a WordPress page (or port or other content type) link to a URL of your choosing (on your site, or on another site), instead of its normal WordPress URL",
+    "require": {},
+    "require-dev": {
+        "phpunit/phpunit": "^7",
+        "squizlabs/php_codesniffer": "^3.4",
+        "dealerdirect/phpcodesniffer-composer-installer": "*",
+        "wp-coding-standards/wpcs": "*",
+        "sirbrillig/phpcs-variable-analysis": "^2.5",
+        "phpcompatibility/php-compatibility": "^9.1",
+        "phpcompatibility/phpcompatibility-wp": "*"
+    }
+}

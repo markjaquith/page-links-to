@@ -42,7 +42,11 @@ module.exports = function(grunt) {
 		},
 
 		phpunit: {
-			default: {},
+			default: {
+				options: {
+					bin: 'vendor/bin/phpunit',
+				},
+			},
 		},
 
 		browserify: {
@@ -67,12 +71,12 @@ module.exports = function(grunt) {
 							extensions: ['jsx'],
 						},
 					],
-					[
-						'uglifyify',
-						{
-							global: true,
-						},
-					],
+					// [
+					// 	'uglifyify',
+					// 	{
+					// 		global: true,
+					// 	},
+					// ],
 				],
 				browserifyOptions: {
 					debug: true,
@@ -83,6 +87,7 @@ module.exports = function(grunt) {
 					'js/new-tab.min.js': 'js/new-tab.jsx',
 					'js/meta-box.min.js': 'js/meta-box.jsx',
 					'js/quick-add.min.js': 'js/quick-add.jsx',
+					'js/gutenberg.min.js': 'js/gutenberg.jsx',
 				},
 			},
 		},
@@ -217,7 +222,7 @@ module.exports = function(grunt) {
 				trailingComma: 'es5',
 			},
 			default: {
-				src: ['js/**.jsx', 'Gruntfile.js'],
+				src: ['js/**.jsx', 'Gruntfile.js', 'cypress/integration/**.js'],
 			},
 		},
 
