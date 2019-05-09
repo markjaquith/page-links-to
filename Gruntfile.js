@@ -11,9 +11,14 @@ module.exports = function(grunt) {
 		'!.gitignore',
 		'!.gitmodules',
 		'!tests/**',
+		'!cypress/**',
 		'!bin/**',
 		'!.travis.yml',
 		'!phpunit.xml',
+		'!vendor/**',
+		'!composer.json',
+		'!composer.lock',
+		'!.vscode/**',
 	];
 
 	// Project configuration
@@ -120,7 +125,7 @@ module.exports = function(grunt) {
 					build_dir: 'release/svn/',
 					assets_dir: 'assets/',
 					svn_user: 'markjaquith',
-					max_buffer: 5000*1024,
+					max_buffer: 5000 * 1024,
 				},
 			},
 		},
