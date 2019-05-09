@@ -120,6 +120,7 @@ module.exports = function(grunt) {
 					build_dir: 'release/svn/',
 					assets_dir: 'assets/',
 					svn_user: 'markjaquith',
+					max_buffer: 5000*1024,
 				},
 			},
 		},
