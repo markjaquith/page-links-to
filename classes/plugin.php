@@ -173,6 +173,9 @@ class CWS_PageLinksTo {
 		$this->hook( 'admin_enqueue_scripts' );
 		$this->hook( 'admin_menu' );
 
+		// Gutenberg.
+		$this->hook( 'use_block_editor_for_post', 99999 );
+
 		// Page row actions.
 		$this->hook( 'page_row_actions' );
 		$this->hook( 'post_row_actions', 'page_row_actions' );
@@ -190,6 +193,26 @@ class CWS_PageLinksTo {
 				$this->register_meta( self::TARGET_META_KEY, $type );
 			}
 		}
+	}
+
+	/**
+	 * Checks if the specified post is going to use the block editor, and adds custom-fields support.
+	 * 
+	 * We have to do this because PLT requires custom-fields support to update post meta in the block editor.
+	 * So if you add a custom post type without 'custom-fields' support, you'll get an error.
+	 * We check that this post is going to use the block editor, and that its post type supports the block editor,
+	 * and only then do we add 'custom-fields' support for the post type.
+	 *
+	 * @param boolean $use_block_editor Whether they are going to use the block editor for this post.
+	 * @param WP_Post $post The post they are editing.
+	 * @return boolean We return the original value of their decision.
+	 */
+	public function use_block_editor_for_post( $use_block_editor, $post ) {
+		if ( $use_block_editor && self::is_supported_post_type( get_post_type( $post ) ) ) {
+			add_post_type_support( get_post_type( $post ), 'custom-fields' );
+		}
+
+		return $use_block_editor;
 	}
 
 	/**
@@ -289,7 +312,9 @@ class CWS_PageLinksTo {
 		}
 
 		// Gutenberg.
-		wp_enqueue_script( 'plt-gutenberg', $this->get_url() . 'js/gutenberg.min.js', array( 'wp-edit-post', 'wp-element', 'wp-plugins' ), self::CSS_JS_VERSION, true );
+		if ( self::is_block_editor() && self::is_supported_post_type() ) {
+			wp_enqueue_script( 'plt-gutenberg', $this->get_url() . 'js/gutenberg.min.js', array( 'wp-edit-post', 'wp-element', 'wp-plugins' ), self::CSS_JS_VERSION, true );
+		}
 	}
 
 	/**
@@ -424,7 +449,11 @@ class CWS_PageLinksTo {
 	 * @param string $type The post type to check.
 	 * @return bool Whether this post type supports custom links.
 	 */
-	public static function is_supported_post_type( $type ) {
+	public static function is_supported_post_type( $type = null ) {
+		if ( is_null( $type ) ) {
+			$type = get_post_type();
+		}
+
 		if ( is_object( $type ) ) {
 			if ( isset( $type->id ) ) {
 				$type = $type->id;
