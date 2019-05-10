@@ -204,7 +204,7 @@ class CWS_PageLinksTo {
 			'post',
 			$key,
 			array(
-				'object_type' => $post_type,
+				'object_subtype' => $post_type,
 				'type' => 'string',
 				'single' => true,
 				'show_in_rest' => true,
