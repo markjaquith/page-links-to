@@ -1,5 +1,9 @@
 // Copy to clipboard.
 jQuery($ => {
+	if (undefined === window.pltVars) {
+		return;
+	}
+
 	const $clipboardLinks = $('.plt-copy-short-url');
 	if (ClipboardJS.isSupported()) {
 		$clipboardLinks.click(e => e.preventDefault());
@@ -12,8 +16,7 @@ jQuery($ => {
 	});
 
 	const clipboard = new ClipboardJS('.plt-copy-short-url');
-	const copied = pltVars.copied;
-	const browserNoSupportCopying = pltVars.browserNoSupportCopying;
+	const { copied, browserNoSupportCopying } = window.pltVars;
 
 	clipboard.on('success', e => {
 		const $trigger = $(e.trigger);
