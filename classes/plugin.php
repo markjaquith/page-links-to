@@ -198,7 +198,7 @@ class CWS_PageLinksTo {
 
 	/**
 	 * Checks if the specified post is going to use the block editor, and adds custom-fields support.
-	 * 
+	 *
 	 * We have to do this because PLT requires custom-fields support to update post meta in the block editor.
 	 * So if you add a custom post type without 'custom-fields' support, you'll get an error.
 	 * We check that this post is going to use the block editor, and that its post type supports the block editor,
@@ -725,10 +725,10 @@ class CWS_PageLinksTo {
 		if ( '/' === $url[0] ) {
 			// Protocol-relative.
 			if ( '/' === $url[1] ) {
-				$url = set_url_scheme( 'http:' . $url );
+				$url = set_url_scheme( (is_ssl() ? 'https:' : 'http:') . $url );
 			} else {
 				// Host-relative.
-				$url = set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $url );
+				$url = set_url_scheme( get_site_url() . $url );
 			}
 		}
 
