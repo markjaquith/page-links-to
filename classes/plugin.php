@@ -748,6 +748,10 @@ class CWS_PageLinksTo {
 	 * @return string the modified HTML block.
 	 */
 	function wp_list_pages( $output, $_args = array(), $pages = array() ) {
+		if ( empty( $pages ) ) {
+			return $output;
+		}
+
 		$highlight = false;
 
 		$this_url = esc_url_raw( set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ) );
