@@ -6,14 +6,15 @@
 
 # Plugin relases
 /release
+/dist
 
 # Composer
 /vendor
 
 # Cypress
-cypress/screenshots/
-cypress/videos/
-cypress.env.json
+/cypress/screenshots/
+/cypress/videos/
+/cypress.env.json
 
 # Intermediate JS files
 /js/*.js
