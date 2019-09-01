@@ -87,7 +87,7 @@ describe('Quick Links', () => {
 			cy.get('@modal').should('be.visible');
 			cy.get('body').click(1, 1);
 			cy.get('@modal').should('not.be.visible');
-			cy.get('@subMenuItem').click({force: true});
+			cy.get('@subMenuItem').click({ force: true });
 			cy.get('@modal').should('be.visible');
 		});
 	});
