@@ -13,6 +13,9 @@ Cypress.Commands.add('login', () => {
 });
 
 Cypress.Commands.add('keepAllCookies', () => {
+	Cypress.Cookies.defaults({
+		whitelist: () => true,
+	});
 	cy.getCookies().then(cookies =>
 		cookies.forEach(cookie => Cypress.Cookies.preserveOnce(cookie.name))
 	);
@@ -63,5 +66,14 @@ Cypress.Commands.add('deactivatePlugin', plugin => {
 		name: 'deactivatePlugin',
 		displayName: 'Deactivate Plugin',
 		message: `Deactivated ${plugin}`,
+	});
+});
+
+Cypress.Commands.add('enablePrettyPermalinks', () => {
+	wpCli(`rewrite structure '/%postname%/'`);
+	Cypress.log({
+		name: 'enablePrettyPermalinks',
+		displayName: 'Enable Pretty Permalinks',
+		message: 'Enabled pretty permalinks',
 	});
 });

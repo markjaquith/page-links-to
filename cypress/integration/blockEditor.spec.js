@@ -6,21 +6,17 @@ const postTitle = () => {
 	return parts.join(' ');
 };
 
-const getSidebarInputByLabel = label => {
-	return cy
-		.get('@sidebar')
-		.contains(label)
-		.siblings('input')
-		.first();
-};
+function tid(id) {
+	return cy.get(`[data-testid=${id}]`);
+}
 
 const selectors = {
 	saveButton: () => cy.get('.editor-post-save-draft'),
 	publishButton: () => cy.get('.editor-post-publish-button'),
 	savedNotice: () => cy.get('.editor-post-saved-state.is-saved'),
-	chooseCustom: () => getSidebarInputByLabel('Custom Permalink'),
-	newTab: () => getSidebarInputByLabel('Open in new tab'),
-	url: () => getSidebarInputByLabel('Links to'),
+	chooseCustom: () => tid('plt-enabled'),
+	newTab: () => tid('plt-newtab'),
+	url: () => tid('plt-url'),
 };
 
 const clickCheckbox = () => {

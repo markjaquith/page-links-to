@@ -15,16 +15,15 @@ const postTitle = () => {
 describe('Quick Links', () => {
 	const subMenuTitle = 'Add Page Link';
 	const publishSlug = postSlug();
-	const linkedUrl = 'https://wordpress.org/';
+	const linkedUrl = Cypress.config().baseUrl + '/';
 	const draftTitle = postTitle();
 	const longTitle = 'Super Long Title Way Too Long';
 	const draftSlug = 'draft-' + postSlug();
 
 	before(() => {
 		cy.login();
-		Cypress.Cookies.defaults({
-			whitelist: () => true,
-		});
+		cy.keepAllCookies();
+		cy.enablePrettyPermalinks();
 		cy.visit('/wp-admin/');
 		cy.location('pathname').should('eq', '/wp-admin/');
 	});

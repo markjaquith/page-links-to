@@ -1,9 +1,18 @@
-const { PanelRow, TextControl, CheckboxControl } = wp.components;
-const { withInstanceId, compose } = wp.compose;
-const { withSelect, withDispatch } = wp.data;
-const { Fragment, Component } = wp.element;
-const { PluginPostStatusInfo } = wp.editPost;
-const { registerPlugin } = wp.plugins;
+import { PanelRow, TextControl, CheckboxControl } from '@wordpress/components';
+import { withInstanceId, compose } from '@wordpress/compose';
+import { withSelect, withDispatch } from '@wordpress/data';
+import { Fragment, Component } from '@wordpress/element';
+import { PluginPostStatusInfo } from '@wordpress/edit-post';
+import { registerPlugin } from '@wordpress/plugins';
+
+function PanelGroup({ children }) {
+	const style = {
+		display: 'flex',
+		flexDirection: 'column',
+	};
+
+	return <div style={style}>{children}</div>;
+}
 
 class LinksTo extends Component {
 	constructor(props) {
@@ -89,35 +98,40 @@ class LinksTo extends Component {
 
 	render() {
 		return (
-			<Fragment>
-				<PluginPostStatusInfo>
-					<CheckboxControl
-						label="Custom Permalink"
-						checked={this.enabled()}
-						onChange={this.toggleStatus}
-					/>
-				</PluginPostStatusInfo>
+			<PluginPostStatusInfo>
+				<PanelGroup>
+					<PanelRow>
+						<CheckboxControl
+							label="Custom Permalink"
+							data-testid="plt-enabled"
+							checked={this.enabled()}
+							onChange={this.toggleStatus}
+						/>
+					</PanelRow>
 
-				{this.enabled() && (
-					<Fragment>
-						<PluginPostStatusInfo>
-							<TextControl
-								label="Links to"
-								value={this.getDisplayUrl()}
-								onChange={this.updateLink}
-								placeholder="https://"
-							/>
-						</PluginPostStatusInfo>
-						<PluginPostStatusInfo>
-							<CheckboxControl
-								label="Open in new tab"
-								checked={this.opensInNewTab()}
-								onChange={this.toggleNewTab}
-							/>
-						</PluginPostStatusInfo>
-					</Fragment>
-				)}
-			</Fragment>
+					{this.enabled() && (
+						<>
+							<PanelRow>
+								<TextControl
+									label="Links to"
+									data-testid="plt-url"
+									value={this.getDisplayUrl()}
+									onChange={this.updateLink}
+									placeholder="https://"
+								/>
+							</PanelRow>
+							<PanelRow>
+								<CheckboxControl
+									label="Open in new tab"
+									data-testid="plt-newtab"
+									checked={this.opensInNewTab()}
+									onChange={this.toggleNewTab}
+								/>
+							</PanelRow>
+						</>
+					)}
+				</PanelGroup>
+			</PluginPostStatusInfo>
 		);
 	}
 }

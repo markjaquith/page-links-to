@@ -1,98 +1,65 @@
-module.exports = function(grunt) {
-	const ignores = [
-		'!node_modules/**',
-		'!release/**',
-		'!assets/**',
-		'!.git/**',
-		'!.sass-cache/**',
-		'!img/src/**',
-		'!Gruntfile.*',
-		'!package.json',
-		'!.gitignore',
-		'!.gitmodules',
-		'!tests/**',
-		'!cypress/**',
-		'!bin/**',
-		'!.travis.yml',
-		'!phpunit.xml',
-		'!vendor/**',
-		'!composer.json',
-		'!composer.lock',
-		'!.vscode/**',
+const webpackConfig = require('./webpack.config.js');
+
+const ignores = [
+	'!assets/**',
+	'!node_modules/**',
+	'!vendor/**',
+	'!release/**',
+	'!.git/**',
+	'!.vscode/**',
+	'!.sass-cache/**',
+	'!.gitignore',
+	'!.gitmodules',
+	'!tests/**',
+	'!bin/**',
+	'!.travis.yml',
+	'!phpunit.xml',
+	'!composer.json',
+	'!composer.lock',
+	'!cypress/**',
+];
+
+function cleanUpReleaseFiles() {
+	const files = [
+		'readme.md',
+		'package.json',
+		'webpack.config.js',
+		'yarn.lock',
+		'composer.json',
+		'composer.lock',
+		'babel.config.js',
+		'Gruntfile.js',
 	];
 
+	return files.map(file => `release/svn/${file}`);
+}
+
+module.exports = grunt => {
 	// Project configuration
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
 
-		sass: {
-			default: {
-				options: {
-					style: 'expanded',
-				},
-				files: {
-					'css/quick-add.css': 'sass/quick-add.sass',
-				},
+		env: {
+			prod: {
+				NODE_ENV: 'production',
+			},
+			dev: {
+				NODE_ENV: 'development',
 			},
 		},
 
-		postcss: {
-			default: {
-				src: 'css/*.css',
-				options: {
-					map: true,
-					processors: [require('autoprefixer'), require('cssnano')],
-				},
+		webpack: {
+			options: {
+				stats: !process.env.NODE_ENV || process.env.NODE_ENV === 'development',
 			},
+			prod: Object.assign({}, webpackConfig, { mode: 'production' }),
+			dev: Object.assign({}, webpackConfig, { mode: 'development' }),
 		},
 
 		phpunit: {
 			default: {
 				options: {
 					bin: 'vendor/bin/phpunit',
-				},
-			},
-		},
-
-		browserify: {
-			options: {
-				paths: ['../node_modules'],
-				watch: true,
-				transform: [
-					[
-						'babelify',
-						{
-							presets: ['env', 'react'],
-							plugins: [
-								'add-module-exports',
-								'transform-class-properties',
-								'transform-object-rest-spread',
-							],
-						},
-					],
-					[
-						'extensify',
-						{
-							extensions: ['jsx'],
-						},
-					],
-					// [
-					// 	'uglifyify',
-					// 	{
-					// 		global: true,
-					// 	},
-					// ],
-				],
-				browserifyOptions: {
-					debug: true,
-				},
-			},
-			default: {
-				files: {
-					'js/new-tab.min.js': 'js/new-tab.jsx',
-					'js/meta-box.min.js': 'js/meta-box.jsx',
-					'js/quick-add.min.js': 'js/quick-add.jsx',
-					'js/gutenberg.min.js': 'js/gutenberg.jsx',
 				},
 			},
 		},
@@ -105,12 +72,9 @@ module.exports = function(grunt) {
 					debounceDelay: 5000,
 				},
 			},
-			sass: {
-				files: ['sass/**/*.sass', ...ignores],
-				tasks: ['sass', 'postcss'],
-				options: {
-					debounceDelay: 500,
-				},
+			webpack: {
+				files: ['src/**'],
+				tasks: ['webpack:dev'],
 			},
 			package: {
 				files: ['package.json'],
@@ -118,42 +82,32 @@ module.exports = function(grunt) {
 			},
 		},
 
-		wp_deploy: {
-			default: {
-				options: {
-					plugin_slug: '<%= pkg.name %>',
-					build_dir: 'release/svn/',
-					assets_dir: 'assets/',
-					svn_user: 'markjaquith',
-					max_buffer: 5000 * 1024,
-				},
-			},
-		},
-
 		clean: {
-			release: ['release/<%= pkg.version %>/', 'release/svn/'],
-			svn_readme_md: ['release/svn/readme.md'],
-		},
-
-		notify_hooks: {
-			options: {
-				success: true,
-			},
+			release: [
+				'release/<%= pkg.version %>/',
+				'release/latest/',
+				'release/svn/',
+			],
+			svn: cleanUpReleaseFiles(),
 		},
 
 		copy: {
 			clipboard: {
 				src: ['node_modules/clipboard/dist/clipboard.min.js'],
-				dest: 'js/clipboard.min.js',
+				dest: 'dist/clipboard.min.js',
 			},
-			main: {
+			release: {
 				src: ['**', ...ignores],
 				dest: 'release/<%= pkg.version %>/',
 			},
+			latest: {
+				cwd: 'release/<%= pkg.version %>/',
+				src: ['**'],
+				dest: 'release/latest/',
+			},
 			svn: {
 				cwd: 'release/<%= pkg.version %>/',
-				expand: true,
-				src: '**',
+				src: ['**'],
 				dest: 'release/svn/',
 			},
 		},
@@ -166,6 +120,13 @@ module.exports = function(grunt) {
 					{
 						from: /Version:(\s*?)[a-zA-Z0-9.-]+$/m,
 						to: 'Version:$1<%= pkg.version %>',
+					},
+					{
+						from: /Copyright \(c\) 20[0-9]{2}-20[0-9]{2} .*$/m,
+						to:
+							'Copyright (c) <%= pkg.firstCopyright %>-' +
+							new Date().getFullYear() +
+							' <%= pkg.author.name %> (email: <%= pkg.author.email %>)',
 					},
 				],
 			},
@@ -221,6 +182,12 @@ module.exports = function(grunt) {
 			},
 		},
 
+		notify_hooks: {
+			options: {
+				success: true,
+			},
+		},
+
 		prettier: {
 			options: {
 				singleQuote: true,
@@ -228,56 +195,52 @@ module.exports = function(grunt) {
 				trailingComma: 'es5',
 			},
 			default: {
-				src: ['js/**.jsx', 'Gruntfile.js', 'cypress/integration/**.js'],
+				src: ['src/**/*.js', 'Gruntfile.js', 'cypress/integration/**.js'],
 			},
 		},
 
-		compress: {
+		wp_deploy: {
 			default: {
 				options: {
-					mode: 'zip',
-					archive: './release/<%= pkg.name %>.<%= pkg.version %>.zip',
+					plugin_slug: '<%= pkg.name %>',
+					svn_user: 'markjaquith',
+					build_dir: 'release/svn',
+					assets_dir: 'assets',
 				},
-				expand: true,
-				cwd: 'release/<%= pkg.version %>/',
-				src: ['**/*'],
-				dest: '<%= pkg.name %>/',
 			},
 		},
 	});
 
 	require('load-grunt-tasks')(grunt);
+
 	grunt.task.run('notify_hooks');
 
-	// Default task
 	grunt.registerTask('default', [
+		'env:dev',
+		'replace',
+		'prettier',
+		'copy:clipboard',
+		'webpack:dev',
+	]);
+
+	grunt.registerTask('default:prod', [
+		'env:prod',
 		'replace',
 		'copy:clipboard',
-		'prettier',
-		'browserify',
-		'sass',
-		'postcss',
+		'webpack:prod',
 	]);
 
-	// Build task
-	grunt.registerTask('build', ['default', 'clean']);
-
-	// Develop.
 	grunt.registerTask('dev', ['default', 'watch']);
 
-	// Prepare a WordPress.org release
-	grunt.registerTask('release:prepare', [
-		'copy:main',
-		'copy:svn',
-		'replace:svn_readme',
-		'clean:svn_readme_md',
+	grunt.registerTask('build', [
+		'default:prod',
+		'clean:release',
+		'copy',
+		'replace',
+		'clean:svn',
 	]);
 
-	// Deploy out a WordPress.org release
-	grunt.registerTask('release:deploy', ['wp_deploy']);
-
-	// WordPress.org release task
-	grunt.registerTask('release', ['build', 'release:prepare', 'release:deploy']);
+	grunt.registerTask('release', ['build', 'wp_deploy']);
 
 	grunt.util.linefeed = '\n';
 };

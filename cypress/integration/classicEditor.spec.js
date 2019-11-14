@@ -7,16 +7,15 @@ const postTitle = () => {
 };
 
 describe('Classic Editor', () => {
-	const linkedUrl = 'https://wordpress.org/';
-	const linkedUrl2 = 'https://wordpress.com/';
+	const linkedUrl = Cypress.config().baseUrl + '/?1';
+	const linkedUrl2 = Cypress.config().baseUrl + '/?2';
 	const draftTitle = postTitle();
 	const draftSlug = draftTitle.toLowerCase().replace(/ /g, '-');
 
 	before(() => {
 		cy.login();
-		Cypress.Cookies.defaults({
-			whitelist: () => true,
-		});
+		cy.keepAllCookies();
+		cy.enablePrettyPermalinks();
 		cy.activatePlugin('classic-editor');
 		cy.visit('/wp-admin/post-new.php?post_type=page');
 		cy.url().should('contain', '/wp-admin/post-new.php?post_type=page');
