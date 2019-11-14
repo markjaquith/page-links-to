@@ -17,6 +17,9 @@ const ignores = [
 	'!composer.json',
 	'!composer.lock',
 	'!cypress/**',
+	'!cypress.*',
+	'!phpcs.xml',
+	'!phpunit.xml.dist',
 ];
 
 function cleanUpReleaseFiles() {
@@ -29,6 +32,7 @@ function cleanUpReleaseFiles() {
 		'composer.lock',
 		'babel.config.js',
 		'Gruntfile.js',
+		'src/**',
 	];
 
 	return files.map(file => `release/svn/${file}`);
