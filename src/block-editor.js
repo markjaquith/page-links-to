@@ -18,8 +18,6 @@ class LinksTo extends Component {
 	constructor(props) {
 		super(props);
 		this.toggleStatus = this.toggleStatus.bind(this);
-		this.toggleNewTab = this.toggleNewTab.bind(this);
-		this.updateLink = this.updateLink.bind(this);
 		this.state.enabled = this.hasUrl();
 	}
 
@@ -29,7 +27,7 @@ class LinksTo extends Component {
 	};
 
 	getUrl() {
-		return this.props.meta._links_to || '';
+		return this.props.url || '';
 	}
 
 	getDisplayUrl() {
@@ -42,19 +40,20 @@ class LinksTo extends Component {
 	}
 
 	opensInNewTab() {
-		return this.props.meta._links_to_target === '_blank';
+		return this.props.newTab;
 	}
 
 	enabled() {
 		return this.state.enabled;
 	}
 
-	toggleStatus() {
+	toggleStatus(newValue) {
 		const { prevUrl, prevNewTab } = this.state;
+		const { onUpdateLink, onUpdateNewTab } = this.props;
 
 		this.setState(prevState => {
 			const newState = {
-				enabled: !prevState.enabled,
+				enabled: newValue,
 			};
 
 			if (prevState.enabled) {
@@ -64,26 +63,20 @@ class LinksTo extends Component {
 			return newState;
 		});
 
-		if (this.enabled()) {
-			// If it was enabled before they clicked, they are disabling it.
-			this.updateLink(null);
-			this.updateNewTab(false);
+		if (newValue) {
+			// We should restore the previous states of the url and new tab checkbox.
+			onUpdateLink(prevUrl);
+			onUpdateNewTab(prevNewTab);
+		} else {
+			onUpdateLink(null);
+			onUpdateNewTab(false);
 
 			// Hold on to the previous state, in case they change their mind.
 			this.setState({
 				prevUrl: this.getUrl(),
 				prevNewTab: this.opensInNewTab(),
 			});
-		} else {
-			// If it was disabled before thy clicked, they are enabling it.
-			// We should restore the previous states of the url and new tab checkbox.
-			this.updateLink(prevUrl);
-			this.updateNewTab(prevNewTab);
 		}
-	}
-
-	toggleNewTab() {
-		this.updateNewTab(!this.opensInNewTab());
 	}
 
 	updateLink(link) {
@@ -91,12 +84,9 @@ class LinksTo extends Component {
 		onUpdateLink(meta, link);
 	}
 
-	updateNewTab(enabled) {
-		const { meta, onUpdateNewTab } = this.props;
-		onUpdateNewTab(meta, enabled);
-	}
-
 	render() {
+		const { onUpdateLink, onUpdateNewTab } = this.props;
+
 		return (
 			<PluginPostStatusInfo>
 				<PanelGroup>
@@ -116,7 +106,7 @@ class LinksTo extends Component {
 									label="Links to"
 									data-testid="plt-url"
 									value={this.getDisplayUrl()}
-									onChange={this.updateLink}
+									onChange={onUpdateLink}
 									placeholder="https://"
 								/>
 							</PanelRow>
@@ -125,7 +115,7 @@ class LinksTo extends Component {
 									label="Open in new tab"
 									data-testid="plt-newtab"
 									checked={this.opensInNewTab()}
-									onChange={this.toggleNewTab}
+									onChange={onUpdateNewTab}
 								/>
 							</PanelRow>
 						</>
@@ -137,16 +127,21 @@ class LinksTo extends Component {
 }
 
 const PageLinksTo = compose([
-	withSelect(select => ({
-		meta: select('core/editor').getEditedPostAttribute('meta'),
-	})),
+	withSelect(select => {
+		const getMeta = attr =>
+			(select('core/editor').getEditedPostAttribute('meta') || [])[attr];
+		return {
+			url: getMeta('_links_to'),
+			newTab: getMeta('_links_to_target') === '_blank',
+		};
+	}),
 	withDispatch(dispatch => ({
-		onUpdateLink: (meta, link) => {
-			dispatch('core/editor').editPost({ meta: { ...meta, _links_to: link } });
+		onUpdateLink: link => {
+			dispatch('core/editor').editPost({ meta: { _links_to: link } });
 		},
-		onUpdateNewTab: (meta, enabled) => {
+		onUpdateNewTab: enabled => {
 			dispatch('core/editor').editPost({
-				meta: { ...meta, _links_to_target: enabled ? '_blank' : '' },
+				meta: { _links_to_target: enabled ? '_blank' : '' },
 			});
 		},
 	})),
