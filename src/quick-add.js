@@ -5,6 +5,9 @@ jQuery($ => {
 	}
 
 	const $clipboardLinks = $('.plt-copy-short-url');
+	const clipboard = new ClipboardJS('.plt-copy-short-url');
+	const { copied, browserNoSupportCopying } = window.pltVars;
+
 	if (ClipboardJS.isSupported()) {
 		$clipboardLinks.click(e => e.preventDefault());
 	} else {
@@ -12,9 +15,6 @@ jQuery($ => {
 	}
 
 	$('.plt-links-to button').click(() => $('#cws-links-to').focus());
-
-	const clipboard = new ClipboardJS('.plt-copy-short-url');
-	const { copied, browserNoSupportCopying } = window.pltVars;
 
 	clipboard.on('success', e => {
 		const $trigger = $(e.trigger);
@@ -58,15 +58,8 @@ jQuery($ => {
 	const open = modalAction('open');
 	const close = modalAction('close');
 
-	const makeSlugFromTitle = (title = '') => {
-		return title
-			.toLowerCase()
-			.replace(/\s+/g, '-')
-			.replace(/-{2,}/g, '-')
-			.replace(/[^a-z0-9-]/, '')
-			.replace(/-$/, '')
-			.replace(/^-/, '');
-	};
+	const makeSlugFromTitle = (title = '') =>
+		makeSlugFromSlug(title).replace(/-$/, '');
 
 	const makeSlugFromSlug = (slug = '') => {
 		return slug

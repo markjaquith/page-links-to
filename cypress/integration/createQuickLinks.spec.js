@@ -15,7 +15,7 @@ const postTitle = () => {
 describe('Quick Links', () => {
 	const subMenuTitle = 'Add Page Link';
 	const publishSlug = postSlug();
-	const linkedUrl = Cypress.config().baseUrl + '/';
+	const linkedUrl = Cypress.config().baseUrl + '/?4';
 	const draftTitle = postTitle();
 	const longTitle = 'Super Long Title Way Too Long';
 	const draftSlug = 'draft-' + postSlug();
