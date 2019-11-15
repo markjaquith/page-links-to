@@ -35,6 +35,10 @@ jQuery($ => {
 
 // Quick Add.
 jQuery($ => {
+	if (undefined === window.pltVars) {
+		return;
+	}
+
 	const $modal = $('#plt-quick-add');
 	const $form = $modal.find('form:first');
 	const $saveDraft = $('#plt-quick-add-save');
@@ -49,7 +53,7 @@ jQuery($ => {
 	const $slug = $modal.find('[name="slug"]');
 	const nonce = $modal.find('[name="plt_nonce"]').val();
 	const defaultSlugPlaceholder = $slug.prop('placeholder');
-	const fancyUrls = window.pltVars.fancyUrls;
+	const { fancyUrls } = window.pltVars;
 	const [yes, no] = [true, false];
 
 	const modalAction = action => () => $modal.dialog(action);
