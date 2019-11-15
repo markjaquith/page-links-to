@@ -24,7 +24,7 @@ const clickCheckbox = () => {
 };
 
 describe('Block Editor', () => {
-	const linkedUrl = 'https://wordpress.org/';
+	const linkedUrl = Cypress.config().baseUrl + '/?3';
 	const draftTitle = postTitle();
 	const draftSlug = draftTitle.toLowerCase().replace(/ /g, '-');
 

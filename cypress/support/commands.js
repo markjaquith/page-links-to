@@ -77,3 +77,12 @@ Cypress.Commands.add('enablePrettyPermalinks', () => {
 		message: 'Enabled pretty permalinks',
 	});
 });
+
+Cypress.Commands.overwrite(
+	"type",
+	(originalFn, subject, string, options) => originalFn(
+		subject,
+		string,
+		Object.assign({ delay: 0 }, options)
+	)
+);
