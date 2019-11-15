@@ -11,9 +11,7 @@ jQuery($ => {
 		$clipboardLinks.hide();
 	}
 
-	$('.plt-links-to button').click(e => {
-		$('#cws-links-to').focus();
-	});
+	$('.plt-links-to button').click(() => $('#cws-links-to').focus());
 
 	const clipboard = new ClipboardJS('.plt-copy-short-url');
 	const { copied, browserNoSupportCopying } = window.pltVars;
@@ -54,7 +52,6 @@ jQuery($ => {
 	const nonce = $modal.find('[name="plt_nonce"]').val();
 	const defaultSlugPlaceholder = $slug.prop('placeholder');
 	const { fancyUrls } = window.pltVars;
-	const [yes, no] = [true, false];
 
 	const modalAction = action => () => $modal.dialog(action);
 	const isOpen = modalAction('isOpen');
@@ -128,7 +125,7 @@ jQuery($ => {
 		maybeUpdateButtons();
 	};
 
-	const updateButtons = (enabled = yes) => {
+	const updateButtons = (enabled = true) => {
 		$publish.prop('disabled', !enabled);
 		$saveDraft.prop('disabled', !enabled);
 	};
@@ -136,7 +133,7 @@ jQuery($ => {
 	const maybeUpdateButtons = () =>
 		updateButtons($title.val().length && $url.val().length);
 
-	const submit = ({ publish = yes } = {}) => {
+	const submit = ({ publish = true } = {}) => {
 		const title = $title.val();
 		const url = $url.val();
 		let slug = $slug.val() ? $slug.val() : makeSlugFromTitle(title);
@@ -162,18 +159,18 @@ jQuery($ => {
 	};
 
 	const clickMenuItem = noDefaultEvent(() => (isOpen() ? close() : open()));
-	const saveDraft = noDefaultEvent(() => submit({ publish: no }));
-	const publish = noDefaultEvent(() => submit({ publish: yes }));
+	const saveDraft = noDefaultEvent(() => submit({ publish: false }));
+	const publish = noDefaultEvent(() => submit({ publish: true }));
 
 	$modal.dialog({
 		title: 'Add Page Link',
 		dialogClass: 'wp-dialog plt-ui-dialog',
-		autoOpen: no,
-		draggable: no,
+		autoOpen: false,
+		draggable: false,
 		width: 'auto',
-		modal: yes,
-		resizable: no,
-		closeOnEscape: yes,
+		modal: true,
+		resizable: false,
+		closeOnEscape: true,
 		position: {
 			my: 'center',
 			at: 'center',
