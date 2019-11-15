@@ -3,11 +3,11 @@
 [![Build Status](https://travis-ci.org/markjaquith/page-links-to.svg?branch=master)](https://travis-ci.org/markjaquith/page-links-to)  
 
 Contributors: markjaquith  
-Donate link: http://txfx.net/wordpress-plugins/donate  
+Donate link: https://txfx.net/wordpress-plugins/donate  
 Tags: page, redirect, link, external link, repoint  
 Requires at least: 4.8  
-Tested up to: 5.2  
-Stable tag: 3.2.0-beta1  
+Tested up to: 5.3  
+Stable tag: 3.2.0  
 
 Lets you make a WordPress page (or port or other content type) link to a URL of your choosing (on your site, or on another site), instead of its normal WordPress URL.
 
@@ -78,6 +78,10 @@ Yes. Linking to `/my-photos.php` is a good idea, as it'll still work if you move
 You can contribute (or report bugs) on [Github](https://github.com/markjaquith/page-links-to/).
 
 ## Changelog ##
+
+### 3.2.0 ###
+* Block Editor improvements
+* Smaller build
 
 ### 3.1.2 ###
 * Customizer bug fix
