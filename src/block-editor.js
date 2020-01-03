@@ -1,18 +1,25 @@
-import { PanelRow, TextControl, CheckboxControl } from '@wordpress/components';
-import { withInstanceId, compose } from '@wordpress/compose';
+import {
+	Panel,
+	PanelBody,
+	PanelRow,
+	TextControl,
+	RadioControl,
+	CheckboxControl,
+} from '@wordpress/components';
+import { withInstanceId, compose, withState } from '@wordpress/compose';
 import { withSelect, withDispatch } from '@wordpress/data';
 import { Fragment, Component } from '@wordpress/element';
-import { PluginPostStatusInfo } from '@wordpress/edit-post';
+import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { registerPlugin } from '@wordpress/plugins';
 
-function PanelGroup({ children }) {
-	const style = {
-		display: 'flex',
-		flexDirection: 'column',
-	};
+// function PanelGroup({ children }) {
+// 	const style = {
+// 		display: 'flex',
+// 		flexDirection: 'column',
+// 	};
 
-	return <div style={style}>{children}</div>;
-}
+// 	return <div style={style}>{children}</div>;
+// }
 
 class LinksTo extends Component {
 	constructor(props) {
@@ -86,42 +93,58 @@ class LinksTo extends Component {
 
 	render() {
 		const { onUpdateLink, onUpdateNewTab } = this.props;
+		const PointsTo = withState({
+			option: this.enabled() ? 'custom' : 'wordpress',
+		})(({
+			option,
+			setState,
+		}) => (
+			<RadioControl
+				label="Point this content to:"
+				selected={option}
+				options={[
+					{ label: 'Its normal WordPress URL', value: 'wordpress' },
+					{ label: 'A custom URL', value: 'custom' },
+				]}
+				onChange={(option) => {
+					setState({ option });
+					this.toggleStatus(option === 'custom');
+				}}
+			/>
+		));
 
 		return (
-			<PluginPostStatusInfo>
-				<PanelGroup>
-					<PanelRow>
-						<CheckboxControl
-							label="Custom Permalink"
-							data-testid="plt-enabled"
-							checked={this.enabled()}
-							onChange={this.toggleStatus}
-						/>
-					</PanelRow>
+			<PluginDocumentSettingPanel
+				title="Page Links To"
+				name="PageLinksTo"
+				icon={this.enabled() ? 'admin-links' : 'disabled'}
+			>
+				<PanelRow>
+					<PointsTo />
+				</PanelRow>
 
-					{this.enabled() && (
-						<>
-							<PanelRow>
-								<TextControl
-									label="Links to"
-									data-testid="plt-url"
-									value={this.getDisplayUrl()}
-									onChange={onUpdateLink}
-									placeholder="https://"
-								/>
-							</PanelRow>
-							<PanelRow>
-								<CheckboxControl
-									label="Open in new tab"
-									data-testid="plt-newtab"
-									checked={this.opensInNewTab()}
-									onChange={onUpdateNewTab}
-								/>
-							</PanelRow>
-						</>
-					)}
-				</PanelGroup>
-			</PluginPostStatusInfo>
+				{this.enabled() && (
+					<>
+						<PanelRow>
+							<TextControl
+								label="Links to"
+								data-testid="plt-url"
+								value={this.getDisplayUrl()}
+								onChange={onUpdateLink}
+								placeholder="https://"
+							/>
+						</PanelRow>
+						<PanelRow>
+							<CheckboxControl
+								label="Open in new tab"
+								data-testid="plt-newtab"
+								checked={this.opensInNewTab()}
+								onChange={onUpdateNewTab}
+							/>
+						</PanelRow>
+					</>
+				)}
+			</PluginDocumentSettingPanel>
 		);
 	}
 }
