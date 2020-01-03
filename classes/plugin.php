@@ -708,8 +708,11 @@ class CWS_PageLinksTo {
 		if ( ! is_singular() || ! get_queried_object_id() ) {
 			return false;
 		}
+		$link = self::get_link( get_queried_object_id() );
 
-		$link = self::absolute_url( self::get_link( get_queried_object_id() ) );
+		if ( $link ) {
+			$link = self::absolute_url( $link );
+		}
 
 		return $link;
 	}
@@ -1032,9 +1035,10 @@ class CWS_PageLinksTo {
 	 * @return array The modified post states array.
 	 */
 	public function display_post_states( $states, $post ) {
-		$link = $this->absolute_url( self::get_link( $post ) );
+		$link = self::get_link( $post );
 
 		if ( $link ) {
+			$link = $this->absolute_url( $link );
 			$output = '';
 			$output_parts = array(
 				'custom' => '<a title="' . __( 'Linked URL', 'page-links-to' ) . '" href="' . esc_url( $link ) . '" class="plt-post-state-link"><span class="dashicons dashicons-admin-links"></span><span class="url"> ' . esc_url( $link ) . '</span></a>',
