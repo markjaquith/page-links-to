@@ -174,6 +174,8 @@ class CWS_PageLinksTo {
 		$this->hook( 'enqueue_block_editor_assets' );
 		$this->hook( 'admin_menu' );
 
+		$this->hook( 'rest_api_init' );
+
 		// Gutenberg.
 		$this->hook( 'use_block_editor_for_post', 99999 );
 
@@ -214,6 +216,21 @@ class CWS_PageLinksTo {
 		}
 
 		return $use_block_editor;
+	}
+
+	/**
+	 * Adds custom-fields support to PLT-supporting post types during REST API initialization.
+	 *
+	 * @return void
+	 */
+	function rest_api_init() {
+		$post_type_names = array_keys( get_post_types() );
+
+		foreach ( $post_type_names as $type ) {
+			if ( self::is_supported_post_type( $type ) ) {
+				add_post_type_support( $type, 'custom-fields' );
+			}
+		}
 	}
 
 	/**
