@@ -673,7 +673,10 @@ class CWS_PageLinksTo {
 	 * @return bool
 	 */
 	function has_non_redirect_flag() {
-		return isset( $_GET['elementor-preview'] );
+		return (
+			isset( $_GET['customize_theme'] ) ||
+			isset( $_GET['elementor-preview'] )
+		);
 	}
 
 	/**
