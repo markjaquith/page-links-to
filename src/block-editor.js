@@ -10,15 +10,6 @@ import { Fragment, Component } from '@wordpress/element';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { registerPlugin } from '@wordpress/plugins';
 
-// function PanelGroup({ children }) {
-// 	const style = {
-// 		display: 'flex',
-// 		flexDirection: 'column',
-// 	};
-
-// 	return <div style={style}>{children}</div>;
-// }
-
 class LinksTo extends Component {
 	constructor(props) {
 		super(props);
@@ -130,14 +121,16 @@ class LinksTo extends Component {
 								placeholder="https://"
 							/>
 						</PanelRow>
-						<PanelRow>
-							<CheckboxControl
-								label="Open in new tab"
-								data-testid="plt-newtab"
-								checked={this.opensInNewTab()}
-								onChange={onUpdateNewTab}
-							/>
-						</PanelRow>
+						{window.pltOptions.supports.newTab && (
+							<PanelRow>
+								<CheckboxControl
+									label="Open in new tab"
+									data-testid="plt-newtab"
+									checked={this.opensInNewTab()}
+									onChange={onUpdateNewTab}
+								/>
+							</PanelRow>
+						)}
 					</>
 				)}
 			</PluginDocumentSettingPanel>
