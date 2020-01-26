@@ -14,14 +14,76 @@ const selectors = {
 	saveButton: () => cy.get('.editor-post-save-draft'),
 	publishButton: () => cy.get('.editor-post-publish-button'),
 	savedNotice: () => cy.get('.editor-post-saved-state.is-saved'),
-	chooseCustom: () => tid('plt-enabled'),
+	chooseWordPress: () => cy.get('.plt-panel input[type="radio"][value="wordpress"]'),
+	chooseCustom: () => cy.get('.plt-panel input[type="radio"][value="custom"]'),
 	newTab: () => tid('plt-newtab'),
 	url: () => tid('plt-url'),
 };
 
-const clickCheckbox = () => {
+const clickCustom = () => {
 	selectors.chooseCustom().click();
 };
+
+const clickWordPress = () => {
+	selectors.chooseWordPress().click();
+};
+
+const openPanel = () => {
+	cy.get('@panel').then($panel => {
+		if (!$panel.hasClass('is-opened')) {
+			cy.wrap($panel).click();
+		}
+	});
+}
+
+const assertWordPress = () => {
+	it('normal WordPress URL is selected', () => {
+		selectors
+			.chooseWordPress()
+			.should('be.visible')
+			.and('be.checked');
+	});
+
+	it('custom URL is not selected', () => {
+		selectors
+			.chooseCustom()
+			.should('be.visible')
+			.and('not.be.checked');
+	});
+
+	it('custom URL UI is not visible', () => {
+		selectors.url().should('not.be.visible');
+		selectors.newTab().should('not.be.visible');
+	});
+};
+
+const assertCustom = () => {
+	it('custom URL is selected', () => {
+		selectors
+			.chooseCustom()
+			.should('be.visible')
+			.and('be.checked');
+	});
+
+	it('normal WordPress URL is not selected', () => {
+		selectors
+			.chooseWordPress()
+			.should('be.visible')
+			.and('not.be.checked');
+	});
+
+	it('custom URL UI is visible', () => {
+		selectors.url().should('be.visible');
+		selectors.newTab().should('be.visible');
+	});
+};
+
+const save = () => {
+	selectors.saveButton().click();
+	selectors.savedNotice().should('be.visible');
+	cy.reload();
+	openPanel();
+}
 
 describe('Block Editor', () => {
 	const linkedUrl = Cypress.config().baseUrl + '/?3';
@@ -41,6 +103,8 @@ describe('Block Editor', () => {
 	// prettier-ignore
 	beforeEach(() => {
 		// Aliases.
+		cy.get('.plt-panel')
+			.as('panel');
 		cy.get('.editor-post-title__input').first()
 			.as('title');
 		cy.get('.edit-post-sidebar')
@@ -49,58 +113,53 @@ describe('Block Editor', () => {
 			.as('publishButton');
 	});
 
-	context('sidebar checkbox', () => {
-		it('is not checked', () => {
-			cy.get('button.nux-dot-tip__disable').click();
+	context('title', () => {
+		it('is filled', () => {
+			cy.get('button.nux-dot-tip__disable').click({ force: true });
 			cy.get('@title').type(draftTitle);
-			selectors
-				.chooseCustom()
-				.should('be.visible')
-				.and('not.be.checked');
+		});
+	});
+
+	context('panel', () => {
+		it('is open', openPanel);
+	});
+
+	context('radio button', () => {
+		it('starts choosing a normal WordPress URL', () => {
+			assertWordPress();
 		});
 
-		it('has not revealed its contents', () => {
-			cy.get('@sidebar').should('not.contain', 'Links to');
-		});
-
-		it('is not checked after saving a draft', () => {
+		it('stays the same after saving a draft', () => {
 			selectors.saveButton().click();
 			selectors.savedNotice().should('be.visible');
-			selectors
-				.chooseCustom()
-				.should('be.visible')
-				.and('not.be.checked');
+			assertWordPress();
 		});
 
-		it('shows contents when checked', () => {
-			clickCheckbox();
-			selectors.chooseCustom().should('be.checked');
-			cy.get('@sidebar').should('contain', 'Links to');
+		it('chooses custom', () => {
+			clickCustom();
+			assertCustom();
 		});
 
-		it('hides contents when unchecked', () => {
-			clickCheckbox();
-			selectors.chooseCustom().should('not.be.checked');
-			cy.get('@sidebar').should('not.contain', 'Links to');
+		it('chooses WordPress', () => {
+			clickWordPress();
+			assertWordPress();
 		});
 	});
 
 	context('url', () => {
-		it('persists through checking/unchecking', () => {
-			clickCheckbox();
+		it('persists through changing link type', () => {
+			clickCustom();
 			selectors
 				.url()
 				.clear()
 				.type(linkedUrl);
-			clickCheckbox();
-			clickCheckbox();
+			clickWordPress();
+			clickCustom();
 			selectors.url().should('have.value', linkedUrl);
 		});
 
 		it('saves its state', () => {
-			selectors.saveButton().click();
-			selectors.savedNotice().should('be.visible');
-			cy.reload();
+			save();
 			selectors.chooseCustom().should('be.checked');
 			selectors.url().should('have.value', linkedUrl);
 		});
@@ -110,15 +169,13 @@ describe('Block Editor', () => {
 		it('persists through checking/unchecking', () => {
 			selectors.newTab().check();
 			selectors.newTab().should('be.checked');
-			clickCheckbox();
-			clickCheckbox();
+			clickWordPress();
+			clickCustom();
 			selectors.newTab().should('be.checked');
 		});
 
 		it('saves its state', () => {
-			selectors.saveButton().click();
-			selectors.savedNotice().should('be.visible');
-			cy.reload();
+			save();
 			selectors.newTab().should('be.checked');
 		});
 	});
