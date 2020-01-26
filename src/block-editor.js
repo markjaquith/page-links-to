@@ -1,6 +1,4 @@
 import {
-	Panel,
-	PanelBody,
 	PanelRow,
 	TextControl,
 	RadioControl,
@@ -95,10 +93,7 @@ class LinksTo extends Component {
 		const { onUpdateLink, onUpdateNewTab } = this.props;
 		const PointsTo = withState({
 			option: this.enabled() ? 'custom' : 'wordpress',
-		})(({
-			option,
-			setState,
-		}) => (
+		})(({ option, setState }) => (
 			<RadioControl
 				label="Point this content to:"
 				selected={option}
@@ -106,7 +101,7 @@ class LinksTo extends Component {
 					{ label: 'Its normal WordPress URL', value: 'wordpress' },
 					{ label: 'A custom URL', value: 'custom' },
 				]}
-				onChange={(option) => {
+				onChange={option => {
 					setState({ option });
 					this.toggleStatus(option === 'custom');
 				}}
@@ -118,6 +113,7 @@ class LinksTo extends Component {
 				title="Page Links To"
 				name="PageLinksTo"
 				icon={this.enabled() ? 'admin-links' : 'disabled'}
+				className="plt-panel"
 			>
 				<PanelRow>
 					<PointsTo />
