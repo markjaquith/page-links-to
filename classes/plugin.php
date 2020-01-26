@@ -668,6 +668,15 @@ class CWS_PageLinksTo {
 	}
 
 	/**
+	 * Whether the request has a flag that should halt the redirect.
+	 *
+	 * @return bool
+	 */
+	function has_non_redirect_flag() {
+		return isset( $_GET['elementor-preview'] );
+	}
+
+	/**
 	 * Performs a redirect.
 	 *
 	 * @return void
@@ -675,7 +684,7 @@ class CWS_PageLinksTo {
 	function template_redirect() {
 		$link = self::get_redirect();
 
-		if ( $link ) {
+		if ( $link && !self::has_non_redirect_flag() ) {
 			do_action( 'page_links_to_redirect_url', get_queried_object_id(), $link );
 			wp_redirect( $link, 301 );
 			exit;
