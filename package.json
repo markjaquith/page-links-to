@@ -32,7 +32,7 @@
     "babel-loader": "^8.0.6",
     "clipboard": "^2.0.4",
     "css-loader": "^3.2.0",
-    "cypress": "^3.6.1",
+    "cypress": "3.8.3",
     "faker": "^4.1.0",
     "file-loader": "^4.2.0",
     "grunt": "^1.0.4",
