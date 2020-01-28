@@ -14,7 +14,8 @@ const selectors = {
 	saveButton: () => cy.get('.editor-post-save-draft'),
 	publishButton: () => cy.get('.editor-post-publish-button'),
 	savedNotice: () => cy.get('.editor-post-saved-state.is-saved'),
-	chooseWordPress: () => cy.get('.plt-panel input[type="radio"][value="wordpress"]'),
+	chooseWordPress: () =>
+		cy.get('.plt-panel input[type="radio"][value="wordpress"]'),
 	chooseCustom: () => cy.get('.plt-panel input[type="radio"][value="custom"]'),
 	newTab: () => tid('plt-newtab'),
 	url: () => tid('plt-url'),
@@ -34,7 +35,7 @@ const openPanel = () => {
 			cy.wrap($panel).click();
 		}
 	});
-}
+};
 
 const assertWordPress = () => {
 	it('normal WordPress URL is selected', () => {
@@ -83,7 +84,7 @@ const save = () => {
 	selectors.savedNotice().should('be.visible');
 	cy.reload();
 	openPanel();
-}
+};
 
 describe('Block Editor', () => {
 	const linkedUrl = Cypress.config().baseUrl + '/?3';
