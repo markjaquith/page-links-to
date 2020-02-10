@@ -15,6 +15,19 @@
     "useTabs": true,
     "trailingComma": "es5"
   },
+  "jest": {
+      "testPathIgnorePatterns": [
+          "/node_modules/",
+          "/release/",
+          "/cypress/",
+          "/__tests__/shared/"
+      ],
+      "watchPathIgnorePatterns": [
+          "/node_modules/",
+          "/release/",
+          "/cypress/"
+      ]
+  },
   "dependencies": {
     "@babel/core": "^7.7.2",
     "@babel/plugin-proposal-class-properties": "^7.7.0",
@@ -58,5 +71,8 @@
     "url-loader": "^2.2.0",
     "webpack": "^4.41.2"
   },
-  "keywords": []
+  "keywords": [],
+  "devDependencies": {
+    "jest": "^25.1.0"
+  }
 }
