@@ -9,7 +9,7 @@
 	};
 
 	// Immediately attach a click handler.
-	d.addEventListener('click', e => newTab(e.target));
+	d.addEventListener('click', e => newTab(e.target.closest('a')));
 
 	// On page load, convert any existing new tab links.
 	d.addEventListener('DOMContentLoaded', () => {
