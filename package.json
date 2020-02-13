@@ -28,6 +28,14 @@
           "/cypress/"
       ]
   },
+  "scripts": {
+    "build": "grunt",
+    "release": "grunt release",
+    "jest": "jest",
+    "cypress": "cypress run",
+    "phpunit": "vendor/bin/phpunit",
+    "test": "jest && cypress run && vendor/bin/phpunit"
+  },
   "dependencies": {
     "@babel/core": "^7.7.2",
     "@babel/plugin-proposal-class-properties": "^7.7.0",
