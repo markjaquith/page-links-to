@@ -1,3 +1,29 @@
+// import { PanelRow } from '@wordpress/components';
+// import { PluginDocumentSettingPanel, PluginPostStatusInfo } from '@wordpress/edit-post';
+// import { registerPlugin } from '@wordpress/plugins';
+// import { Component } from '@wordpress/element';
+
+// class Test extends Component {
+// 	render() {
+// 		return (
+// 			<PluginDocumentSettingPanel
+// 				title="Page Links To"
+// 				name="PageLinksTo"
+// 				icon={'disabled'}
+// 				className="plt-panel"
+// 			>
+// 				<PanelRow>
+// 					<p>CONTENT</p>
+// 				</PanelRow>
+// 			</PluginDocumentSettingPanel>
+// 		);
+// 	}
+// }
+
+// registerPlugin('page-links-to', {
+// 	render: Test,
+// });
+
 import {
 	PanelRow,
 	TextControl,
@@ -7,8 +33,30 @@ import {
 import { withInstanceId, compose, withState } from '@wordpress/compose';
 import { withSelect, withDispatch } from '@wordpress/data';
 import { Fragment, Component } from '@wordpress/element';
-import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
+import {
+	PluginDocumentSettingPanel,
+	PluginPostStatusInfo,
+} from '@wordpress/edit-post';
 import { registerPlugin } from '@wordpress/plugins';
+
+// For WordPress 5.2.
+const BackCompatPlacement = ({ children = null, ...props }) => (
+	<PluginPostStatusInfo {...props}>
+		<div
+			style={{
+				display: 'flex',
+				'flex-direction': 'column',
+			}}
+		>
+			<PanelRow>
+				<h2 style={{ 'margin-bottom': 0, color: '#191e23' }}>Page Links To</h2>
+			</PanelRow>
+			{children}
+		</div>
+	</PluginPostStatusInfo>
+);
+
+const Placement = PluginDocumentSettingPanel || BackCompatPlacement;
 
 class LinksTo extends Component {
 	constructor(props) {
@@ -100,7 +148,7 @@ class LinksTo extends Component {
 		));
 
 		return (
-			<PluginDocumentSettingPanel
+			<Placement
 				title="Page Links To"
 				name="PageLinksTo"
 				icon={this.enabled() ? 'admin-links' : 'disabled'}
@@ -133,7 +181,7 @@ class LinksTo extends Component {
 						)}
 					</>
 				)}
-			</PluginDocumentSettingPanel>
+			</Placement>
 		);
 	}
 }
