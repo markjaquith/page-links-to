@@ -79,6 +79,9 @@ You can contribute (or report bugs) on [Github](https://github.com/markjaquith/p
 
 ## Changelog ##
 
+### 3.3.1 ###
+* Fix WordPress 5.2 Block Editor (plugin will NOT be in its own panel if you're using WordPress 5.2).
+
 ### 3.3.0 ###
 * Move Block Editor UI into its own panel.
 * Compatibility with Elementor.
