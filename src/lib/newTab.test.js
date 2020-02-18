@@ -10,6 +10,7 @@ const HTML = `
 	<div>
 		<a id="nested" href="https://example.com/nested-html#new_tab"><div><h2 id="h2">Nested HTML</h2></div></a>
 	</div>
+	<div id="no-parent-link"></div>
 </main>
 `;
 
@@ -50,6 +51,11 @@ describe('Click handler', () => {
 		document.body.innerHTML = HTML + LATER_HTML;
 		$('later').click();
 		expectOpensInNewTab('later');
+	});
+
+	it('Handles clicks on things with no parent link', () => {
+		document.body.innerHTML = HTML;
+		expect(() => $('no-parent-link').click()).not.toThrow();
 	});
 });
 

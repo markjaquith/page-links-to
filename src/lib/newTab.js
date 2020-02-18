@@ -1,7 +1,12 @@
 // Makes an anchor element open in a new tab.
 export const handleNewTab = el => {
 	const newTabRegex = /#new_tab$/;
-	if (el.tagName === 'A' && newTabRegex.test(el.getAttribute('href'))) {
+	if (
+		el &&
+		el.tagName !== undefined &&
+		el.tagName.toUpperCase() === 'A' &&
+		newTabRegex.test(el.getAttribute('href'))
+	) {
 		el.setAttribute('target', '_blank');
 		el.setAttribute('href', el.getAttribute('href').replace(newTabRegex, ''));
 	}
