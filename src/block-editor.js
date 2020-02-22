@@ -1,29 +1,3 @@
-// import { PanelRow } from '@wordpress/components';
-// import { PluginDocumentSettingPanel, PluginPostStatusInfo } from '@wordpress/edit-post';
-// import { registerPlugin } from '@wordpress/plugins';
-// import { Component } from '@wordpress/element';
-
-// class Test extends Component {
-// 	render() {
-// 		return (
-// 			<PluginDocumentSettingPanel
-// 				title="Page Links To"
-// 				name="PageLinksTo"
-// 				icon={'disabled'}
-// 				className="plt-panel"
-// 			>
-// 				<PanelRow>
-// 					<p>CONTENT</p>
-// 				</PanelRow>
-// 			</PluginDocumentSettingPanel>
-// 		);
-// 	}
-// }
-
-// registerPlugin('page-links-to', {
-// 	render: Test,
-// });
-
 import {
 	PanelRow,
 	TextControl,
