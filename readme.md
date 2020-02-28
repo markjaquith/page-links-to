@@ -79,6 +79,10 @@ You can contribute (or report bugs) on [Github](https://github.com/markjaquith/p
 
 ## Changelog ##
 
+### 3.3.3 ###
+* Add a SlotFill in the Block Editor, for extension.
+* Fix New Tab support in Internet Explorer.
+
 ### 3.3.2 ###
 * Fix a small new tab JS error.
 

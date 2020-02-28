@@ -4,7 +4,12 @@ module.exports = function(api) {
 	const presets = [
 		'@babel/react',
 		// '@babel/preset-typescript',
-		'@babel/preset-env',
+		[
+			'@babel/preset-env',
+			{
+				"targets": "> 0.25%, not dead, ie >= 9",
+			}
+		],
 	];
 
 	const plugins = [

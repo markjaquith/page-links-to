@@ -1,3 +1,4 @@
+import 'core-js/features/symbol/iterator';
 import elementClosest from 'element-closest';
 import { handleClicks, handleLoad } from './lib/newTab';
 

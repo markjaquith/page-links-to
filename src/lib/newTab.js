@@ -21,8 +21,8 @@ export const handleClicks = () => {
 
 export const handleNewTabs = () => {
 	const anchors = document.getElementsByTagName('A');
-	for (let i = 0; i < anchors.length; i++) {
-		handleNewTab(anchors[i]);
+	for (const anchor of anchors) {
+		handleNewTab(anchor);
 	}
 };
 
