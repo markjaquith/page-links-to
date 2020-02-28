@@ -3,6 +3,7 @@ import {
 	TextControl,
 	RadioControl,
 	CheckboxControl,
+	createSlotFill,
 } from '@wordpress/components';
 import { withInstanceId, compose, withState } from '@wordpress/compose';
 import { withSelect, withDispatch } from '@wordpress/data';
@@ -31,6 +32,8 @@ const BackCompatPlacement = ({ children = null, ...props }) => (
 );
 
 const Placement = PluginDocumentSettingPanel || BackCompatPlacement;
+
+const { Slot } = createSlotFill('PageLinksToSidebar');
 
 class LinksTo extends Component {
 	constructor(props) {
@@ -153,6 +156,7 @@ class LinksTo extends Component {
 								/>
 							</PanelRow>
 						)}
+						<Slot />
 					</>
 				)}
 			</Placement>

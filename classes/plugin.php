@@ -194,6 +194,7 @@ class CWS_PageLinksTo {
 			if ( self::is_supported_post_type( $type ) ) {
 				$this->register_meta( self::LINK_META_KEY, $type );
 				$this->register_meta( self::TARGET_META_KEY, $type );
+				do_action( 'page_links_to_register_meta_for_post_type', $type );
 			}
 		}
 	}
@@ -345,6 +346,7 @@ class CWS_PageLinksTo {
 					'newTab' => self::supports( 'new_tab' ),
 				],
 			]);
+			do_action( 'page_links_to_enqueue_block_editor_assets' );
 		}
 	}
 
