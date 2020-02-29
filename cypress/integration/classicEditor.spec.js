@@ -21,6 +21,10 @@ describe('Classic Editor', () => {
 		cy.url().should('contain', '/wp-admin/post-new.php?post_type=page');
 	});
 
+	after(() => {
+		cy.deactivatePlugin('classic-editor');
+	});
+
 	// prettier-ignore
 	beforeEach(() => {
 		// Aliases.
