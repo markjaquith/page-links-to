@@ -14,6 +14,8 @@ import {
 } from '@wordpress/edit-post';
 import { registerPlugin } from '@wordpress/plugins';
 
+const panelTitle = window?.pltOptions?.panelTitle ?? 'Page Links To';
+
 // For WordPress 5.2.
 const BackCompatPlacement = ({ children = null, ...props }) => (
 	<PluginPostStatusInfo {...props}>
@@ -24,7 +26,7 @@ const BackCompatPlacement = ({ children = null, ...props }) => (
 			}}
 		>
 			<PanelRow>
-				<h2 style={{ 'margin-bottom': 0, color: '#191e23' }}>Page Links To</h2>
+				<h2 style={{ 'margin-bottom': 0, color: '#191e23' }}>{panelTitle}</h2>
 			</PanelRow>
 			{children}
 		</div>
@@ -126,7 +128,7 @@ class LinksTo extends Component {
 
 		return (
 			<Placement
-				title="Page Links To"
+				title={panelTitle}
 				name="PageLinksTo"
 				icon={this.enabled() ? 'admin-links' : 'disabled'}
 				className="plt-panel"

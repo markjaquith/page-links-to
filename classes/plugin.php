@@ -345,6 +345,7 @@ class CWS_PageLinksTo {
 				'supports' => [
 					'newTab' => self::supports( 'new_tab' ),
 				],
+				'panelTitle' => self::get_panel_title(),
 			]);
 			do_action( 'page_links_to_enqueue_block_editor_assets' );
 		}
@@ -472,7 +473,7 @@ class CWS_PageLinksTo {
 	 */
 	public function do_meta_boxes( $page, $context ) {
 		if ( ! self::is_block_editor() && self::is_supported_post_type( $page ) && 'advanced' === $context ) {
-			add_meta_box( 'page-links-to', _x( 'Page Links To', 'Meta box title', 'page-links-to' ), array( $this, 'meta_box' ), $page, 'advanced', 'low' );
+			add_meta_box( 'page-links-to', self::get_panel_title(), array( $this, 'meta_box' ), $page, 'advanced', 'low' );
 		}
 	}
 
@@ -1025,6 +1026,15 @@ class CWS_PageLinksTo {
 	}
 
 	/**
+	 * Returns the panel title.
+	 *
+	 * @return string The panel title.
+	 */
+	public static function get_panel_title() {
+		return apply_filters( 'page_links_to_panel_title', _x( 'Page Links To', 'Meta box title', 'page-links-to' ) );
+	}
+
+	/**
 	 * Outputs a notice that the current post item is pointed to a custom URL.
 	 *
 	 * @return void
@@ -1032,10 +1042,10 @@ class CWS_PageLinksTo {
 	public static function notify_of_external_link() {
 		if ( self::is_block_editor() ) {
 			// Disabled, currently, because these notifications can block the title, which is annoying.
-			false && self::block_editor_notification( 'Note: This content is pointing to a custom URL. Use the “Custom Link” area in “Status and Visibility” to control this.', 'info' );
+			false && self::block_editor_notification( 'Note: This content is pointing to a custom URL. Use the “Page Links To” area in the sidebar to control this.', 'info' );
 		} else {
 			?>
-				<div class="notice updated"><p><?php _e( '<strong>Note</strong>: This content is pointing to a custom URL. Use the &#8220;Page Links To&#8221; box to change this behavior.', 'page-links-to' ); ?></p></div>
+				<div class="notice updated"><p><?php printf( __( '<strong>Note</strong>: This content is pointing to a custom URL. Use the &#8220;%s&#8221; box to change this behavior.', 'page-links-to' ), self::get_panel_title() ); ?></p></div>
 			<?php
 		}
 	}
