@@ -47,7 +47,7 @@ describe('Classic Editor', () => {
 	context('meta box', () => {
 		it('is on the page', () => {
 			cy.scrollTo('bottom');
-			cy.get('body').contains('Page Links To');
+			cy.get('body').contains('Its normal WordPress URL');
 		});
 
 		it('is pointing to the normal WordPress URL', () => {
