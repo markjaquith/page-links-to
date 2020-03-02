@@ -645,6 +645,8 @@ class CWS_PageLinksTo {
 		// Old, unused data that we can delete on the fly.
 		delete_post_meta( $post_id, '_links_to_type' );
 
+		do_action( 'page_links_to_delete_link', $post_id );
+
 		return $return;
 	}
 
