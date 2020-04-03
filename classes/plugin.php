@@ -16,7 +16,7 @@ class CWS_PageLinksTo {
 	 *
 	 * @var CWS_PageLinksTo
 	 */
-	static $instance;
+	private static $instance;
 
 	/**
 	 * The main plugin file path.
@@ -116,7 +116,7 @@ class CWS_PageLinksTo {
 	 */
 	public function include_file( $file, $data = array() ) {
 		extract( $data, EXTR_SKIP );
-		include( $this->get_path() . $file );
+		include  $this->get_path() . $file ;
 	}
 
 	/**
@@ -341,12 +341,11 @@ class CWS_PageLinksTo {
 		// Gutenberg.
 		if ( self::is_block_editor() && self::is_supported_post_type() ) {
 			wp_enqueue_script( 'plt-block-editor', $this->get_url() . 'dist/block-editor.js', array( 'wp-edit-post', 'wp-element', 'wp-plugins' ), self::CSS_JS_VERSION, true );
-			wp_localize_script( 'plt-block-editor', 'pltOptions', [
-				'supports' => [
+			wp_localize_script( 'plt-block-editor', 'pltOptions', array(
+				'supports' => array(
 					'newTab' => self::supports( 'new_tab' ),
-				],
-				'panelTitle' => self::get_panel_title(),
-			]);
+				),
+			));
 			do_action( 'page_links_to_enqueue_block_editor_assets' );
 		}
 	}
@@ -379,7 +378,7 @@ class CWS_PageLinksTo {
 		if ( self::get_link( $post ) ) {
 			$new_actions = array();
 			$inserted = false;
-			$original_html = '<a href="' . esc_attr( $this->original_link( $post->ID ) ) . '" class="plt-copy-short-url" data-clipboard-text="' . esc_attr( $this->original_link( $post->ID ) ) . '" data-original-text="' . __( 'Copy Short URL', 'page-links-to' ) . '">' . __( 'Copy Short URL', 'page-links-to' ) . '</a>';
+			$original_html = '<a href="' . esc_url( $this->original_link( $post->ID ) ) . '" class="plt-copy-short-url" data-clipboard-text="' . esc_url( $this->original_link( $post->ID ) ) . '" data-original-text="' . __( 'Copy Short URL', 'page-links-to' ) . '">' . __( 'Copy Short URL', 'page-links-to' ) . '</a>';
 			$original_key = 'plt_original';
 
 			foreach ( $actions as $key => $html ) {
@@ -473,7 +472,7 @@ class CWS_PageLinksTo {
 	 */
 	public function do_meta_boxes( $page, $context ) {
 		if ( ! self::is_block_editor() && self::is_supported_post_type( $page ) && 'advanced' === $context ) {
-			add_meta_box( 'page-links-to', self::get_panel_title(), array( $this, 'meta_box' ), $page, 'advanced', 'low' );
+			add_meta_box( 'page-links-to', _x( 'Page Links To', 'Meta box title', 'page-links-to' ), array( $this, 'meta_box' ), $page, 'advanced', 'low' );
 		}
 	}
 
@@ -526,18 +525,18 @@ class CWS_PageLinksTo {
 			$linked = true;
 		}
 		?>
-		<p><?php _e( 'Point this content to:', 'page-links-to' ); ?></p>
-		<p><label><input type="radio" id="cws-links-to-choose-wp" name="cws_links_to_choice" value="wp" <?php checked( ! $linked ); ?> /> <?php _e( 'Its normal WordPress URL', 'page-links-to' ); ?></label></p>
-		<p><label><input type="radio" id="cws-links-to-choose-custom" name="cws_links_to_choice" value="custom" <?php checked( $linked ); ?> /> <?php _e( 'A custom URL', 'page-links-to' ); ?></label></p>
+		<p><?php esc_html_e( 'Point this content to:', 'page-links-to' ); ?></p>
+		<p><label><input type="radio" id="cws-links-to-choose-wp" name="cws_links_to_choice" value="wp" <?php checked( ! $linked ); ?> /> <?php esc_html_e( 'Its normal WordPress URL', 'page-links-to' ); ?></label></p>
+		<p><label><input type="radio" id="cws-links-to-choose-custom" name="cws_links_to_choice" value="custom" <?php checked( $linked ); ?> /> <?php esc_html_e( 'A custom URL', 'page-links-to' ); ?></label></p>
 		<div id="cws-links-to-custom-section" class="<?php echo ! $linked ? 'hide-if-js' : ''; ?>">
 			<p><input placeholder="http://" name="cws_links_to" type="text" id="cws-links-to" value="<?php echo esc_attr( $url ); ?>" /></p>
 			<?php if ( $this->supports('new_tab') ) { ?>
-				<p><label for="cws-links-to-new-tab"><input type="checkbox" name="cws_links_to_new_tab" id="cws-links-to-new-tab" value="_blank" <?php checked( (bool) self::get_target( $post->ID ) ); ?>> <?php _e( 'Open this link in a new tab', 'page-links-to' ); ?></label></p>
+				<p><label for="cws-links-to-new-tab"><input type="checkbox" name="cws_links_to_new_tab" id="cws-links-to-new-tab" value="_blank" <?php checked( (bool) self::get_target( $post->ID ) ); ?>> <?php esc_html_e( 'Open this link in a new tab', 'page-links-to' ); ?></label></p>
 			<?php } ?>
 			<?php do_action( 'page_links_to_meta_box_bottom' ); ?>
 		</div>
 
-		<script src="<?php echo esc_url( $this->get_url() ) . 'dist/meta-box.js?v=' . self::CSS_JS_VERSION; ?>"></script>
+		<script src="<?php echo esc_url( $this->get_url() . 'dist/meta-box.js?v=' . self::CSS_JS_VERSION); ?>"></script>
 		<?php
 	}
 
@@ -568,7 +567,8 @@ class CWS_PageLinksTo {
 	public static function save_post( $post_id ) {
 		if ( isset( $_REQUEST['_cws_plt_nonce'] ) && wp_verify_nonce( $_REQUEST['_cws_plt_nonce'], 'cws_plt_' . $post_id ) ) {
 			if ( ( ! isset( $_POST['cws_links_to_choice'] ) || 'custom' == $_POST['cws_links_to_choice'] ) && isset( $_POST['cws_links_to'] ) && strlen( $_POST['cws_links_to'] ) > 0 && $_POST['cws_links_to'] !== 'http://' ) {
-				$url = self::clean_url( stripslashes( $_POST['cws_links_to'] ) );
+				$sanitized_url = esc_url_raw($_POST['cws_links_to']);
+				$url = self::clean_url( stripslashes( $sanitized_url ) );
 				self::set_link( $post_id, $url );
 				if ( isset( $_POST['cws_links_to_new_tab'] ) && self::supports( 'new_tab' ) ) {
 					self::set_link_new_tab( $post_id );
@@ -645,8 +645,6 @@ class CWS_PageLinksTo {
 		// Old, unused data that we can delete on the fly.
 		delete_post_meta( $post_id, '_links_to_type' );
 
-		do_action( 'page_links_to_delete_link', $post_id );
-
 		return $return;
 	}
 
@@ -711,7 +709,7 @@ class CWS_PageLinksTo {
 
 		if ( $link && !self::has_non_redirect_flag() ) {
 			do_action( 'page_links_to_redirect_url', get_queried_object_id(), $link );
-			wp_redirect( $link, 301 );
+			wp_safe_redirect( $link, 301 );
 			exit;
 		}
 	}
@@ -779,10 +777,11 @@ class CWS_PageLinksTo {
 		if ( '/' === $url[0] ) {
 			// Protocol-relative.
 			if ( '/' === $url[1] ) {
-				$url = set_url_scheme( 'http:' . $url );
-			} else {
+				$url = set_url_scheme( esc_url_raw( $url ) );
+			} elseif (isset($_SERVER['HTTP_HOST'])) {
 				// Host-relative.
-				$url = set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $url );
+				$host = esc_url_raw($_SERVER['HTTP_HOST']);
+				$url = set_url_scheme( $host . $url );
 			}
 		}
 
@@ -808,7 +807,12 @@ class CWS_PageLinksTo {
 
 		$highlight = false;
 
-		$this_url = esc_url_raw( set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ) );
+		$this_url = "";
+		if ( isset($_SERVER['HTTP_HOST']) && isset($_SERVER['REQUEST_URI']) ) {
+			$host = esc_url_raw($_SERVER['HTTP_HOST']);
+			$request_uri = esc_url_raw($_SERVER['REQUEST_URI']);
+			$this_url = esc_url_raw( set_url_scheme( $host . $request_uri ) );
+		}
 
 		foreach ( (array) $pages as $page ) {
 			$page_url = self::get_link( $page->ID );
@@ -868,7 +872,8 @@ class CWS_PageLinksTo {
 	 */
 	public static function ajax_dismiss_notice() {
 		if ( isset( $_GET['plt_notice'] ) ) {
-			self::dismiss_notice( $_GET['plt_notice'] );
+			$notice_id = sanitize_text_field($_GET['plt_notice']);
+			self::dismiss_notice( $notice_id );
 		}
 	}
 
@@ -966,8 +971,8 @@ class CWS_PageLinksTo {
 			// Nothing right now.
 		} else {
 			?>
-			<div id="page-links-to-notification" class="notice updated is-dismissible"><h3><?php _e( 'Page Links To', 'page-links-to' ); ?></h3>
-				<p><a class="button plt-dismiss" target="_blank" href="<?php echo esc_url( self::NEWSLETTER_URL ); ?>"><?php _e( 'Give Me Updates', 'page-links-to' ); ?></a>&nbsp;&nbsp;<small><a href="javascript:void(0)" class="plt-dismiss"><?php _e( 'No thanks', 'page-links-to' ); ?></a></small></p>
+			<div id="page-links-to-notification" class="notice updated is-dismissible"><h3><?php esc_html_e( 'Page Links To', 'page-links-to' ); ?></h3>
+				<p><a class="button plt-dismiss" target="_blank" href="<?php echo esc_url( self::NEWSLETTER_URL ); ?>"><?php esc_html_e( 'Give Me Updates', 'page-links-to' ); ?></a>&nbsp;&nbsp;<small><a href="javascript:void(0)" class="plt-dismiss"><?php esc_html_e( 'No thanks', 'page-links-to' ); ?></a></small></p>
 			</div>
 			<script>
 				(function($){
@@ -1020,20 +1025,11 @@ class CWS_PageLinksTo {
 			<script>
 				document.addEventListener('DOMContentLoaded', function() {
 					if (wp.data !== undefined) {
-						wp.data.dispatch('core/notices').<?php echo $method; ?>(<?php echo json_encode( $text ); ?>, {isDismissible: true, id: 'page-links-to-notice'});
+						wp.data.dispatch('core/notices').<?php echo esc_js($method); ?>(<?php echo json_encode( $text ); ?>, {isDismissible: true, id: 'page-links-to-notice'});
 					}
 				});
 			</script>
 		<?php
-	}
-
-	/**
-	 * Returns the panel title.
-	 *
-	 * @return string The panel title.
-	 */
-	public static function get_panel_title() {
-		return apply_filters( 'page_links_to_panel_title', _x( 'Page Links To', 'Meta box title', 'page-links-to' ) );
 	}
 
 	/**
@@ -1044,10 +1040,10 @@ class CWS_PageLinksTo {
 	public static function notify_of_external_link() {
 		if ( self::is_block_editor() ) {
 			// Disabled, currently, because these notifications can block the title, which is annoying.
-			false && self::block_editor_notification( 'Note: This content is pointing to a custom URL. Use the “Page Links To” area in the sidebar to control this.', 'info' );
+			false && self::block_editor_notification( 'Note: This content is pointing to a custom URL. Use the “Custom Link” area in “Status and Visibility” to control this.', 'info' );
 		} else {
 			?>
-				<div class="notice updated"><p><?php printf( __( '<strong>Note</strong>: This content is pointing to a custom URL. Use the &#8220;%s&#8221; box to change this behavior.', 'page-links-to' ), self::get_panel_title() ); ?></p></div>
+				<div class="notice updated"><p><?php esc_html_e( '<strong>Note</strong>: This content is pointing to a custom URL. Use the &#8220;Page Links To&#8221; box to change this behavior.', 'page-links-to' ); ?></p></div>
 			<?php
 		}
 	}
@@ -1066,7 +1062,7 @@ class CWS_PageLinksTo {
 			return;
 		}
 
-		echo '<div class="plt-links-to"><strong>' . __( 'Links to:', 'page-links-to' ) . '</strong> <a href="' . esc_url( $link ) . '">' . esc_html( $link ) . '</a> <button type="button" class="edit-slug button button-small hide-if-no-js">Edit</button></div>';
+		echo '<div class="plt-links-to"><strong>' . esc_html_e( 'Links to:', 'page-links-to' ) . '</strong> <a href="' . esc_url( $link ) . '">' . esc_html( $link ) . '</a> <button type="button" class="edit-slug button button-small hide-if-no-js">Edit</button></div>';
 	}
 
 	/**
