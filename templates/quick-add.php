@@ -14,16 +14,16 @@ pltVars['browserNoSupportCopying'] = <?php echo json_encode( __( 'Sorry, your br
 		<div class="content">
 			<?php wp_nonce_field( 'plt-quick-add', 'plt_nonce', false, true ); ?>
 
-			<label><span><?php _e( 'Title', 'page-links-pro' ); ?></span><input type="text" name="title" class="regular-text" placeholder="<?php esc_attr_e( 'Page Title', 'page-links-pro' ); ?>" autocomplete="off" /></label>
+			<label><span><?php esc_html_e( 'Title', 'page-links-pro' ); ?></span><input type="text" name="title" class="regular-text" placeholder="<?php esc_attr_e( 'Page Title', 'page-links-pro' ); ?>" autocomplete="off" /></label>
 
 			<br />
 
-			<label><span><?php _e( 'URL', 'page-links-pro' ); ?></span><input type="text" name="url" class="regular-text" placeholder="https://example.com/" autocomplete="off" /></label>
+			<label><span><?php esc_html_e( 'URL', 'page-links-pro' ); ?></span><input type="text" name="url" class="regular-text" placeholder="https://example.com/" autocomplete="off" /></label>
 
 			<?php if ( get_option( 'permalink_structure' ) ) { ?>
 				<br />
-				<label><span><?php _e( 'Short URL', 'page-links-pro' ); ?> <code><?php echo esc_url( trailingslashit( home_url('/') ) ); ?></code></span><input type="text" name="slug" placeholder="<?php esc_attr_e( 'page-title', 'page-links-pro' ); ?>" autocomplete="off" /></label>
-				<p class="short-url-message" style="display: none;"><?php _e( 'You should customize this short URL to make it shorter and more memorable!', 'page-links-to' ); ?></p>
+				<label><span><?php esc_html_e( 'Short URL', 'page-links-pro' ); ?> <code><?php echo esc_url( trailingslashit( home_url('/') ) ); ?></code></span><input type="text" name="slug" placeholder="<?php esc_attr_e( 'page-title', 'page-links-pro' ); ?>" autocomplete="off" /></label>
+				<p class="short-url-message" style="display: none;"><?php esc_html_e( 'You should customize this short URL to make it shorter and more memorable!', 'page-links-to' ); ?></p>
 			<?php } ?>
 
 		</div>
