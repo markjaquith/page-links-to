@@ -565,9 +565,9 @@ class CWS_PageLinksTo {
 	 * @return int the post ID that was passed in.
 	 */
 	public static function save_post( $post_id ) {
-		if ( isset( $_REQUEST['_cws_plt_nonce'] ) && wp_verify_nonce( $_REQUEST['_cws_plt_nonce'], 'cws_plt_' . $post_id ) ) {
-			if ( ( ! isset( $_POST['cws_links_to_choice'] ) || 'custom' == $_POST['cws_links_to_choice'] ) && isset( $_POST['cws_links_to'] ) && strlen( $_POST['cws_links_to'] ) > 0 && $_POST['cws_links_to'] !== 'http://' ) {
-				$sanitized_url = esc_url_raw($_POST['cws_links_to']);
+		if ( isset( $_REQUEST['_cws_plt_nonce'] ) && wp_verify_nonce( sanitize_key($_REQUEST['_cws_plt_nonce']), 'cws_plt_' . $post_id ) ) {
+			$sanitized_url = isset($_POST['cws_links_to']) ? esc_url_raw($_POST['cws_links_to']) : "";
+			if ( ( ! isset( $_POST['cws_links_to_choice'] ) || 'custom' == $_POST['cws_links_to_choice'] ) && isset( $sanitized_url ) && strlen( $sanitized_url ) > 0 && $sanitized_url !== 'http://' ) {
 				$url = self::clean_url( stripslashes( $sanitized_url ) );
 				self::set_link( $post_id, $url );
 				if ( isset( $_POST['cws_links_to_new_tab'] ) && self::supports( 'new_tab' ) ) {
@@ -693,10 +693,12 @@ class CWS_PageLinksTo {
 	 * @return bool
 	 */
 	function has_non_redirect_flag() {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		return (
 			isset( $_GET['customize_theme'] ) ||
 			isset( $_GET['elementor-preview'] )
 		);
+		// phpcs:enable
 	}
 
 	/**
@@ -807,11 +809,15 @@ class CWS_PageLinksTo {
 
 		$highlight = false;
 
-		$this_url = "";
+		$this_url = "";	
 		if ( isset($_SERVER['HTTP_HOST']) && isset($_SERVER['REQUEST_URI']) ) {
-			$host = esc_url_raw($_SERVER['HTTP_HOST']);
-			$request_uri = esc_url_raw($_SERVER['REQUEST_URI']);
-			$this_url = esc_url_raw( set_url_scheme( $host . $request_uri ) );
+			$host = filter_var($_SERVER['HTTP_HOST'], FILTER_VALIDATE_DOMAIN);
+			$request_uri = filter_var($_SERVER['REQUEST_URI'], FILTER_VALIDATE_REGEXP, array(
+				"options" => array(
+					"regexp" => "/^\/[\w\-\._~:\/?#[\]@!\$&'\(\)\*\+,;=.]+$/"
+				)
+			));
+			$this_url = esc_url_raw( set_url_scheme( 'http://' . $host . $request_uri ) );
 		}
 
 		foreach ( (array) $pages as $page ) {
@@ -858,7 +864,9 @@ class CWS_PageLinksTo {
 	 * @return void
 	 */
 	public function load_post() {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET['post'] ) && self::get_link( (int) $_GET['post'] ) ) {
+		// phpcs:enable
 			$this->hook( 'edit_form_after_title' );
 			$this->hook( 'admin_notices', 'notify_of_external_link' );
 			$this->replace = false;
@@ -871,7 +879,13 @@ class CWS_PageLinksTo {
 	 * @return void
 	 */
 	public static function ajax_dismiss_notice() {
-		if ( isset( $_GET['plt_notice'] ) ) {
+		if (
+			isset( $_GET['plt_notice'] ) &&
+			isset( $_GET['nonce'] ) &&
+			isset( $_GET['action'] ) &&
+			$_GET['action'] === "plt_dismiss_notice" &&
+			wp_verify_nonce(sanitize_key($_GET['nonce']), 'plt_dismiss_notice')
+		) {
 			$notice_id = sanitize_text_field($_GET['plt_notice']);
 			self::dismiss_notice( $notice_id );
 		}
@@ -983,7 +997,8 @@ class CWS_PageLinksTo {
 								type: 'GET',
 								data: {
 									action: 'plt_dismiss_notice',
-									plt_notice: <?php echo json_encode( self::MESSAGE_ID ); ?>
+									plt_notice: <?php echo json_encode( self::MESSAGE_ID ); ?>,
+									nonce: <?php wp_create_nonce('plt_dismiss_notice') ?>
 								}
 							});
 						})

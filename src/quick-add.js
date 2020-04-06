@@ -71,7 +71,7 @@ jQuery($ => {
 	};
 
 	const addMessage = message => {
-		const $newMessage = $(`<p>${message}</p>`);
+		const $newMessage = $(`<p>`).text(message);
 		$messages.append($newMessage);
 		return $newMessage;
 	};
