@@ -83,6 +83,7 @@ const save = () => {
 	selectors.saveButton().click();
 	selectors.savedNotice().should('be.visible');
 	cy.reload();
+	cy.get('button[aria-label="Close dialog"]').click({ force: true });
 	openPanel();
 };
 
@@ -116,7 +117,7 @@ describe('Block Editor', () => {
 
 	context('title', () => {
 		it('is filled', () => {
-			cy.get('button.nux-dot-tip__disable').click({ force: true });
+			cy.get('button[aria-label="Close dialog"]').click({ force: true });
 			cy.get('@title').type(draftTitle);
 		});
 	});
