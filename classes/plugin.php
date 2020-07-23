@@ -183,7 +183,8 @@ class CWS_PageLinksTo {
 		$this->hook( 'page_row_actions' );
 		$this->hook( 'post_row_actions', 'page_row_actions' );
 
-		$this->hook( 'init', 'register_meta_keys', 20 );
+		$this->hook( 'init', 'register_meta_keys', 9999 );
+		$this->hook( 'rest_api_init', 'register_meta_keys', 9999 );
 
 		// Notices.
 		if ( self::should_display_message() ) {
