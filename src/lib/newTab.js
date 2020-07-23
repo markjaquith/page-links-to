@@ -6,6 +6,7 @@ export const handleElement = el => {
 		newTabRegex.test(el?.getAttribute('href'))
 	) {
 		el.setAttribute('target', '_blank');
+		el.setAttribute('aria-label', `${el.innerText} (opens in a new tab)`);
 		el.setAttribute('href', el.getAttribute('href').replace(newTabRegex, ''));
 	}
 };
