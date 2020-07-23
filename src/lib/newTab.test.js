@@ -1,4 +1,4 @@
-import { handleClicks, handleNewTabs } from './newTab';
+import { handleClicks, handleExistingElements } from './newTab';
 
 const $ = document.getElementById.bind(document);
 
@@ -62,7 +62,7 @@ describe('Click handler', () => {
 describe('Load handler', () => {
 	beforeEach(() => {
 		document.body.innerHTML = HTML;
-		handleNewTabs();
+		handleExistingElements();
 		handleClicks();
 		document.body.innerHTML = document.body.innerHTML + LATER_HTML;
 	});
