@@ -670,6 +670,10 @@ class CWS_PageLinksTo {
 		if ( $this->replace ) {
 			$post = get_post( $post );
 
+			if (! $post instanceof \WP_Post) {
+				return $link;
+			}
+
 			$meta_link = self::get_link( $post->ID );
 
 			if ( $meta_link ) {
