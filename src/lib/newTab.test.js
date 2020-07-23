@@ -14,10 +14,30 @@ const HTML = `
 </main>
 `;
 
+const expectTransformed = id => {
+	return expectOpensInNewTab(id) && expectHasRelNoopener(id);
+};
+
+const expectNotTransformed = id => {
+	return expectDoesNotOpenInNewTab(id) && expectDoesNotHaveRelNoopener(id);
+};
+
 const expectOpensInNewTab = id =>
 	expect($(id).getAttribute('target')).toEqual('_blank');
 const expectDoesNotOpenInNewTab = id =>
 	expect($(id).getAttribute('target')).not.toEqual('_blank');
+const expectHasRelNoopener = id =>
+	expect(
+		$(id)
+			.getAttribute('rel')
+			.indexOf('noopener') > 0
+	);
+const expectDoesNotHaveRelNoopener = id =>
+	expect(
+		$(id)
+			.getAttribute('rel')
+			.indexOf('noopener') === -1
+	);
 
 const LATER_HTML = `
 	<div>
@@ -39,18 +59,18 @@ describe('Click handler', () => {
 
 	it('Handles nested content', () => {
 		$('h2').click();
-		expectOpensInNewTab('nested');
+		expectTransformed('nested');
 	});
 
 	it('Handles regular text links', () => {
 		$('bare').click();
-		expectOpensInNewTab('bare');
+		expectTransformed('bare');
 	});
 
 	it('Handles content added later', () => {
 		document.body.innerHTML = HTML + LATER_HTML;
 		$('later').click();
-		expectOpensInNewTab('later');
+		expectTransformed('later');
 	});
 
 	it('Handles clicks on things with no parent link', () => {
@@ -68,13 +88,13 @@ describe('Load handler', () => {
 	});
 
 	it('Has converted links present on load, but not ones added later', () => {
-		expectOpensInNewTab('nested');
-		expectOpensInNewTab('bare');
-		expectDoesNotOpenInNewTab('later');
+		expectTransformed('nested');
+		expectTransformed('bare');
+		expectNotTransformed('later');
 	});
 
 	it('Lets the click handler handle new ones', () => {
 		$('later').click();
-		expectOpensInNewTab('later');
+		expectTransformed('later');
 	});
 });

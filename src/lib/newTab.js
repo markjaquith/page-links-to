@@ -5,6 +5,12 @@ export const handleElement = el => {
 		el?.tagName?.toUpperCase() === 'A' &&
 		newTabRegex.test(el?.getAttribute('href'))
 	) {
+		const rel = el.getAttribute('rel');
+
+		if (!rel || rel.indexOf('noopener') < 0) {
+			el.setAttribute('rel', `${rel ? rel + ' ' : ''}noopener`);
+		}
+
 		el.setAttribute('target', '_blank');
 		el.setAttribute('aria-label', `${el.innerText} (opens in a new tab)`);
 		el.setAttribute('href', el.getAttribute('href').replace(newTabRegex, ''));
