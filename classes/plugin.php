@@ -183,19 +183,11 @@ class CWS_PageLinksTo {
 		$this->hook( 'page_row_actions' );
 		$this->hook( 'post_row_actions', 'page_row_actions' );
 
+		$this->hook( 'init', 'register_meta_keys', 20 );
+
 		// Notices.
 		if ( self::should_display_message() ) {
 			$this->hook( 'admin_notices', 'notify_generic' );
-		}
-
-		$post_type_names = array_keys( get_post_types() );
-
-		foreach ( $post_type_names as $type ) {
-			if ( self::is_supported_post_type( $type ) ) {
-				$this->register_meta( self::LINK_META_KEY, $type );
-				$this->register_meta( self::TARGET_META_KEY, $type );
-				do_action( 'page_links_to_register_meta_for_post_type', $type );
-			}
 		}
 	}
 
@@ -230,6 +222,23 @@ class CWS_PageLinksTo {
 		foreach ( $post_type_names as $type ) {
 			if ( self::is_supported_post_type( $type ) ) {
 				add_post_type_support( $type, 'custom-fields' );
+			}
+		}
+	}
+
+	/**
+	 * Registers the PLT post meta keys for supported post types.
+	 *
+	 * @return void
+	 */
+	public function register_meta_keys() {
+		$post_type_names = array_keys( get_post_types() );
+
+		foreach ( $post_type_names as $type ) {
+			if ( self::is_supported_post_type( $type ) ) {
+				$this->register_meta( self::LINK_META_KEY, $type );
+				$this->register_meta( self::TARGET_META_KEY, $type );
+				do_action( 'page_links_to_register_meta_for_post_type', $type );
 			}
 		}
 	}
