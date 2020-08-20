@@ -14,7 +14,7 @@ Cypress.Commands.add('login', () => {
 
 Cypress.Commands.add('keepAllCookies', () => {
 	Cypress.Cookies.defaults({
-		whitelist: () => true,
+		preserve: () => true,
 	});
 	cy.getCookies().then(cookies =>
 		cookies.forEach(cookie => Cypress.Cookies.preserveOnce(cookie.name))

@@ -95,7 +95,7 @@ describe('Block Editor', () => {
 	before(() => {
 		cy.login();
 		Cypress.Cookies.defaults({
-			whitelist: () => true,
+			preserve: () => true,
 		});
 		cy.deactivatePlugin('classic-editor');
 		cy.visit('/wp-admin/post-new.php?post_type=page');

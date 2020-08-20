@@ -82,7 +82,7 @@
   },
   "keywords": [],
   "devDependencies": {
-    "cypress": "4.1.0",
+    "cypress": "5.0.0",
     "jest": "^25.1.0"
   }
 }
