@@ -31,7 +31,7 @@ class CWS_PageLinksTo {
 	const DISMISSED_NOTICES = 'page_links_dismissed_options';
 	const MESSAGE_ID = 4;
 	const NEWSLETTER_URL = 'https://pages.convertkit.com/8eb23c1339/1ce4614706';
-	const CSS_JS_VERSION = '3.3.4';
+	const CSS_JS_VERSION = '3.3.5';
 
 	/**
 	 * Whether to replace WP links with their specified URLs.
@@ -302,6 +302,10 @@ class CWS_PageLinksTo {
 					$total_affected += $affected;
 				}
 			}
+
+			// Update the database version.
+			update_option( self::VERSION_KEY, 3 );
+
 			// Only flush the cache if something changed.
 			if ( $total_affected > 0 ) {
 				wp_cache_flush();

@@ -2,7 +2,7 @@
   "name": "page-links-to",
   "title": "Page Links To",
   "description": "Lets you make a WordPress page (or other content type) link to an external URL of your choosing, instead of its WordPress URL.",
-  "version": "3.3.4",
+  "version": "3.3.5",
   "homepage": "",
   "author": {
     "name": "Mark Jaquith",
