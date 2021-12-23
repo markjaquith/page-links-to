@@ -796,7 +796,7 @@ class CWS_PageLinksTo {
 		// Convert server- and protocol-relative URLs to absolute URLs.
 		if ( '/' === $url[0] ) {
 			// Protocol-relative.
-			if ( '/' === $url[1] ) {
+			if ( isset($url[1]) && '/' === $url[1] ) {
 				$url = set_url_scheme( 'http:' . $url );
 			} else {
 				// Host-relative.
