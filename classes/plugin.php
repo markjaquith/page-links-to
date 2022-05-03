@@ -310,6 +310,8 @@ class CWS_PageLinksTo {
 			if ( $total_affected > 0 ) {
 				wp_cache_flush();
 			}
+			// Set the version key, in the instance where the plugin wasn't previously used.
+			update_option( self::VERSION_KEY, 3, false );
 		}
 	}
 
