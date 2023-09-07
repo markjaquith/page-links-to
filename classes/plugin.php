@@ -855,12 +855,15 @@ class CWS_PageLinksTo {
 	public static function wp_nav_menu_objects( $items ) {
 		$new_items = array();
 
-		foreach ( $items as $item ) {
-			if ( isset( $item->object_id ) && self::get_target( $item->object_id ) ) {
-				$item->target = '_blank';
-			}
+		// make sure $items isn't empty and is an array
+		if ( ! empty( $items ) && is_array( $items ) ) {
+			foreach ( $items as $item ) {
+				if ( isset( $item->object_id ) && self::get_target( $item->object_id ) ) {
+					$item->target = '_blank';
+				}
 
-			$new_items[] = $item;
+				$new_items[] = $item;
+			}
 		}
 
 		return $new_items;
