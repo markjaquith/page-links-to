@@ -1,13 +1,13 @@
-import faker from 'faker';
+import { faker } from '@faker-js/faker';
 
 const postSlug = () => {
-	const parts = [faker.lorem.slug(), faker.lorem.slug(), faker.random.number()];
+	const parts = [faker.lorem.slug(), faker.lorem.slug(), faker.number.int()];
 
 	return parts.join('-');
 };
 
 const postTitle = () => {
-	const parts = [faker.lorem.word(), faker.lorem.word(), faker.random.number()];
+	const parts = [faker.lorem.word(), faker.lorem.word(), faker.number.int()];
 
 	return parts.join(' ');
 };
@@ -22,7 +22,6 @@ describe('Quick Links', () => {
 
 	before(() => {
 		cy.login();
-		cy.keepAllCookies();
 		cy.enablePrettyPermalinks();
 		cy.visit('/wp-admin/');
 		cy.location('pathname').should('eq', '/wp-admin/');

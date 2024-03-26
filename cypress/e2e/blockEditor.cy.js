@@ -1,7 +1,7 @@
-import faker from 'faker';
+import { faker } from '@faker-js/faker';
 
 const postTitle = () => {
-	const parts = [faker.lorem.word(), faker.lorem.word(), faker.random.number()];
+	const parts = [faker.lorem.word(), faker.lorem.word(), faker.number.int()];
 
 	return parts.join(' ');
 };
@@ -71,7 +71,6 @@ const save = () => {
 	selectors.saveButton().click();
 	selectors.savedNotice().should('be.visible');
 	cy.reload();
-	cy.get('button[aria-label="Close dialog"]').click({ force: true });
 	openPanel();
 };
 
@@ -82,9 +81,6 @@ describe('Block Editor', () => {
 
 	before(() => {
 		cy.login();
-		Cypress.Cookies.defaults({
-			preserve: () => true,
-		});
 		cy.deactivatePlugin('classic-editor');
 		cy.visit('/wp-admin/post-new.php?post_type=page');
 		cy.url().should('contain', '/wp-admin/post-new.php?post_type=page');
