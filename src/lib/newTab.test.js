@@ -18,30 +18,22 @@ const HTML = `
 </main>
 `;
 
-const expectTransformed = id => {
+const expectTransformed = (id) => {
 	return expectOpensInNewTab(id) && expectHasRelNoopener(id);
 };
 
-const expectNotTransformed = id => {
+const expectNotTransformed = (id) => {
 	return expectDoesNotOpenInNewTab(id) && expectDoesNotHaveRelNoopener(id);
 };
 
-const expectOpensInNewTab = id =>
+const expectOpensInNewTab = (id) =>
 	expect($(id).getAttribute('target')).toEqual('_blank');
-const expectDoesNotOpenInNewTab = id =>
+const expectDoesNotOpenInNewTab = (id) =>
 	expect($(id).getAttribute('target')).not.toEqual('_blank');
-const expectHasRelNoopener = id =>
-	expect(
-		$(id)
-			.getAttribute('rel')
-			.indexOf('noopener') > 0
-	);
-const expectDoesNotHaveRelNoopener = id =>
-	expect(
-		$(id)
-			.getAttribute('rel')
-			.indexOf('noopener') === -1
-	);
+const expectHasRelNoopener = (id) =>
+	expect($(id).getAttribute('rel').indexOf('noopener') > 0);
+const expectDoesNotHaveRelNoopener = (id) =>
+	expect($(id).getAttribute('rel').indexOf('noopener') === -1);
 
 const LATER_HTML = `
 	<div>

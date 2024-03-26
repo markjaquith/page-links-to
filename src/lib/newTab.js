@@ -1,5 +1,5 @@
 // Makes an anchor element open in a new tab.
-export const handleElement = el => {
+export const handleElement = (el) => {
 	const newTabRegex = /#new_tab/;
 	if (
 		el?.tagName?.toUpperCase() === 'A' &&
@@ -17,7 +17,7 @@ export const handleElement = el => {
 	}
 };
 
-const listener = event => handleElement(event.target.closest('a'));
+const listener = (event) => handleElement(event.target.closest('a'));
 
 export const handleClicks = () => {
 	document.addEventListener('click', listener);

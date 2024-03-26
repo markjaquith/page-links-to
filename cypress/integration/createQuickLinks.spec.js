@@ -154,9 +154,7 @@ describe('Quick Links', () => {
 
 	context('modal', () => {
 		it('shows a warning for long slugs', () => {
-			cy.get('@title')
-				.clear()
-				.type(longTitle);
+			cy.get('@title').clear().type(longTitle);
 			cy.get('@lengthWarning').should('be.visible');
 		});
 
@@ -172,7 +170,7 @@ describe('Quick Links', () => {
 			cy.request({
 				url: `/${publishSlug}/`,
 				followRedirect: false,
-			}).then(resp => {
+			}).then((resp) => {
 				expect(resp.status).to.eq(301);
 				expect(resp.redirectedToUrl).to.eq(linkedUrl);
 			});
@@ -184,9 +182,7 @@ describe('Quick Links', () => {
 			cy.get('@title').type(draftTitle);
 			cy.get('@slug').type(draftSlug);
 			cy.get('@url').type(linkedUrl);
-			cy.get('@save')
-				.should('not.be.disabled')
-				.click();
+			cy.get('@save').should('not.be.disabled').click();
 			cy.get('@modal').contains('Page link draft saved!');
 		});
 	});

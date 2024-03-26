@@ -30,7 +30,7 @@ const clickWordPress = () => {
 };
 
 const openPanel = () => {
-	cy.get('@panel').then($panel => {
+	cy.get('@panel').then(($panel) => {
 		if (!$panel.hasClass('is-opened')) {
 			cy.wrap($panel).click();
 		}
@@ -39,17 +39,11 @@ const openPanel = () => {
 
 const assertWordPress = () => {
 	it('normal WordPress URL is selected', () => {
-		selectors
-			.chooseWordPress()
-			.should('be.visible')
-			.and('be.checked');
+		selectors.chooseWordPress().should('be.visible').and('be.checked');
 	});
 
 	it('custom URL is not selected', () => {
-		selectors
-			.chooseCustom()
-			.should('be.visible')
-			.and('not.be.checked');
+		selectors.chooseCustom().should('be.visible').and('not.be.checked');
 	});
 
 	it('custom URL UI is not visible', () => {
@@ -60,17 +54,11 @@ const assertWordPress = () => {
 
 const assertCustom = () => {
 	it('custom URL is selected', () => {
-		selectors
-			.chooseCustom()
-			.should('be.visible')
-			.and('be.checked');
+		selectors.chooseCustom().should('be.visible').and('be.checked');
 	});
 
 	it('normal WordPress URL is not selected', () => {
-		selectors
-			.chooseWordPress()
-			.should('be.visible')
-			.and('not.be.checked');
+		selectors.chooseWordPress().should('be.visible').and('not.be.checked');
 	});
 
 	it('custom URL UI is visible', () => {
@@ -151,10 +139,7 @@ describe('Block Editor', () => {
 	context('url', () => {
 		it('persists through changing link type', () => {
 			clickCustom();
-			selectors
-				.url()
-				.clear()
-				.type(linkedUrl);
+			selectors.url().clear().type(linkedUrl);
 			clickWordPress();
 			clickCustom();
 			selectors.url().should('have.value', linkedUrl);
@@ -190,7 +175,7 @@ describe('Block Editor', () => {
 				url: `/${draftSlug}/`,
 				followRedirect: false,
 				failOnStatusCode: false,
-			}).then(resp => {
+			}).then((resp) => {
 				expect(resp.status).to.eq(301);
 				expect(resp.redirectedToUrl).to.eq(linkedUrl);
 			});

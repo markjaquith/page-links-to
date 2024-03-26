@@ -35,10 +35,10 @@ function cleanUpReleaseFiles() {
 		'src/**',
 	];
 
-	return files.map(file => `release/svn/${file}`);
+	return files.map((file) => `release/svn/${file}`);
 }
 
-module.exports = grunt => {
+module.exports = (grunt) => {
 	// Project configuration
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),

@@ -1,4 +1,4 @@
-jQuery($ => {
+jQuery(($) => {
 	const section = $('#cws-links-to-custom-section');
 	const input = $('input[type=radio]', '#page-links-to');
 
@@ -6,7 +6,7 @@ jQuery($ => {
 		section.fadeTo(1, 0).hide();
 	}
 
-	input.change(function() {
+	input.change(function () {
 		const $this = $(this);
 
 		if ($this.val() === 'wp') {

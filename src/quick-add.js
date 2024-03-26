@@ -1,5 +1,5 @@
 // Copy to clipboard.
-jQuery($ => {
+jQuery(($) => {
 	if (undefined === window.pltVars) {
 		return;
 	}
@@ -9,21 +9,21 @@ jQuery($ => {
 	const { copied, browserNoSupportCopying } = window.pltVars;
 
 	if (ClipboardJS.isSupported()) {
-		$clipboardLinks.click(e => e.preventDefault());
+		$clipboardLinks.click((e) => e.preventDefault());
 	} else {
 		$clipboardLinks.hide();
 	}
 
 	$('.plt-links-to button').click(() => $('#cws-links-to').focus());
 
-	clipboard.on('success', e => {
+	clipboard.on('success', (e) => {
 		const $trigger = $(e.trigger);
 
 		$trigger.text(copied);
 		setTimeout(() => $trigger.text($trigger.data('original-text')), 4000);
 	});
 
-	clipboard.on('error', e => {
+	clipboard.on('error', (e) => {
 		const $trigger = $(e.trigger);
 
 		$trigger.text(browserNoSupportCopying);
@@ -32,7 +32,7 @@ jQuery($ => {
 });
 
 // Quick Add.
-jQuery($ => {
+jQuery(($) => {
 	if (undefined === window.pltVars) {
 		return;
 	}
@@ -53,7 +53,7 @@ jQuery($ => {
 	const defaultSlugPlaceholder = $slug.prop('placeholder');
 	const { fancyUrls } = window.pltVars;
 
-	const modalAction = action => () => $modal.dialog(action);
+	const modalAction = (action) => () => $modal.dialog(action);
 	const isOpen = modalAction('isOpen');
 	const open = modalAction('open');
 	const close = modalAction('close');
@@ -70,7 +70,7 @@ jQuery($ => {
 			.replace(/^-/, '');
 	};
 
-	const addMessage = message => {
+	const addMessage = (message) => {
 		const $newMessage = $(`<p>${message}</p>`);
 		$messages.append($newMessage);
 		return $newMessage;
@@ -82,7 +82,7 @@ jQuery($ => {
 		return $newMessage;
 	};
 
-	const displayShortUrlMessage = show => $shortUrlMessage.toggle(show);
+	const displayShortUrlMessage = (show) => $shortUrlMessage.toggle(show);
 
 	const updateSlug = () => {
 		const placeholderSlug = makeSlugFromTitle($title.val());
@@ -95,7 +95,7 @@ jQuery($ => {
 		$slug.val(slug);
 	};
 
-	const noDefaultEvent = func => e => {
+	const noDefaultEvent = (func) => (e) => {
 		e.preventDefault();
 		func();
 	};
@@ -141,7 +141,7 @@ jQuery($ => {
 				plt_publish: publish ? 1 : 0,
 				plt_nonce: nonce,
 			},
-			response => {
+			(response) => {
 				const { message } = response.data;
 				const delay = 5000;
 				reset();
@@ -188,9 +188,7 @@ jQuery($ => {
 		});
 	};
 
-	$(window)
-		.scroll(repositionModal)
-		.resize(repositionModal);
+	$(window).scroll(repositionModal).resize(repositionModal);
 
 	// Events.
 	if (fancyUrls) {
