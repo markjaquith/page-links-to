@@ -31,7 +31,7 @@ class CWS_PageLinksTo {
 	const DISMISSED_NOTICES = 'page_links_dismissed_options';
 	const MESSAGE_ID = 4;
 	const NEWSLETTER_URL = 'https://pages.convertkit.com/8eb23c1339/1ce4614706';
-	const CSS_JS_VERSION = '3.3.6';
+	const CSS_JS_VERSION = '3.3.7';
 
 	/**
 	 * Whether to replace WP links with their specified URLs.

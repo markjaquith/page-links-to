@@ -74,7 +74,7 @@ class LinksTo extends Component {
 		const { prevUrl, prevNewTab } = this.state;
 		const { onUpdateLink, onUpdateNewTab } = this.props;
 
-		this.setState(prevState => {
+		this.setState((prevState) => {
 			const newState = {
 				enabled: newValue,
 			};
@@ -119,7 +119,7 @@ class LinksTo extends Component {
 					{ label: 'Its normal WordPress URL', value: 'wordpress' },
 					{ label: 'A custom URL', value: 'custom' },
 				]}
-				onChange={option => {
+				onChange={(option) => {
 					setState({ option });
 					this.toggleStatus(option === 'custom');
 				}}
@@ -167,19 +167,19 @@ class LinksTo extends Component {
 }
 
 const PageLinksTo = compose([
-	withSelect(select => {
-		const getMeta = attr =>
+	withSelect((select) => {
+		const getMeta = (attr) =>
 			(select('core/editor').getEditedPostAttribute('meta') || [])[attr];
 		return {
 			url: getMeta('_links_to'),
 			newTab: getMeta('_links_to_target') === '_blank',
 		};
 	}),
-	withDispatch(dispatch => ({
-		onUpdateLink: link => {
+	withDispatch((dispatch) => ({
+		onUpdateLink: (link) => {
 			dispatch('core/editor').editPost({ meta: { _links_to: link } });
 		},
-		onUpdateNewTab: enabled => {
+		onUpdateNewTab: (enabled) => {
 			dispatch('core/editor').editPost({
 				meta: { _links_to_target: enabled ? '_blank' : '' },
 			});

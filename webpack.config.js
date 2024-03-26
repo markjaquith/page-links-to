@@ -5,7 +5,9 @@ const DependencyExtraction = require('@wordpress/dependency-extraction-webpack-p
 const postCssLoader = {
 	loader: 'postcss-loader',
 	options: {
-		plugins: () => [autoprefixer],
+		postcssOptions: {
+			plugins: () => [autoprefixer],
+		},
 	},
 };
 

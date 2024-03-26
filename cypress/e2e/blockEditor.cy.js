@@ -1,7 +1,7 @@
-import faker from 'faker';
+import { faker } from '@faker-js/faker';
 
 const postTitle = () => {
-	const parts = [faker.lorem.word(), faker.lorem.word(), faker.random.number()];
+	const parts = [faker.lorem.word(), faker.lorem.word(), faker.number.int()];
 
 	return parts.join(' ');
 };
@@ -30,7 +30,7 @@ const clickWordPress = () => {
 };
 
 const openPanel = () => {
-	cy.get('@panel').then($panel => {
+	cy.get('@panel').then(($panel) => {
 		if (!$panel.hasClass('is-opened')) {
 			cy.wrap($panel).click();
 		}
@@ -39,17 +39,11 @@ const openPanel = () => {
 
 const assertWordPress = () => {
 	it('normal WordPress URL is selected', () => {
-		selectors
-			.chooseWordPress()
-			.should('be.visible')
-			.and('be.checked');
+		selectors.chooseWordPress().should('be.visible').and('be.checked');
 	});
 
 	it('custom URL is not selected', () => {
-		selectors
-			.chooseCustom()
-			.should('be.visible')
-			.and('not.be.checked');
+		selectors.chooseCustom().should('be.visible').and('not.be.checked');
 	});
 
 	it('custom URL UI is not visible', () => {
@@ -60,17 +54,11 @@ const assertWordPress = () => {
 
 const assertCustom = () => {
 	it('custom URL is selected', () => {
-		selectors
-			.chooseCustom()
-			.should('be.visible')
-			.and('be.checked');
+		selectors.chooseCustom().should('be.visible').and('be.checked');
 	});
 
 	it('normal WordPress URL is not selected', () => {
-		selectors
-			.chooseWordPress()
-			.should('be.visible')
-			.and('not.be.checked');
+		selectors.chooseWordPress().should('be.visible').and('not.be.checked');
 	});
 
 	it('custom URL UI is visible', () => {
@@ -83,7 +71,6 @@ const save = () => {
 	selectors.saveButton().click();
 	selectors.savedNotice().should('be.visible');
 	cy.reload();
-	cy.get('button[aria-label="Close dialog"]').click({ force: true });
 	openPanel();
 };
 
@@ -94,9 +81,6 @@ describe('Block Editor', () => {
 
 	before(() => {
 		cy.login();
-		Cypress.Cookies.defaults({
-			preserve: () => true,
-		});
 		cy.deactivatePlugin('classic-editor');
 		cy.visit('/wp-admin/post-new.php?post_type=page');
 		cy.url().should('contain', '/wp-admin/post-new.php?post_type=page');
@@ -151,10 +135,7 @@ describe('Block Editor', () => {
 	context('url', () => {
 		it('persists through changing link type', () => {
 			clickCustom();
-			selectors
-				.url()
-				.clear()
-				.type(linkedUrl);
+			selectors.url().clear().type(linkedUrl);
 			clickWordPress();
 			clickCustom();
 			selectors.url().should('have.value', linkedUrl);
@@ -190,7 +171,7 @@ describe('Block Editor', () => {
 				url: `/${draftSlug}/`,
 				followRedirect: false,
 				failOnStatusCode: false,
-			}).then(resp => {
+			}).then((resp) => {
 				expect(resp.status).to.eq(301);
 				expect(resp.redirectedToUrl).to.eq(linkedUrl);
 			});
