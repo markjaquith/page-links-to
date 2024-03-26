@@ -10,11 +10,6 @@
     "url": "https://coveredweb.com/"
   },
   "license": "GPL-2.0+",
-  "prettier": {
-    "singleQuote": true,
-    "useTabs": true,
-    "trailingComma": "es5"
-  },
   "jest": {
     "testPathIgnorePatterns": [
       "/node_modules/",
