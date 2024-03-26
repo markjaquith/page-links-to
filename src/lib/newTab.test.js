@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+
 import { handleClicks, handleExistingElements } from './newTab';
 
 const $ = document.getElementById.bind(document);
