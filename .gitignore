@@ -15,3 +15,4 @@
 /cypress/screenshots/
 /cypress/videos/
 /cypress.env.json
+/.phpunit.result.cache
