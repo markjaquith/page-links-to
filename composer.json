@@ -10,5 +10,10 @@
         "sirbrillig/phpcs-variable-analysis": "^2.5",
         "phpcompatibility/php-compatibility": "^9.1",
         "phpcompatibility/phpcompatibility-wp": "*"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
     }
 }
