@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "injectedFiles": [
+    "AGENTS.md",
+    "opencode.json",
+    "CLAUDE.md"
+  ],
+  "baseBranch": "origin/master",
+  "emitBranch": "playwright",
+  "template": "page-links-to",
+  "createdAt": "2026-02-14T22:30:30.217Z"
+}
