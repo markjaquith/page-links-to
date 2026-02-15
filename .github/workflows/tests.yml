@@ -68,8 +68,8 @@ jobs:
       - name: Run PHPUnit
         run: vendor/bin/phpunit
 
-  cypress:
-    name: Cypress E2E
+  playwright:
+    name: Playwright E2E
     runs-on: ubuntu-latest
 
     services:
@@ -106,6 +106,9 @@ jobs:
       - name: Install Node dependencies
         run: yarn install --frozen-lockfile
 
+      - name: Install Playwright browsers
+        run: npx playwright install chromium
+
       - name: Build plugin assets
         run: npx grunt default:prod
 
@@ -134,7 +137,7 @@ jobs:
           # Install Classic Editor for tests that need it
           wp plugin install classic-editor --path=/tmp/wordpress
 
-          # Create wp-cli.yml so that wp commands from Cypress find the WP install
+          # Create wp-cli.yml so that wp commands from tests find the WP install
           echo "path: /tmp/wordpress" > wp-cli.yml
 
       - name: Start WordPress server
@@ -150,28 +153,25 @@ jobs:
             sleep 1
           done
 
-      - name: Run Cypress tests
-        uses: cypress-io/github-action@v6
-        with:
-          install: false
-          browser: chrome
-          config: baseUrl=http://localhost:8080
+      - name: Run Playwright tests
+        run: npx playwright test
         env:
-          CYPRESS_wp_username: admin
-          CYPRESS_wp_password: admin
+          BASE_URL: http://localhost:8080
+          WP_USERNAME: admin
+          WP_PASSWORD: admin
 
-      - name: Upload Cypress screenshots on failure
+      - name: Upload Playwright report on failure
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: cypress-screenshots
-          path: cypress/screenshots
+          name: playwright-report
+          path: playwright-report/
           if-no-files-found: ignore
 
-      - name: Upload Cypress videos
+      - name: Upload Playwright test results on failure
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: cypress-videos
-          path: cypress/videos
+          name: playwright-test-results
+          path: test-results/
           if-no-files-found: ignore

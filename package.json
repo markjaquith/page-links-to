@@ -14,22 +14,22 @@
     "testPathIgnorePatterns": [
       "/node_modules/",
       "/release/",
-      "/cypress/",
+      "/e2e/",
       "/__tests__/shared/"
     ],
     "watchPathIgnorePatterns": [
       "/node_modules/",
       "/release/",
-      "/cypress/"
+      "/e2e/"
     ]
   },
   "scripts": {
     "build": "grunt",
     "release": "grunt release",
     "jest": "jest",
-    "cypress": "cypress run",
+    "e2e": "playwright test",
     "phpunit": "vendor/bin/phpunit",
-    "test": "jest && cypress run && vendor/bin/phpunit"
+    "test": "jest && playwright test && vendor/bin/phpunit"
   },
   "dependencies": {
     "@babel/core": "^7.7.2",
@@ -77,7 +77,7 @@
   "keywords": [],
   "devDependencies": {
     "@faker-js/faker": "^8.4.1",
-    "cypress": "^15.10.0",
+    "@playwright/test": "^1.58.2",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0"
   }

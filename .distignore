@@ -11,8 +11,9 @@ node_modules
 /.gitignore
 /.gitmodules
 /tests
-/cypress
-/cypress.*
+/e2e
+/artifacts
+/playwright.config.js
 /bin
 /.travis.yml
 /phpunit.xml.dist

@@ -14,7 +14,7 @@
 # PHPUnit
 .phpunit.result.cache
 
-# Cypress
-/cypress/screenshots/
-/cypress/videos/
-/cypress.env.json
+# Playwright
+/playwright-report/
+/test-results/
+/artifacts/storage-states/

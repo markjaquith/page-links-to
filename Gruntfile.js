@@ -16,8 +16,9 @@ const ignores = [
 	'!phpunit.xml',
 	'!composer.json',
 	'!composer.lock',
-	'!cypress/**',
-	'!cypress.*',
+	'!e2e/**',
+	'!artifacts/**',
+	'!playwright.config.js',
 	'!phpcs.xml',
 	'!phpunit.xml.dist',
 ];
@@ -199,7 +200,7 @@ module.exports = (grunt) => {
 				trailingComma: 'es5',
 			},
 			default: {
-				src: ['src/**/*.js', 'Gruntfile.js', 'cypress/integration/**.js'],
+				src: ['src/**/*.js', 'Gruntfile.js', 'e2e/**/*.js'],
 			},
 		},
 
