@@ -18,11 +18,22 @@ WP_TESTS_DIR=${WP_TESTS_DIR-$TMPDIR/wordpress-tests-lib}
 WP_CORE_DIR=${WP_CORE_DIR-$TMPDIR/wordpress/}
 
 download() {
-    if [ `which curl` ]; then
-        curl -s "$1" > "$2";
-    elif [ `which wget` ]; then
+    if [ "$(which curl)" ]; then
+        curl -fsSL "$1" > "$2"
+    elif [ "$(which wget)" ]; then
         wget -nv -O "$2" "$1"
     fi
+}
+
+get_latest_wp_version() {
+	local version_check_file="$TMPDIR/wp-latest.json"
+	download https://api.wordpress.org/core/version-check/1.7/ "$version_check_file"
+
+	LATEST_VERSION=$(tr -d '[:space:]' < "$version_check_file" | grep -Eo '"current":"[^"]+"' | head -1 | sed 's/"current":"//;s/"$//')
+
+	if [[ -z "$LATEST_VERSION" ]]; then
+		LATEST_VERSION=$(tr -d '[:space:]' < "$version_check_file" | grep -Eo '"version":"[^"]+"' | sed 's/"version":"//;s/"$//' | head -1)
+	fi
 }
 
 if [[ $WP_VERSION =~ ^[0-9]+\.[0-9]+\-(beta|RC)[0-9]+$ ]]; then
@@ -41,10 +52,7 @@ elif [[ $WP_VERSION =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
 elif [[ $WP_VERSION == 'nightly' || $WP_VERSION == 'trunk' ]]; then
 	WP_TESTS_TAG="trunk"
 else
-	# http serves a single offer, whereas https serves multiple. we only want one
-	download http://api.wordpress.org/core/version-check/1.7/ /tmp/wp-latest.json
-	grep '[0-9]+\.[0-9]+(\.[0-9]+)?' /tmp/wp-latest.json
-	LATEST_VERSION=$(grep -o '"version":"[^"]*' /tmp/wp-latest.json | sed 's/"version":"//')
+	get_latest_wp_version
 	if [[ -z "$LATEST_VERSION" ]]; then
 		echo "Latest WordPress version could not be found"
 		exit 1

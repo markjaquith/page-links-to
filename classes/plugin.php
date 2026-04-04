@@ -32,6 +32,8 @@ class CWS_PageLinksTo {
 	const MESSAGE_ID = 4;
 	const NEWSLETTER_URL = 'https://pages.convertkit.com/8eb23c1339/1ce4614706';
 	const CSS_JS_VERSION = '3.4.0';
+	const ALWAYS_SUPPORTED_POST_TYPES = array( 'page' );
+	const OMITTED_POST_TYPES = array( 'wp_block', 'wp-help' );
 
 	/**
 	 * Whether to replace WP links with their specified URLs.
@@ -504,20 +506,22 @@ class CWS_PageLinksTo {
 	/**
 	 * Get the default post types that support custom links.
 	 *
-	 * Returns post types that are publicly queryable with a UI,
-	 * plus the 'page' post type (which is public but not publicly_queryable).
+	 * Returns post types that have a UI, except for post types omitted manually,
+	 * plus the 'page' post type.
 	 *
 	 * @return array<string> List of post type names.
 	 */
 	public static function get_default_post_types() {
 		$post_types = array_keys( get_post_types( array(
-			'publicly_queryable' => true,
 			'show_ui'            => true,
 		) ) );
 
-		// Pages are public but not publicly_queryable, and are a core use case.
-		if ( ! in_array( 'page', $post_types, true ) ) {
-			$post_types[] = 'page';
+		$post_types = array_values( array_diff( $post_types, self::OMITTED_POST_TYPES ) );
+
+		foreach ( self::ALWAYS_SUPPORTED_POST_TYPES as $post_type ) {
+			if ( ! in_array( $post_type, $post_types, true ) ) {
+				$post_types[] = $post_type;
+			}
 		}
 
 		return $post_types;
