@@ -32,8 +32,8 @@ class CWS_PageLinksTo {
 	const MESSAGE_ID = 4;
 	const NEWSLETTER_URL = 'https://pages.convertkit.com/8eb23c1339/1ce4614706';
 	const CSS_JS_VERSION = '3.4.1';
-	const ALWAYS_SUPPORTED_POST_TYPES = array( 'page' );
-	const OMITTED_POST_TYPES = array( 'wp_block', 'wp-help' );
+	const ALWAYS_SUPPORTED_POST_TYPES = [ 'page' ];
+	const OMITTED_POST_TYPES = [ 'wp_block', 'wp-help' ];
 
 	/**
 	 * Whether to replace WP links with their specified URLs.
@@ -91,7 +91,7 @@ class CWS_PageLinksTo {
 			}
 		}
 
-		return add_action( $hook, array( $this, $method ), $priority, 999 ); // @phpstan-ignore argument.type
+		return add_action( $hook, [ $this, $method ], $priority, 999 ); // @phpstan-ignore argument.type
 	}
 
 	/**
@@ -101,7 +101,7 @@ class CWS_PageLinksTo {
 	 * @return string The sanitized method name.
 	 */
 	private static function sanitize_method( $method ) {
-		return str_replace( array( '.', '-' ), array( '_DOT_', '_DASH_' ), $method );
+		return str_replace( [ '.', '-' ], [ '_DOT_', '_DASH_' ], $method );
 	}
 
 	/**
@@ -112,7 +112,7 @@ class CWS_PageLinksTo {
 	 * @param array<string,mixed> $data A named array of data to globalize.
 	 * @return void
 	 */
-	public function include_file( $file, $data = array() ) {
+	public function include_file( $file, $data = [] ) {
 		extract( $data, EXTR_SKIP );
 		include( $this->get_path() . $file );
 	}
@@ -255,13 +255,13 @@ class CWS_PageLinksTo {
 		return register_meta(
 			'post',
 			$key,
-			array(
+			[
 				'object_subtype' => $post_type,
 				'type' => 'string',
 				'single' => true,
 				'show_in_rest' => true,
-				'auth_callback' => array( $this, 'rest_auth' ),
-			)
+				'auth_callback' => [ $this, 'rest_auth' ],
+			]
 		);
 	}
 
@@ -294,11 +294,11 @@ class CWS_PageLinksTo {
 			/** @var \wpdb $wpdb */
 			global $wpdb;
 			$total_affected = 0;
-			foreach ( array( '', '_target', '_type' ) as $meta_key ) {
+			foreach ( [ '', '_target', '_type' ] as $meta_key ) {
 				$meta_key = 'links_to' . $meta_key;
-				$affected = $wpdb->update( $wpdb->postmeta, array(
+				$affected = $wpdb->update( $wpdb->postmeta, [
 					'meta_key' => '_' . $meta_key,
-				), compact( 'meta_key' ) );
+				], compact( 'meta_key' ) );
 				if ( is_int( $affected ) && $affected > 0 ) {
 					$total_affected += $affected;
 				}
@@ -330,7 +330,7 @@ class CWS_PageLinksTo {
 	 */
 	public function wp_enqueue_scripts() {
 		if ( self::supports( 'new_tab' ) ) {
-			wp_enqueue_script( 'page-links-to', $this->get_url() . 'dist/new-tab.js', array(), self::CSS_JS_VERSION, true );
+			wp_enqueue_script( 'page-links-to', $this->get_url() . 'dist/new-tab.js', [], self::CSS_JS_VERSION, true );
 		}
 	}
 
@@ -341,9 +341,9 @@ class CWS_PageLinksTo {
 	 */
 	public function admin_enqueue_scripts() {
 		if ( !is_customize_preview() && current_user_can( 'edit_posts' ) ) {
-			wp_register_script( 'plt-clipboard', $this->get_url() . 'dist/clipboard.min.js', array(), self::CSS_JS_VERSION, true );
-			wp_enqueue_script( 'plt-quick-add', $this->get_url() . 'dist/quick-add.js', array( 'plt-clipboard', 'jquery-ui-dialog' ), self::CSS_JS_VERSION, true );
-			wp_enqueue_style( 'plt-quick-add', $this->get_url() . 'dist/quick-add.css', array( 'wp-jquery-ui-dialog' ), self::CSS_JS_VERSION );
+			wp_register_script( 'plt-clipboard', $this->get_url() . 'dist/clipboard.min.js', [], self::CSS_JS_VERSION, true );
+			wp_enqueue_script( 'plt-quick-add', $this->get_url() . 'dist/quick-add.js', [ 'plt-clipboard', 'jquery-ui-dialog' ], self::CSS_JS_VERSION, true );
+			wp_enqueue_style( 'plt-quick-add', $this->get_url() . 'dist/quick-add.css', [ 'wp-jquery-ui-dialog' ], self::CSS_JS_VERSION );
 		}
 	}
 
@@ -378,12 +378,12 @@ class CWS_PageLinksTo {
 	 */
 	public function admin_bar_menu( $bar ) {
 		if ( is_admin() ) {
-			$bar->add_node( array(
+			$bar->add_node( [
 				'id' => 'new-page-link',
 				'title' => __( 'Page Link', 'page-links-to' ),
 				'parent' => 'new-content',
 				'href' => '#new-page-link',
-			));
+			]);
 		}
 	}
 
@@ -396,7 +396,7 @@ class CWS_PageLinksTo {
 	 */
 	public function page_row_actions( $actions, $post ) {
 		if ( self::get_link( $post ) ) {
-			$new_actions = array();
+			$new_actions = [];
 			$inserted = false;
 			$original_url = (string) $this->original_link( $post->ID );
 			$original_html = '<a href="' . esc_attr( $original_url ) . '" class="plt-copy-short-url" data-clipboard-text="' . esc_attr( $original_url ) . '" data-original-text="' . __( 'Copy Short URL', 'page-links-to' ) . '">' . __( 'Copy Short URL', 'page-links-to' ) . '</a>';
@@ -499,7 +499,7 @@ class CWS_PageLinksTo {
 	 */
 	public function do_meta_boxes( $page, $context ) {
 		if ( ! self::is_block_editor() && self::is_supported_post_type( $page ) && 'advanced' === $context ) {
-			add_meta_box( 'page-links-to', self::get_panel_title(), array( $this, 'meta_box' ), $page, 'advanced', 'low' );
+			add_meta_box( 'page-links-to', self::get_panel_title(), [ $this, 'meta_box' ], $page, 'advanced', 'low' );
 		}
 	}
 
@@ -512,9 +512,9 @@ class CWS_PageLinksTo {
 	 * @return array<string> List of post type names.
 	 */
 	public static function get_default_post_types() {
-		$post_types = array_keys( get_post_types( array(
+		$post_types = array_keys( get_post_types( [
 			'show_ui'            => true,
-		) ) );
+		] ) );
 
 		$post_types = array_values( array_diff( $post_types, self::OMITTED_POST_TYPES ) );
 
@@ -789,13 +789,13 @@ class CWS_PageLinksTo {
 	 * @return array<int|WP_Post> Array of post objects.
 	 */
 	public static function get_custom_url_posts( $url ) {
-		$result = new WP_Query(array(
+		$result = new WP_Query([
 			'post_type' => 'any',
 			'meta_key' => self::LINK_META_KEY,
 			'meta_value' => $url,
 			'posts_per_page' => -1,
 			'post_status' => 'any',
-		));
+		]);
 
 		return $result->posts;
 	}
@@ -806,12 +806,12 @@ class CWS_PageLinksTo {
 	 * @return array<int|WP_Post> Array of post objects.
 	 */
 	public static function get_all_custom_url_posts() {
-		$result = new WP_Query(array(
+		$result = new WP_Query([
 			'post_type' => 'any',
 			'meta_key' => self::LINK_META_KEY,
 			'posts_per_page' => -1,
 			'post_status' => 'any',
-		));
+		]);
 
 		return $result->posts;
 	}
@@ -868,7 +868,7 @@ class CWS_PageLinksTo {
 	 * @param array<WP_Post>  $pages Array of WP_Post objects.
 	 * @return string the modified HTML block.
 	 */
-	function wp_list_pages( $output, $_args = array(), $pages = array() ) {
+	function wp_list_pages( $output, $_args = [], $pages = [] ) {
 		if ( empty( $pages ) ) {
 			return $output;
 		}
@@ -908,7 +908,7 @@ class CWS_PageLinksTo {
 			return $items;
 		}
 
-		$new_items = array();
+		$new_items = [];
 
 		foreach ( $items as $item ) {
 			if ( is_object( $item ) && isset( $item->object_id ) && is_numeric( $item->object_id ) && self::get_target( (int) $item->object_id ) ) {
@@ -959,12 +959,12 @@ class CWS_PageLinksTo {
 			$slug    = isset( $_POST['plt_slug'] ) && is_string( $_POST['plt_slug'] ) ? stripslashes( $_POST['plt_slug'] ) : '';
 			$publish = ! empty( $_POST['plt_publish'] ) && current_user_can( 'publish_pages' );
 
-			$post_id = wp_insert_post(array(
+			$post_id = wp_insert_post([
 				'post_type' => 'page',
 				'post_status' => $publish ? 'publish' : 'draft',
 				'post_title' => $title,
 				'post_name' => $slug,
-			));
+			]);
 
 			$this->set_link( $post_id, $url );
 
@@ -976,7 +976,7 @@ class CWS_PageLinksTo {
 
 			$message = $publish ? __( 'New page link published!', 'page-links-to' ) : __( 'Page link draft saved!', 'page-links-to' );
 
-			wp_send_json_success( array(
+			wp_send_json_success( [
 				'id'      => $post->ID,
 				'title'   => $post->post_title,
 				'wpUrl'   => $this->original_link( $post->ID ),
@@ -984,7 +984,7 @@ class CWS_PageLinksTo {
 				'slug'    => $post->post_name,
 				'status'  => $post->post_status,
 				'message' => $message,
-			));
+			]);
 		}
 	}
 
@@ -1003,10 +1003,10 @@ class CWS_PageLinksTo {
 	 * @return array<int> The list of notice IDs that have been dismissed.
 	 */
 	public static function get_dismissed_notices() {
-		$notices = get_option( self::DISMISSED_NOTICES, array() );
+		$notices = get_option( self::DISMISSED_NOTICES, [] );
 
 		if ( ! is_array( $notices ) ) {
-			return array();
+			return [];
 		}
 
 		return array_map( static function ( $notice ): int {
@@ -1094,7 +1094,7 @@ class CWS_PageLinksTo {
 	 * @return void
 	 */
 	public static function block_editor_notification( $text, $type = 'info' ) {
-		if ( ! in_array( $type, array( 'error', 'warning', 'info' ) ) ) {
+		if ( ! in_array( $type, [ 'error', 'warning', 'info' ] ) ) {
 			return;
 		}
 
@@ -1171,7 +1171,7 @@ class CWS_PageLinksTo {
 		if ( $file === plugin_basename( $this->file ) ) {
 			return array_merge(
 				$links,
-				array( '<a href="https://github.com/markjaquith/page-links-to" target="_blank">GitHub</a>' )
+				[ '<a href="https://github.com/markjaquith/page-links-to" target="_blank">GitHub</a>' ]
 			);
 		} else {
 			return $links;
@@ -1191,9 +1191,9 @@ class CWS_PageLinksTo {
 		if ( $link ) {
 			$link = $this->absolute_url( $link );
 			$output = '';
-			$output_parts = array(
+			$output_parts = [
 				'custom' => '<a title="' . __( 'Linked URL', 'page-links-to' ) . '" href="' . esc_url( $link ) . '" class="plt-post-state-link"><span class="dashicons dashicons-admin-links"></span><span class="url"> ' . esc_url( $link ) . '</span></a>',
-			);
+			];
 			/** @var array<string,string> $output_parts */
 			$output_parts = apply_filters( 'page_links_to_post_state_parts', $output_parts, $post, $link );
 			$output .= '<span class="plt-post-info">' . implode( $output_parts ) . '</span>';

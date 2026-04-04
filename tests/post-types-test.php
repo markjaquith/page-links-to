@@ -2,32 +2,32 @@
 
 class CWS_PLT_Test_Post_Types extends CWS_PLT_TestCase {
 	public function test_get_default_post_types_includes_show_ui_types_and_omits_manual_exclusions(): void {
-		register_post_type( 'plt_queryless_ui', array(
+		register_post_type( 'plt_queryless_ui', [
 			'public'             => true,
 			'publicly_queryable' => false,
 			'show_ui'            => true,
-		) );
+		] );
 
-		register_post_type( 'plt_no_ui', array(
+		register_post_type( 'plt_no_ui', [
 			'public'             => true,
 			'publicly_queryable' => true,
 			'show_ui'            => false,
-		) );
+		] );
 
 		$wp_help_registered_by_test = post_type_exists( 'wp-help' );
 		if ( ! $wp_help_registered_by_test ) {
-			register_post_type( 'wp-help', array(
+			register_post_type( 'wp-help', [
 				'public'  => true,
 				'show_ui' => true,
-			) );
+			] );
 		}
 
 		$wp_block_registered_by_test = post_type_exists( 'wp_block' );
 		if ( ! $wp_block_registered_by_test ) {
-			register_post_type( 'wp_block', array(
+			register_post_type( 'wp_block', [
 				'public'  => true,
 				'show_ui' => true,
-			) );
+			] );
 		}
 
 		try {
