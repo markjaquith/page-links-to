@@ -2,7 +2,7 @@
 
 class CWS_PLT_Test_Saving extends CWS_PLT_TestCase {
 	public function test_setting_and_updating_url(): void {
-		$post_id = $this->factory->post->create( array( 'post_type' => 'post' ) );
+		$post_id = $this->factory->post->create( [ 'post_type' => 'post' ] );
 		$this->assertTrue( $this->plugin()->set_link( $post_id, 'http://example.com/' ) );
 		$this->assertEquals( 'http://example.com/', $this->plugin()->get_link( $post_id ) );
 		// This update changes nothing, so should return false
@@ -12,14 +12,14 @@ class CWS_PLT_Test_Saving extends CWS_PLT_TestCase {
 	}
 
 	public function test_deleting_url(): void {
-		$post_id = $this->factory->post->create( array( 'post_type' => 'post' ) );
+		$post_id = $this->factory->post->create( [ 'post_type' => 'post' ] );
 		$this->assertTrue( $this->plugin()->set_link( $post_id, 'http://example.com/' ) );
 		$this->assertTrue( $this->plugin()->delete_link( $post_id ) );
 		$this->assertFalse( $this->plugin()->get_link( $post_id ) );
 	}
 
 	public function test_setting_new_tab(): void {
-		$post_id = $this->factory->post->create( array( 'post_type' => 'post' ) );
+		$post_id = $this->factory->post->create( [ 'post_type' => 'post' ] );
 		$this->assertTrue( $this->plugin()->set_link( $post_id, 'http://example.com/' ) );
 		$this->assertFalse( $this->plugin()->get_target( $post_id ) );
 		$this->assertTrue( $this->plugin()->set_link_new_tab( $post_id ) );
@@ -33,7 +33,7 @@ class CWS_PLT_Test_Saving extends CWS_PLT_TestCase {
 	}
 
 	public function test_deleting_url_also_deletes_target(): void {
-		$post_id = $this->factory->post->create( array( 'post_type' => 'post' ) );
+		$post_id = $this->factory->post->create( [ 'post_type' => 'post' ] );
 		$this->assertTrue( $this->plugin()->set_link( $post_id, 'http://example.com/' ) );
 		$this->assertTrue( $this->plugin()->set_link_new_tab( $post_id ) );
 		$this->assertTrue( $this->plugin()->get_target( $post_id ) );
@@ -42,9 +42,9 @@ class CWS_PLT_Test_Saving extends CWS_PLT_TestCase {
 	}
 
 	public function test_updating_attachment(): void {
-		$user_id = $this->factory->user->create( array( 'role' => 'editor' ) );
+		$user_id = $this->factory->user->create( [ 'role' => 'editor' ] );
 		wp_set_current_user( $user_id );
-		$post_id = $this->factory->post->create( array( 'post_type' => 'attachment', 'post_author' => $user_id ) );
+		$post_id = $this->factory->post->create( [ 'post_type' => 'attachment', 'post_author' => $user_id ] );
 
 		$this->set_post( '_cws_plt_nonce', wp_create_nonce( 'cws_plt_' . $post_id ) );
 
@@ -57,9 +57,9 @@ class CWS_PLT_Test_Saving extends CWS_PLT_TestCase {
 	}
 
 	public function test_updating_post(): void {
-		$user_id = $this->factory->user->create( array( 'role' => 'editor' ) );
+		$user_id = $this->factory->user->create( [ 'role' => 'editor' ] );
 		wp_set_current_user( $user_id );
-		$post_id = $this->factory->post->create( array( 'post_type' => 'post', 'post_author' => $user_id ) );
+		$post_id = $this->factory->post->create( [ 'post_type' => 'post', 'post_author' => $user_id ] );
 
 		$this->set_post( '_cws_plt_nonce', wp_create_nonce( 'cws_plt_' . $post_id ) );
 
@@ -96,7 +96,7 @@ class CWS_PLT_Test_Saving extends CWS_PLT_TestCase {
 		$this->assertTrue( $this->plugin()->get_target( $post_id ) );
 
 		// New post
-		$post_id = $this->factory->post->create( array( 'post_type' => 'post', 'post_author' => $user_id ) );
+		$post_id = $this->factory->post->create( [ 'post_type' => 'post', 'post_author' => $user_id ] );
 
 		// Nonce missing
 		$this->unset_post( '_cws_plt_nonce' );

@@ -2,7 +2,7 @@
 
 class CWS_PLT_Test_Admin extends CWS_PLT_TestCase {
 	public function test_plugin_row_meta(): void {
-		$metas = apply_filters( 'plugin_row_meta', array( 'one', 'two' ), plugin_basename( CWS_PageLinksTo::get_instance()->get_file() ) );
+		$metas = apply_filters( 'plugin_row_meta', [ 'one', 'two' ], plugin_basename( CWS_PageLinksTo::get_instance()->get_file() ) );
 		$this->assertEquals( 3, count( $metas ) );
 		$this->assertStringContainsString( 'GitHub', array_pop( $metas ) );
 	}

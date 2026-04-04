@@ -2,6 +2,12 @@
 <ruleset name="Slightly relaxed WordPress coding standards">
 	<description>Based on the WordPress coding standards</description>
 
+	<file>page-links-to.php</file>
+	<file>classes</file>
+	<file>inc</file>
+	<file>templates</file>
+	<file>tests</file>
+
 	<rule ref="PHPCompatibility"/>
 	<config name="testVersion" value="7.0-"/>
 
@@ -22,6 +28,5 @@
 	<rule ref="PEAR.Functions.FunctionCallSignature.SpaceBeforeCloseBracket"/>
 
 	<rule ref="WordPress-Docs"/>
-	<!-- Will uncomment this when I start requiring PHP 5.4+ in 2019 -->
-	<!--<rule ref="Generic.Arrays.DisallowLongArraySyntax"/>-->
+	<rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
 </ruleset>
