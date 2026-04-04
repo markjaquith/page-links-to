@@ -31,7 +31,7 @@ class CWS_PageLinksTo {
 	const DISMISSED_NOTICES = 'page_links_dismissed_options';
 	const MESSAGE_ID = 4;
 	const NEWSLETTER_URL = 'https://pages.convertkit.com/8eb23c1339/1ce4614706';
-	const CSS_JS_VERSION = '3.4.0';
+	const CSS_JS_VERSION = '3.4.1';
 	const ALWAYS_SUPPORTED_POST_TYPES = array( 'page' );
 	const OMITTED_POST_TYPES = array( 'wp_block', 'wp-help' );
 

@@ -21,6 +21,7 @@ const ignores = [
 	'!playwright.config.js',
 	'!phpcs.xml',
 	'!phpunit.xml.dist',
+	'!AGENTS.md',
 ];
 
 function cleanUpReleaseFiles() {
