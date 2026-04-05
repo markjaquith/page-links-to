@@ -35,10 +35,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 // Main plugin class.
-require( dirname( __FILE__ ) . '/classes/plugin.php' );
+require __DIR__ . '/classes/plugin.php';
 
 // Functions.
-require( dirname( __FILE__ ) . '/inc/functions.php' );
+require __DIR__ . '/inc/functions.php';
 
 // Bootstrap everything.
 new CWS_PageLinksTo( __FILE__ );
