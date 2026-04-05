@@ -29,4 +29,9 @@
 
 	<rule ref="WordPress-Docs"/>
 	<rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
+
+	<rule ref="WordPress.Security.EscapeOutput"/>
+	<rule ref="Generic.CodeAnalysis.UnusedFunctionParameter"/>
+	<rule ref="Generic.CodeAnalysis.EmptyStatement"/>
+	<rule ref="WordPress.PHP.StrictInArray"/>
 </ruleset>
