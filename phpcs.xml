@@ -34,4 +34,5 @@
 	<rule ref="Generic.CodeAnalysis.UnusedFunctionParameter"/>
 	<rule ref="Generic.CodeAnalysis.EmptyStatement"/>
 	<rule ref="WordPress.PHP.StrictInArray"/>
+	<rule ref="Generic.ControlStructures.InlineControlStructure"/>
 </ruleset>
