@@ -268,12 +268,12 @@ class CWS_PageLinksTo {
 	/**
 	 * Determines REST API authentication.
 	 *
-	 * @param bool          $allowed Whether it is allowed.
-	 * @param string        $meta_key The meta key being checked.
+	 * @param bool          $_allowed Whether it is allowed.
+	 * @param string        $_meta_key The meta key being checked.
 	 * @param int           $post_id The post ID being checked.
 	 * @param int           $user_id The user ID being checked.
-	 * @param string        $cap The current capability.
-	 * @param array<string> $caps All capabilities.
+	 * @param string        $_cap The current capability.
+	 * @param array<string> $_caps All capabilities.
 	 * @return bool Whether the user can do it.
 	 */
 	public function rest_auth( $_allowed, $_meta_key, $post_id, $user_id, $_cap, $_caps ) {
