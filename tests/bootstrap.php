@@ -23,7 +23,7 @@ require_once $_tests_dir . '/includes/functions.php';
  * Manually load the plugin being tested.
  */
 function _manually_load_plugin() {
-	require dirname( dirname( __FILE__ ) ) . '/page-links-to.php';
+	require dirname( __DIR__, 1 ) . '/page-links-to.php';
 }
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 
@@ -36,10 +36,10 @@ class CWS_PLT_TestCase extends WP_UnitTestCase {
 	}
 
 	public function set_post( $key, $value ): void {
-		$_POST[$key] = $_REQUEST[$key] = addslashes( $value );
+		$_POST[ $key ] = $_REQUEST[ $key ] = addslashes( $value );
 	}
 
 	public function unset_post( $key ): void {
-		unset( $_POST[$key], $_REQUEST[$key] );
+		unset( $_POST[ $key ], $_REQUEST[ $key ] );
 	}
 }

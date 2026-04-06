@@ -23,7 +23,7 @@ pltVars['addPageLink'] = <?php echo json_encode( __( 'Add Page Link', 'page-link
 
 			<?php if ( get_option( 'permalink_structure' ) ) { ?>
 				<br />
-				<label><span><?php _e( 'Short URL', 'page-links-pro' ); ?> <code><?php echo esc_url( trailingslashit( home_url('/') ) ); ?></code></span><input type="text" name="slug" placeholder="<?php esc_attr_e( 'page-title', 'page-links-pro' ); ?>" autocomplete="off" /></label>
+				<label><span><?php _e( 'Short URL', 'page-links-pro' ); ?> <code><?php echo esc_url( trailingslashit( home_url( '/' ) ) ); ?></code></span><input type="text" name="slug" placeholder="<?php esc_attr_e( 'page-title', 'page-links-pro' ); ?>" autocomplete="off" /></label>
 				<p class="short-url-message" style="display: none;"><?php _e( 'You should customize this short URL to make it shorter and more memorable!', 'page-links-to' ); ?></p>
 			<?php } ?>
 

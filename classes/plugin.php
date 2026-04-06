@@ -268,15 +268,15 @@ class CWS_PageLinksTo {
 	/**
 	 * Determines REST API authentication.
 	 *
-	 * @param bool          $allowed Whether it is allowed.
-	 * @param string        $meta_key The meta key being checked.
+	 * @param bool          $_allowed Whether it is allowed.
+	 * @param string        $_meta_key The meta key being checked.
 	 * @param int           $post_id The post ID being checked.
 	 * @param int           $user_id The user ID being checked.
-	 * @param string        $cap The current capability.
-	 * @param array<string> $caps All capabilities.
+	 * @param string        $_cap The current capability.
+	 * @param array<string> $_caps All capabilities.
 	 * @return bool Whether the user can do it.
 	 */
-	public function rest_auth( $allowed, $meta_key, $post_id, $user_id, $cap, $caps ) {
+	public function rest_auth( $_allowed, $_meta_key, $post_id, $user_id, $_cap, $_caps ) {
 		return user_can( $user_id, 'edit_post', $post_id );
 	}
 
@@ -552,7 +552,7 @@ class CWS_PageLinksTo {
 
 		$supported_post_types = (array) apply_filters( $hook, self::get_default_post_types() );
 
-		return in_array( $type, $supported_post_types );
+		return in_array( $type, $supported_post_types, true );
 	}
 
 	/**
@@ -868,7 +868,7 @@ class CWS_PageLinksTo {
 	 * @param array<WP_Post>  $pages Array of WP_Post objects.
 	 * @return string the modified HTML block.
 	 */
-	function wp_list_pages( $output, $_args = [], $pages = [] ) {
+	function wp_list_pages( $output, $_args, $pages ) {
 		if ( empty( $pages ) ) {
 			return $output;
 		}
@@ -1046,9 +1046,7 @@ class CWS_PageLinksTo {
 	 * @return void
 	 */
 	public static function notify_generic() {
-		if ( self::is_block_editor() ) {
-			// Nothing right now.
-		} else {
+		if ( ! self::is_block_editor() ) {
 			?>
 			<div id="page-links-to-notification" class="notice updated is-dismissible"><h3><?php _e( 'Page Links To', 'page-links-to' ); ?></h3>
 				<p><a class="button plt-dismiss" target="_blank" href="<?php echo esc_url( self::NEWSLETTER_URL ); ?>"><?php _e( 'Give Me Updates', 'page-links-to' ); ?></a>&nbsp;&nbsp;<small><a href="javascript:void(0)" class="plt-dismiss"><?php _e( 'No thanks', 'page-links-to' ); ?></a></small></p>
@@ -1094,7 +1092,7 @@ class CWS_PageLinksTo {
 	 * @return void
 	 */
 	public static function block_editor_notification( $text, $type = 'info' ) {
-		if ( ! in_array( $type, [ 'error', 'warning', 'info' ] ) ) {
+		if ( ! in_array( $type, [ 'error', 'warning', 'info' ], true ) ) {
 			return;
 		}
 
