@@ -853,7 +853,7 @@ class CWS_PageLinksTo {
 			}
 		}
 
-		if ( 'mailto' !== parse_url( $url, PHP_URL_SCHEME ) ) {
+		if ( 'mailto' !== wp_parse_url( $url, PHP_URL_SCHEME ) ) {
 			$url = str_replace( '@', '%40', $url );
 		}
 
@@ -1060,7 +1060,7 @@ class CWS_PageLinksTo {
 								type: 'GET',
 								data: {
 									action: 'plt_dismiss_notice',
-									plt_notice: <?php echo json_encode( self::MESSAGE_ID ); ?>
+									plt_notice: <?php echo wp_json_encode( self::MESSAGE_ID ); ?>
 								}
 							});
 						})
@@ -1102,7 +1102,7 @@ class CWS_PageLinksTo {
 			<script>
 				document.addEventListener('DOMContentLoaded', function() {
 					if (wp.data !== undefined) {
-						wp.data.dispatch('core/notices').<?php echo $method; ?>(<?php echo json_encode( $text ); ?>, {isDismissible: true, id: 'page-links-to-notice'});
+						wp.data.dispatch('core/notices').<?php echo $method; ?>(<?php echo wp_json_encode( $text ); ?>, {isDismissible: true, id: 'page-links-to-notice'});
 					}
 				});
 			</script>
